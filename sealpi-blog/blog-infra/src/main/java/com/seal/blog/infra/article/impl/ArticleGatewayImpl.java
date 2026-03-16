@@ -36,8 +36,16 @@ public class ArticleGatewayImpl implements ArticleGateway {
     @Override
     public void save(Article article) {
         ArticlePO articlePO = converter.toPO(article);
-        articleMapper.insert(articlePO);
-        article.assignId(articlePO.getArticleId());
+
+        // Treat save() as upsert: insert when id is null, otherwise update.
+        // This matches the application-layer semantics for create/update flows.
+        if (articlePO.getArticleId() == null) {
+            articleMapper.insert(articlePO);
+            article.assignId(articlePO.getArticleId());
+            return;
+        }
+
+        articleMapper.updateById(articlePO);
     }
 
     @Override

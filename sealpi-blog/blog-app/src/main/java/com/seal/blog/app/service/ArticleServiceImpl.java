@@ -3,6 +3,8 @@ package com.seal.blog.app.service;
 import com.seal.blog.app.assembler.ArticleAssembler;
 import com.seal.blog.client.article.api.ArticleServiceI;
 import com.seal.blog.client.article.dto.cmd.ArticleCreateCmd;
+import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
+import com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
 import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
@@ -35,6 +37,39 @@ public class ArticleServiceImpl implements ArticleServiceI {
         Article article = articleAssembler.toEntity(articleCreateCmd);
         articleGateway.save(article);
 
+        return Response.buildSuccess();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl) {
+        Article article = new Article(cmd.getTitle(), cmd.getSummary(), cmd.getUrl());
+        article.saveDraft(cmd.getDraftJson(), coverImageUrl);
+
+        if ("publish".equalsIgnoreCase(action)) {
+            article.publishFromDraft(coverImageUrl);
+        }
+
+        articleGateway.save(article);
+        return Response.buildSuccess();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Response adminUpdate(ArticleDraftUpdateCmd cmd, String action, String coverImageUrl) {
+        Article article = articleGateway.findById(cmd.getArticleId());
+        if (article == null) {
+            return Response.buildFailure("404", "文章不存在");
+        }
+
+        article.modify(cmd.getTitle(), cmd.getSummary(), cmd.getUrl());
+        article.saveDraft(cmd.getDraftJson(), coverImageUrl);
+
+        if ("publish".equalsIgnoreCase(action)) {
+            article.publishFromDraft(coverImageUrl);
+        }
+
+        articleGateway.save(article);
         return Response.buildSuccess();
     }
 

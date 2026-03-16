@@ -29,9 +29,12 @@ public class Article {
         this.url = url;
 
         this.draft = ArticleStatus.DRAFT;
-        this.date  = LocalDate.now().toString();
+        this.date = LocalDate.now().toString();
         this.lastmod = LocalDate.now().toString();
         this.count = 0;
+
+        // v1 defaults
+        this.viewCount = 0;
 
         this.initValidation();
     }
@@ -45,6 +48,24 @@ public class Article {
         this.lastmod = LocalDate.now().toString();
 
         this.initValidation();
+    }
+
+    public void saveDraft(String draftJson, String coverImageUrl) {
+        this.draftJson = draftJson;
+        if (coverImageUrl != null && !coverImageUrl.isBlank()) {
+            this.coverImageUrl = coverImageUrl;
+        }
+        this.lastmod = LocalDate.now().toString();
+    }
+
+    public void publishFromDraft(String coverImageUrl) {
+        // Copy draft -> content for published view.
+        this.contentJson = this.draftJson;
+        if (coverImageUrl != null && !coverImageUrl.isBlank()) {
+            this.coverImageUrl = coverImageUrl;
+        }
+        this.draft = ArticleStatus.PUBLISHED;
+        this.lastmod = LocalDate.now().toString();
     }
 
     public void delete() {

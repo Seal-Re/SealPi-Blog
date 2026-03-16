@@ -50,9 +50,21 @@
 
 ### 3.1 后端：管理写 API + 鉴权
 
-- POST/PUT `/api/v1/admin/articles`：草稿保存与发布
+- POST `/api/v1/admin/articles?action=draft|publish&coverImageUrl=...`：新建文章（保存草稿/发布）
+  - Controller：[`ArticleAdminController.adminCreate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:41)
+  - DTO：[`ArticleDraftSaveCmd`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/cmd/ArticleDraftSaveCmd.java:13)
+- PUT `/api/v1/admin/articles/{id}?action=draft|publish&coverImageUrl=...`：更新文章（保存草稿/重新发布）
+  - Controller：[`ArticleAdminController.adminUpdate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:54)
+  - DTO：[`ArticleDraftUpdateCmd`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/cmd/ArticleDraftUpdateCmd.java:11)
+- `/api/v1/admin/**` 鉴权拦截（Bearer Token + GitHub UserId 白名单；HS256 JWT 离线验签）
+  - Filter：[`AdminAuthFilter`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminAuthFilter.java:18)
+  - 配置：[`AdminAuthConfig`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/config/AdminAuthConfig.java:11)
+  - 校验器：[`AdminJwtVerifier.verifyAuthorizationHeader()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminJwtVerifier.java:34)
+
+仍未完成：
+
 - POST `/api/v1/admin/upload`：图片资产上传（OSS/本地盘/MinIO）
-- `/api/v1/admin/**` 鉴权拦截（Bearer Token + GitHub UserId 白名单）
+- 管理写 API 的 multipart 形态：`draftJson + previewImage`（当前 `coverImageUrl` 仍是 query 方式传入）
 
 ## 4. 本地验证
 
