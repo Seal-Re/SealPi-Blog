@@ -25,16 +25,26 @@
 
 ## 2. 已完成（本次新增）
 
-### 2.1 后端：公共读 API（C 端）
+### 2.1 后端：公共读接口
 
-已在 `blog-adapter` 增加对外查询接口，直接复用应用层 [`ArticleServiceI.getSingleById()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:18) 与 [`ArticleServiceI.getPage()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:19)。
+已在 `blog-adapter` 增加对外查询接口，复用应用层服务：[`ArticleServiceI.getSingleById()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:18)、[`ArticleServiceI.getPage()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:19)。
 
-- GET `/api/v1/articles/{id}`：返回 `contentJson/coverImageUrl` 等字段
+- GET `/api/v1/articles/{id}`：文章详情（返回 `contentJson/coverImageUrl` 等字段）
   - Controller：[`ArticleQueryController.getById()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java:22)
-- GET `/api/v1/articles`：分页列表（不返回 `contentJson`，仅元信息 + `coverImageUrl/summary`）
+- GET `/api/v1/articles`：文章列表（分页；不返回 `contentJson`，仅元信息 + `coverImageUrl/summary`）
   - Controller：[`ArticleQueryController.page()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java:30)
 
-说明：由于本机 JDK 23 + 注解处理组合可能导致编译链不稳定，Controller 采用字段注入以避免 Lombok 构造器依赖；CI 使用 JDK 21 不受影响。
+### 2.2 后端：管理端基础接口（占位）
+
+已新增管理端 Controller（目前仅对 `create/update/delete` 做基础转发，后续会按设计补齐“保存草稿/发布/上传/鉴权”）：
+
+- 管理端 Controller：[`ArticleAdminController`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:1)
+
+### 2.3 工程与 CI 修复
+
+- CI 修复：GitHub Actions 上执行 `./mvnw` 权限不足，已在工作流增加 `chmod +x ./mvnw`：[`ci.yml`](../.github/workflows/ci.yml:21)
+- Lombok 升级：修复本机高版本 JDK 下编译器初始化异常，将 `blog-app` 的 Lombok 升级至 1.18.36：[`blog-app/pom.xml`](../sealpi-blog/blog-app/pom.xml:15)
+- 测试修复：修正 Converter 单测构造数据，保证 `mvnw.cmd test` 通过：[`ArticleInfraConverterTest.toPo_should_map_v1_fields()`](../sealpi-blog/blog-infra/src/test/java/com/seal/blog/infra/article/converter/ArticleInfraConverterTest.java:50)
 
 ## 3. 未完成（下一步）
 
@@ -44,15 +54,13 @@
 - POST `/api/v1/admin/upload`：图片资产上传（OSS/本地盘/MinIO）
 - `/api/v1/admin/**` 鉴权拦截（Bearer Token + GitHub UserId 白名单）
 
-## 3. 本地验证
+## 4. 本地验证
 
-由于当前本机 JDK 为 23/24，构建时可能触发编译器初始化异常（与注解处理/MapStruct/Lombok 组合相关，例如 `TypeTag :: UNKNOWN`）。本次变更使用禁用注解处理的方式完成快速编译验证。
+本机 JDK 为 23/24 时，可能触发注解处理相关编译器异常（例如 `TypeTag :: UNKNOWN`）。目前已通过升级 Lombok 规避该问题：[`blog-app/pom.xml`](../sealpi-blog/blog-app/pom.xml:15)。
 
 在仓库根目录执行：
 
 ```bat
 cd sealpi-blog
-mvnw.cmd -DskipTests -DcompilerArgument=-proc:none compile
+mvnw.cmd -q test
 ```
-
-说明：上述命令用于验证本次字段扩展相关代码可以通过编译链路；后续若要运行应用或生成 MapStruct 映射，需要在项目中明确 Java 版本策略（例如切换到 LTS JDK 17/21 或升级相关插件）。
