@@ -13,6 +13,13 @@ public class Article {
     private String lastmod;
     private String summary;
     private String url;
+
+    // v1: Excalidraw payloads + OG cover + explicit view count.
+    private String contentJson;
+    private String draftJson;
+    private String coverImageUrl;
+    private Integer viewCount;
+
     private ArticleStatus draft;
     private Integer count;
 
@@ -63,7 +70,11 @@ public class Article {
             Integer id,
             String title, String summary, String url,
             String date, String lastmod,
-            ArticleStatus draft, Integer count
+            ArticleStatus draft, Integer count,
+            String contentJson,
+            String draftJson,
+            String coverImageUrl,
+            Integer viewCount
     ) {
         Article article = new Article(title, summary, url);
 
@@ -72,6 +83,11 @@ public class Article {
         article.lastmod = lastmod;
         article.draft = draft;
         article.count = count;
+
+        article.contentJson = contentJson;
+        article.draftJson = draftJson;
+        article.coverImageUrl = coverImageUrl;
+        article.viewCount = viewCount;
 
         return article;
     }

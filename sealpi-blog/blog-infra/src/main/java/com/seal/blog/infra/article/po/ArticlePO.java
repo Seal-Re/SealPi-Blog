@@ -35,6 +35,16 @@ public class ArticlePO implements Serializable {
 
     private String url;
 
+    // Excalidraw JSON payloads.
+    private String contentJson;
+    private String draftJson;
+
+    // Static preview image URL for OG/list fallback.
+    private String coverImageUrl;
+
+    // Explicit v1 field.
+    private Integer viewCount;
+
     /**
      * 0为编辑 1为发布 2为删除
      */

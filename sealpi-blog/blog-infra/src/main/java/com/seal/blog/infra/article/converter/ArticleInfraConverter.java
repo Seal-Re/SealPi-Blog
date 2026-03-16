@@ -22,6 +22,12 @@ public class ArticleInfraConverter {
         po.setLastmod(entity.getLastmod());
         po.setCount(entity.getCount());
 
+        // v1 extra fields (may be null for legacy records).
+        po.setContentJson(entity.getContentJson());
+        po.setDraftJson(entity.getDraftJson());
+        po.setCoverImageUrl(entity.getCoverImageUrl());
+        po.setViewCount(entity.getViewCount());
+
         po.setDraft(entity.getDraft().getCode());
         return po;
     }
@@ -38,7 +44,11 @@ public class ArticleInfraConverter {
                 po.getDate(),
                 po.getLastmod(),
                 ArticleStatus.of(po.getDraft()),
-                po.getCount()
+                po.getCount(),
+                po.getContentJson(),
+                po.getDraftJson(),
+                po.getCoverImageUrl(),
+                po.getViewCount()
         );
         return entity;
     }
