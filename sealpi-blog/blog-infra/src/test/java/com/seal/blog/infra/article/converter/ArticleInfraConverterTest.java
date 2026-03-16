@@ -52,7 +52,7 @@ class ArticleInfraConverterTest {
 
         Article entity = Article.reconstruct(
                 2,
-                "t", "s", "/blog/2",
+                "title", "s", "/blog/2",
                 "2026-03-16", "2026-03-16",
                 ArticleStatus.PUBLISHED, 9,
                 "{\"type\":\"excalidraw\"}",

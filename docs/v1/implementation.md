@@ -23,14 +23,22 @@
 - Infra 转换：[`ArticleInfraConverter.toPO()`](../sealpi-blog/blog-infra/src/main/java/com/seal/blog/infra/article/converter/ArticleInfraConverter.java:11)
 - Client VO：[`ArticleVO`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/vo/ArticleVO.java:9)
 
-## 2. 未完成（下一步）
+## 2. 已完成（本次新增）
 
-### 2.1 后端：公共读 API
+### 2.1 后端：公共读 API（C 端）
+
+已在 `blog-adapter` 增加对外查询接口，直接复用应用层 [`ArticleServiceI.getSingleById()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:18) 与 [`ArticleServiceI.getPage()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:19)。
 
 - GET `/api/v1/articles/{id}`：返回 `contentJson/coverImageUrl` 等字段
+  - Controller：[`ArticleQueryController.getById()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java:22)
 - GET `/api/v1/articles`：分页列表（不返回 `contentJson`，仅元信息 + `coverImageUrl/summary`）
+  - Controller：[`ArticleQueryController.page()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java:30)
 
-### 2.2 后端：管理写 API + 鉴权
+说明：由于本机 JDK 23 + 注解处理组合可能导致编译链不稳定，Controller 采用字段注入以避免 Lombok 构造器依赖；CI 使用 JDK 21 不受影响。
+
+## 3. 未完成（下一步）
+
+### 3.1 后端：管理写 API + 鉴权
 
 - POST/PUT `/api/v1/admin/articles`：草稿保存与发布
 - POST `/api/v1/admin/upload`：图片资产上传（OSS/本地盘/MinIO）
@@ -38,7 +46,7 @@
 
 ## 3. 本地验证
 
-由于当前本机 JDK 为 23，构建时可能触发编译器初始化异常（与注解处理/MapStruct/Lombok 组合相关）。本次变更使用禁用注解处理的方式完成快速编译验证。
+由于当前本机 JDK 为 23/24，构建时可能触发编译器初始化异常（与注解处理/MapStruct/Lombok 组合相关，例如 `TypeTag :: UNKNOWN`）。本次变更使用禁用注解处理的方式完成快速编译验证。
 
 在仓库根目录执行：
 

@@ -28,6 +28,13 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Needed so controllers can autowire application-layer services -->
+		<dependency>
+			<groupId>com.seal</groupId>
+			<artifactId>blog-app</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

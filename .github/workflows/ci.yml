@@ -20,4 +20,7 @@ jobs:
 
       - name: Test (sealpi-blog)
         working-directory: sealpi-blog
-        run: ./mvnw -q test
+        # Ensure wrapper is executable on Linux runners.
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -q test

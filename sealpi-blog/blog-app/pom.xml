@@ -15,7 +15,8 @@
 	<properties>
 		<java.version>21</java.version>
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
-		<lombok.version>1.18.30</lombok.version>
+		<!-- 1.18.30 has issues on newer JDKs; bump to a safer baseline. -->
+		<lombok.version>1.18.36</lombok.version>
 	</properties>
 
 	<dependencies>
