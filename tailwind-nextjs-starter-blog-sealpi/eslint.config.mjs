@@ -14,7 +14,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: [],
+    ignores: ['scripts/*.mjs'],
   },
   js.configs.recommended,
   ...compat.extends(
@@ -29,6 +29,8 @@ export default [
     plugins: {
       '@typescript-eslint': typescriptEslint,
     },
+
+    files: ['**/*.{js,jsx,ts,tsx}'],
 
     languageOptions: {
       globals: {

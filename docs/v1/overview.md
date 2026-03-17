@@ -33,16 +33,24 @@
 
 - MDX 可用组件映射：`tailwind-nextjs-starter-blog-sealpi/components/MDXComponents.tsx`
 
-### 2.2 鉴权与后台缺位（关键局限）
+### 2.2 鉴权与后台现状
 
-当前前端仍是一个“纯静态展示站点”，在仓库内未看到以下能力：
+前端 P0 已完成最小可用后台壳层，已具备以下能力：
 
-- 无任何受保护路由（Protected Routes），不存在 `/admin` 域或后台管理入口
-- 无用户登录态管理（未接入 Auth.js/NextAuth），无管理员白名单校验
-- 不支持在线编辑、草稿保存、发布工作流
-- 因此也无法与 Spring Boot 后端建立“带鉴权的管理 API”闭环
+- 已接入 Auth.js/NextAuth 的 GitHub OAuth 登录：`tailwind-nextjs-starter-blog-sealpi/auth.ts`
+- 已基于 GitHub User ID 完成管理员白名单校验：`tailwind-nextjs-starter-blog-sealpi/auth.ts`
+- 已通过 Middleware 保护 `/admin` 路由：`tailwind-nextjs-starter-blog-sealpi/middleware.ts`
+- 已具备后台首页入口：`tailwind-nextjs-starter-blog-sealpi/app/admin/page.tsx`
+- 已在 session 中暴露 `accessToken/githubUserId/isAdmin`：`tailwind-nextjs-starter-blog-sealpi/types/next-auth.d.ts`
 
-> 结论：后续引入 Excalidraw 在线创作时，前端必须新增 Admin Dashboard + 鉴权链路（GitHub OAuth2 + 白名单），并在请求后端管理接口时显式传递 Token。
+当前仍缺少的前端能力：
+
+- 尚未实现 `Bearer Token` 透传封装，前端还不能统一调用 Spring Boot 管理 API
+- 尚未实现 `/admin/login` 专用登录页
+- 尚未实现后台文章列表、编辑器、草稿保存、发布工作流
+- 尚未实现 Excalidraw 编辑器/查看器与后端动态文章链路对接
+
+> 结论：前端已从“纯静态展示站点”升级到“具备后台鉴权入口的静态站点”，但距离完整动态管理台仍差 API Client、登录页、编辑器与发布链路。
 
 ### 2.3 安全策略（CSP / 外链资源约束）
 
@@ -66,38 +74,18 @@
 - `blog-app`: 应用层服务编排、Assembler、事务
 - `blog-domain`: 领域层模型与 Gateway 接口
 - `blog-infra`: 基础设施层（MyBatis-Plus、MySQL、Gateway 实现）
-- `blog-adapter`: 适配层（按描述应放 Web Controller 等，但当前代码基本只有启动类）
+- `blog-adapter`: 适配层（Web Controller、鉴权 Filter、上传接口）
 - `blog-start`: 启动模块（聚合依赖，启动类）
 
 ### 3.1 领域模型现状（Article/Tag/Rely）
 
-当前 `Article` 聚合包含：
+当前 `Article` 聚合已包含一期动态内容字段：
 
 - `articleId`, `title`, `summary`, `url`, `date`, `lastmod`, `draft`, `count`
+- `contentJson`, `draftJson`, `coverImageUrl`, `viewCount`
 - 行为：`modify()`, `publish()`, `delete()`, `updateCount()`
 
-对应的持久化对象 `ArticlePO` 表字段主要也是上述内容（`t_article`）。
-
-注意：后端现状并没有“文章正文内容”字段（无 Markdown 正文、无 Excalidraw JSON、无 Excalidraw URL 专用字段）。
-
-### 3.4 内容存储局限（关键局限）
-
-当前 `ArticlePO`/`t_article` 的字段设计偏“文章元信息”，缺少承载富内容的长文本字段：
-
-- 缺少 `content_json`（用于存 Excalidraw 场景 JSON），容易被迫挤进 `VARCHAR`/`TEXT` 后触发 64KB 等限制
-- 缺少 `draft_json`（草稿隔离），编辑中途保存/刷新会带来丢稿或半成品误上线风险
-- 缺少 `cover_image_url`（静态预览图），无法为 SEO / Open Graph / 列表兜底提供可抓取图片
-
-因此需要在数据层明确采用 `LONGTEXT` 或 MySQL `JSON` 类型，避免体积增长导致写入瓶颈。
-
-### 3.5 基础设施缺位（OSS 与鉴权）
-
-在 `blog-infra` 目前仅看到 MySQL/MyBatis-Plus 支持，仍缺少：
-
-- 对象存储（OSS）模块：用于承载 Excalidraw 中粘贴/拖拽的图片等二进制资产（本地磁盘映射或 MinIO）
-- 鉴权拦截机制：用于保护 `/api/v1/admin/**` 管理接口，校验 `Authorization: Bearer <token>`
-
-这两点是 Excalidraw 在线编辑能力“可用且可控”的前置条件。
+对应的持久化对象 `ArticlePO` 与 Mapper 已补齐上述字段映射。
 
 ### 3.2 应用层与网关
 
@@ -111,18 +99,35 @@
 - Gateway 实现：`sealpi-blog/blog-infra/src/main/java/com/seal/blog/infra/article/impl/ArticleGatewayImpl.java`
   - 基于 MyBatis-Plus 做 CRUD 与分页查询
 
-### 3.3 适配层（Controller）缺口
+### 3.3 适配层（Controller / Auth / Upload）
 
-当前在 `sealpi-blog/blog-adapter/src/main/java` 未发现 `@RestController` 相关 Controller 实现（仓库中有 `sealpi-blog/null/` 目录下的老 Controller，但不属于当前 DDD 模块）。
+后端 adapter 层已不再是空壳，已补齐一期关键入口：
 
-这意味着“后端作为博客内容提供方”的 HTTP API 需要在 `blog-adapter` 中补齐 Controller，并调用 `blog-client` 的 `ArticleServiceI`。
+- 公共读接口：`sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java`
+- 管理写接口：`sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java`
+- 管理鉴权 Filter：`sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminAuthFilter.java`
+- JWT 校验器：`sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminJwtVerifier.java`
+- 鉴权配置：`sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/config/AdminAuthConfig.java`
+- 上传接口：`sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/upload/AdminUploadController.java`
+
+### 3.4 当前仍未完成的关键项
+
+当前项目距离 v1 闭环，仍剩这些核心工作：
+
+- 前端 `Bearer Token` 透传封装未完成，无法统一调用 `/api/v1/admin/**`
+- 前端 `/admin/login` 页面未完成，当前仅有受保护入口页
+- 前端后台文章列表、编辑页、草稿保存、发布 UI 未完成
+- 前端 Excalidraw 编辑器与只读查看器未接入
+- 前台文章详情页仍主要依赖本地 MDX + Contentlayer，未切换到后端 `contentJson`
+- 预览图 `coverImageUrl` 尚未接入前台列表、详情页与 Open Graph 元信息
+- 后端管理写接口的行为测试仍不完整，尤其缺少 403 与 previewImage 覆盖 `coverImageUrl` 的测试
 
 ## 4. 当前需求与演进方向（向动态全栈演进）
 
 结合现状局限与目标需求，系统演进方向应明确为“动态博客系统”（Dynamic Blog System），而非纯静态站点：
 
-- 前端：新增 `/admin` 管理域（Dashboard + Editor），引入 Auth.js(NextAuth) + GitHub OAuth2 实现管理员白名单登录
-- 后端：补齐对外文章 API（读）与管理 API（写：保存草稿/发布/上传图片），并在适配层加鉴权拦截
+- 前端：继续扩展 `/admin` 管理域（登录页、文章列表、编辑器、API Client）
+- 后端：继续完善写接口行为测试，并与前端 Bearer Token 调用链打通
 - 内容形态：一期废弃 `iframe + Excalidraw URL fragment` 方案，改为 Excalidraw JSON 前端模块直渲染
 
 为解决 Excalidraw 引入后的 4 个关键技术缺漏，设计必须补齐以下机制：
@@ -150,8 +155,8 @@
 
 ### 4.4 跨域鉴权状态传递（Token 机制）
 
-- 问题：NextAuth 默认 Session 在 HttpOnly Cookie；当前前后端分离时 Cookie 可能无法自动携带到 Spring Boot API
-- 方案：在 NextAuth 的 `jwt` 与 `session` 回调中将可用 Token 暴露给前端
+- 问题：前后端分离时，需要前端显式携带管理态凭证访问 Spring Boot API
+- 方案：在 NextAuth 的 `jwt` 与 `session` 回调中暴露 `accessToken`
   - 前端调用后端管理 API 时，手动注入 `Authorization: Bearer <Token>`
   - 后端拦截 `/api/v1/admin/**` 校验 Token 并比对白名单 GitHub User ID
 

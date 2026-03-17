@@ -6,7 +6,7 @@
 
 ### 1.1 后端：文章数据模型字段扩展（t_article）
 
-已在后端数据模型与代码映射层面补齐一期所需字段（不含 DB 真实 DDL 迁移脚本；仅完成代码结构与映射字段）。
+已在后端数据模型与代码映射层面补齐一期所需字段。
 
 新增字段（面向一期 Excalidraw JSON + SEO 预览图能力）：
 
@@ -23,9 +23,7 @@
 - Infra 转换：[`ArticleInfraConverter.toPO()`](../sealpi-blog/blog-infra/src/main/java/com/seal/blog/infra/article/converter/ArticleInfraConverter.java:11)
 - Client VO：[`ArticleVO`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/vo/ArticleVO.java:9)
 
-## 2. 已完成（本次新增）
-
-### 2.1 后端：公共读接口
+### 1.2 后端：公共读接口
 
 已在 `blog-adapter` 增加对外查询接口，复用应用层服务：[`ArticleServiceI.getSingleById()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:18)、[`ArticleServiceI.getPage()`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/api/ArticleServiceI.java:19)。
 
@@ -34,40 +32,73 @@
 - GET `/api/v1/articles`：文章列表（分页；不返回 `contentJson`，仅元信息 + `coverImageUrl/summary`）
   - Controller：[`ArticleQueryController.page()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java:30)
 
-### 2.2 后端：管理端基础接口
+### 1.3 后端：管理端基础接口与鉴权链路
 
-已新增并补齐管理端 Controller（支持保存草稿/发布，且新增 multipart 形态）：
+已新增并补齐管理端 Controller、上传接口、Bearer Token 保护与离线 JWT 校验：
 
 - 管理端 Controller：[`ArticleAdminController`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:1)
+- 上传接口：[`AdminUploadController`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/upload/AdminUploadController.java:1)
+- 鉴权 Filter：[`AdminAuthFilter`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminAuthFilter.java:18)
+- 鉴权配置：[`AdminAuthConfig`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/config/AdminAuthConfig.java:11)
+- JWT 校验器：[`AdminJwtVerifier.verifyAuthorizationHeader()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminJwtVerifier.java:34)
 
-### 2.3 工程与 CI 修复
+### 1.4 前端：P0 后台鉴权入口
 
-- CI 修复：GitHub Actions 上执行 `./mvnw` 权限不足，已在工作流增加 `chmod +x ./mvnw`：[`ci.yml`](../.github/workflows/ci.yml:21)
-- Lombok 升级：修复本机高版本 JDK 下编译器初始化异常，将 `blog-app` 的 Lombok 升级至 1.18.36：[`blog-app/pom.xml`](../sealpi-blog/blog-app/pom.xml:15)
-- 测试修复：修正 Converter 单测构造数据，保证 `mvnw.cmd test` 通过：[`ArticleInfraConverterTest.toPo_should_map_v1_fields()`](../sealpi-blog/blog-infra/src/test/java/com/seal/blog/infra/article/converter/ArticleInfraConverterTest.java:50)
+前端 P0 已从纯静态博客升级为具备最小可用后台入口的站点：
 
-## 3. 未完成（下一步）
+- NextAuth + GitHub OAuth2：[`auth.ts`](../tailwind-nextjs-starter-blog-sealpi/auth.ts:1)
+- `/admin` 路由保护：[`middleware.ts`](../tailwind-nextjs-starter-blog-sealpi/middleware.ts:1)
+- Session 类型扩展：[`next-auth.d.ts`](../tailwind-nextjs-starter-blog-sealpi/types/next-auth.d.ts:1)
+- 后台入口页：[`app/admin/page.tsx`](../tailwind-nextjs-starter-blog-sealpi/app/admin/page.tsx:1)
+- 模块解析与构建修复：[`tsconfig.json`](../tailwind-nextjs-starter-blog-sealpi/tsconfig.json:1)、[`jsconfig.json`](../tailwind-nextjs-starter-blog-sealpi/jsconfig.json:1)、[`eslint.config.mjs`](../tailwind-nextjs-starter-blog-sealpi/eslint.config.mjs:1)
 
-### 3.1 后端：管理写 API + 鉴权（剩余事项）
+## 2. 未完成（当前剩余）
 
-- POST `/api/v1/admin/articles?action=draft|publish&coverImageUrl=...`：新建文章（保存草稿/发布）
-  - JSON（deprecated）：[`ArticleAdminController.adminCreate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:54)
-  - multipart（推荐）：[`ArticleAdminController.adminCreateMultipart()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:70)
-  - DTO：[`ArticleDraftSaveCmd`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/cmd/ArticleDraftSaveCmd.java:13)
-- PUT `/api/v1/admin/articles/{id}?action=draft|publish&coverImageUrl=...`：更新文章（保存草稿/重新发布）
-  - JSON（deprecated）：[`ArticleAdminController.adminUpdate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:106)
-  - multipart（推荐）：[`ArticleAdminController.adminUpdateMultipart()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:121)
-  - DTO：[`ArticleDraftUpdateCmd`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/cmd/ArticleDraftUpdateCmd.java:11)
-- `/api/v1/admin/**` 鉴权拦截（Bearer Token + GitHub UserId 白名单；HS256 JWT 离线验签）
-  - Filter：[`AdminAuthFilter`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminAuthFilter.java:18)
-  - 配置：[`AdminAuthConfig`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/config/AdminAuthConfig.java:11)
-  - 校验器：[`AdminJwtVerifier.verifyAuthorizationHeader()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminJwtVerifier.java:34)
+### 2.1 前端：管理台主链路仍未闭环
 
 仍未完成：
 
-- 写接口的 MockMvc 行为测试：目前仅覆盖 401，未覆盖 403 与 previewImage 覆盖 coverImageUrl 的行为
+- `Bearer Token` 透传封装，尚未统一封装对 `/api/v1/admin/**` 的请求客户端
+- `/admin/login` 登录页与未授权提示页
+- 后台文章列表页、编辑页、新建页
+- Excalidraw 编辑器接入（图片上传、草稿防抖保存、发布导出预览图）
+- Excalidraw Viewer 接入前台详情页
+- 前台列表/详情页接入 `coverImageUrl` 与 Open Graph 元信息
+- 从本地 MDX + Contentlayer 向后端动态文章内容切换
+
+### 2.2 后端：测试与行为补齐
+
+管理写 API 主体已经存在，但仍未完成以下测试补齐：
+
+- 写接口的 MockMvc 行为测试目前仅覆盖 401，未覆盖 403
+- 未覆盖 previewImage 覆盖 `coverImageUrl` 的行为
+- 前后端联调用的示例请求链路和契约文档还未固化
+
+## 3. 当前推荐下一步
+
+推荐按以下顺序继续推进：
+
+1. 前端先完成 `Bearer Token` API Client 封装，打通对 Spring Boot 管理接口的调用能力
+2. 补 `/admin/login` 页面与无权限状态页，完善登录跳转闭环
+3. 落后台文章列表页与编辑入口
+4. 接入 Excalidraw Editor / Viewer
+5. 回填列表封面、详情页动态渲染与 Open Graph
+6. 最后补齐后端管理写接口的 403 / previewImage 行为测试
 
 ## 4. 本地验证
+
+### 4.1 前端
+
+在前端目录执行：
+
+```bat
+cd tailwind-nextjs-starter-blog-sealpi
+npm run build
+```
+
+当前验证结果：构建已通过，`/admin` 路由已出现在 Next.js 构建产物中。
+
+### 4.2 后端
 
 本机 JDK 为 23/24 时，可能触发注解处理相关编译器异常（例如 `TypeTag :: UNKNOWN`）。目前已通过升级 Lombok 规避该问题：[`blog-app/pom.xml`](../sealpi-blog/blog-app/pom.xml:15)。
 
