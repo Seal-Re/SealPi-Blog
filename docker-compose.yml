@@ -1,0 +1,68 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sealpi-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sealpi_blog
+    ports:
+      - "3304:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  minio:
+    image: minio/minio:latest
+    container_name: sealpi-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  # Create bucket on startup (idempotent)
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint:
+      - /bin/sh
+      - -c
+    command: >
+      "mc alias set local http://minio:9000 minioadmin minioadmin &&
+      mc mb -p local/blog-assets || true"
+
+  blog-start:
+    build:
+      context: ./sealpi-blog
+      dockerfile: Dockerfile
+    container_name: sealpi-blog-start
+    depends_on:
+      - mysql
+      - minio
+      - minio-init
+    environment:
+      # Spring Boot relaxed binding: ENV ADMIN_JWT_SECRET -> property admin.jwt.secret
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sealpi_blog?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+      ADMIN_JWT_SECRET: REPLACE_ME
+      ADMIN_GITHUB_USERIDS: "12345"
+      ADMIN_JWT_GITHUBUSERIDCLAIM: githubUserId
+
+      ADMIN_UPLOAD_MINIO_ENDPOINT: http://minio:9000
+      ADMIN_UPLOAD_MINIO_ACCESSKEY: minioadmin
+      ADMIN_UPLOAD_MINIO_SECRETKEY: minioadmin
+      ADMIN_UPLOAD_MINIO_BUCKET: blog-assets
+      ADMIN_UPLOAD_PUBLICBASEURL: http://localhost:9000
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  minio_data:

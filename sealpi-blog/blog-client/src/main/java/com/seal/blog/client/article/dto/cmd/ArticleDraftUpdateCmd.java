@@ -2,12 +2,16 @@ package com.seal.blog.client.article.dto.cmd;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * v1 admin write API: update existing article draft / publish.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ArticleDraftUpdateCmd {
 
     @NotNull(message = "id不能为空")

@@ -24,3 +24,29 @@ jobs:
         run: |
           chmod +x ./mvnw
           ./mvnw -q test
+
+  docker-compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build docker-compose services (linux/amd64)
+        # CI runner is amd64; we pin for repeatability.
+        run: |
+          docker compose build --no-cache
+
+      - name: Bring up stack
+        run: |
+          docker compose up -d
+
+      - name: Smoke check
+        run: |
+          docker compose ps
+
+      - name: Tear down
+        if: always()
+        run: |
+          docker compose down -v

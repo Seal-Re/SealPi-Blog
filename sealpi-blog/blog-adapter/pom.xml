@@ -35,6 +35,13 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Needed for admin upload (MinIO client lives in infra) -->
+		<dependency>
+			<groupId>com.seal</groupId>
+			<artifactId>blog-infra</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

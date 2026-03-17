@@ -1,7 +1,9 @@
 package com.seal.blog.client.article.dto.cmd;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * v1 admin write API: save draft / publish article.
@@ -10,6 +12,8 @@ import lombok.Data;
  * metadata and Excalidraw JSON payload.
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ArticleDraftSaveCmd {
 
     @NotBlank(message = "标题不能为空")

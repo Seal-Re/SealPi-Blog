@@ -34,9 +34,9 @@
 - GET `/api/v1/articles`：文章列表（分页；不返回 `contentJson`，仅元信息 + `coverImageUrl/summary`）
   - Controller：[`ArticleQueryController.page()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleQueryController.java:30)
 
-### 2.2 后端：管理端基础接口（占位）
+### 2.2 后端：管理端基础接口
 
-已新增管理端 Controller（目前仅对 `create/update/delete` 做基础转发，后续会按设计补齐“保存草稿/发布/上传/鉴权”）：
+已新增并补齐管理端 Controller（支持保存草稿/发布，且新增 multipart 形态）：
 
 - 管理端 Controller：[`ArticleAdminController`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:1)
 
@@ -48,13 +48,15 @@
 
 ## 3. 未完成（下一步）
 
-### 3.1 后端：管理写 API + 鉴权
+### 3.1 后端：管理写 API + 鉴权（剩余事项）
 
 - POST `/api/v1/admin/articles?action=draft|publish&coverImageUrl=...`：新建文章（保存草稿/发布）
-  - Controller：[`ArticleAdminController.adminCreate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:41)
+  - JSON（deprecated）：[`ArticleAdminController.adminCreate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:54)
+  - multipart（推荐）：[`ArticleAdminController.adminCreateMultipart()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:70)
   - DTO：[`ArticleDraftSaveCmd`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/cmd/ArticleDraftSaveCmd.java:13)
 - PUT `/api/v1/admin/articles/{id}?action=draft|publish&coverImageUrl=...`：更新文章（保存草稿/重新发布）
-  - Controller：[`ArticleAdminController.adminUpdate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:54)
+  - JSON（deprecated）：[`ArticleAdminController.adminUpdate()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:106)
+  - multipart（推荐）：[`ArticleAdminController.adminUpdateMultipart()`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/article/ArticleAdminController.java:121)
   - DTO：[`ArticleDraftUpdateCmd`](../sealpi-blog/blog-client/src/main/java/com/seal/blog/client/article/dto/cmd/ArticleDraftUpdateCmd.java:11)
 - `/api/v1/admin/**` 鉴权拦截（Bearer Token + GitHub UserId 白名单；HS256 JWT 离线验签）
   - Filter：[`AdminAuthFilter`](../sealpi-blog/blog-adapter/src/main/java/com/seal/blog/adapter/security/AdminAuthFilter.java:18)
@@ -63,8 +65,7 @@
 
 仍未完成：
 
-- POST `/api/v1/admin/upload`：图片资产上传（OSS/本地盘/MinIO）
-- 管理写 API 的 multipart 形态：`draftJson + previewImage`（当前 `coverImageUrl` 仍是 query 方式传入）
+- 写接口的 MockMvc 行为测试：目前仅覆盖 401，未覆盖 403 与 previewImage 覆盖 coverImageUrl 的行为
 
 ## 4. 本地验证
 

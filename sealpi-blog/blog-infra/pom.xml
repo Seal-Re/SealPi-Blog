@@ -27,11 +27,18 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <minio.version>8.5.17</minio.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>${minio.version}</version>
         </dependency>
 
         <dependency>
