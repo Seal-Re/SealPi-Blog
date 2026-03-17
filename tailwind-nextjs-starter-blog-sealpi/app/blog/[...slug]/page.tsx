@@ -1,110 +1,170 @@
-import 'css/prism.css'
-import 'katex/dist/katex.css'
-
-import PageTitle from '@/components/PageTitle'
-import { components } from '@/components/MDXComponents'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
-import { sortPosts, coreContent, allCoreContent } from 'pliny/utils/contentlayer'
-import { allBlogs, allAuthors } from 'contentlayer/generated'
-import type { Authors, Blog } from 'contentlayer/generated'
-import PostSimple from '@/layouts/PostSimple'
-import PostLayout from '@/layouts/PostLayout'
-import PostBanner from '@/layouts/PostBanner'
-import { Metadata } from 'next'
-import siteMetadata from '@/data/siteMetadata'
+import { coreContent } from 'pliny/utils/contentlayer'
+import { allAuthors } from 'contentlayer/generated'
+import type { Authors } from 'contentlayer/generated'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import DynamicPostLayout from '@/layouts/DynamicPostLayout'
+import ExcalidrawViewer from '@/components/ExcalidrawViewer'
+import siteMetadata from '@/data/siteMetadata'
+import { buildApiUrl } from '@/lib/api-config'
+import type { AdminArticle, ApiResult, PageResult } from '@/lib/blog-api-types'
 
-const defaultLayout = 'PostLayout'
-const layouts = {
-  PostSimple,
-  PostLayout,
-  PostBanner,
+type ArticleListItem = Pick<
+  AdminArticle,
+  'articleId' | 'title' | 'url' | 'summary' | 'coverImageUrl' | 'viewCount' | 'date'
+>
+
+type PageProps = {
+  params: Promise<{ slug: string[] }>
 }
 
-export async function generateMetadata(props: {
-  params: Promise<{ slug: string[] }>
-}): Promise<Metadata | undefined> {
+async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
+  const response = await fetch(buildApiUrl('/api/v1/articles?pageIndex=1&pageSize=100'), {
+    next: { revalidate: 60 },
+  })
+
+  if (!response.ok) {
+    return null
+  }
+
+  const payload = (await response.json()) as PageResult<ArticleListItem>
+  const matched = payload.data?.find((article) => article.url === slug)
+
+  if (!matched?.articleId) {
+    return null
+  }
+
+  const detailResponse = await fetch(buildApiUrl(`/api/v1/articles/${matched.articleId}`), {
+    next: { revalidate: 60 },
+  })
+
+  if (!detailResponse.ok) {
+    return null
+  }
+
+  const detailPayload = (await detailResponse.json()) as ApiResult<AdminArticle>
+  return detailPayload.data || null
+}
+
+async function fetchPublishedArticles(): Promise<ArticleListItem[]> {
+  const response = await fetch(buildApiUrl('/api/v1/articles?pageIndex=1&pageSize=100'), {
+    next: { revalidate: 60 },
+  })
+
+  if (!response.ok) {
+    return []
+  }
+
+  const payload = (await response.json()) as PageResult<ArticleListItem>
+  return payload.data || []
+}
+
+function getAuthorDetails() {
+  const authorResults = allAuthors.find((author) => author.slug === 'default')
+  return [coreContent(authorResults as Authors)]
+}
+
+function normalizeDate(value?: string) {
+  if (!value) {
+    return new Date().toISOString()
+  }
+
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+}
+
+function resolveOgImages(article: AdminArticle) {
+  const fallback = siteMetadata.socialBanner
+  const images = article.coverImageUrl ? [article.coverImageUrl] : [fallback]
+
+  return images.map((img) => ({
+    url: img.includes('http') ? img : `${siteMetadata.siteUrl}${img}`,
+  }))
+}
+
+export async function generateMetadata(props: PageProps): Promise<Metadata | undefined> {
   const params = await props.params
   const slug = decodeURI(params.slug.join('/'))
-  const post = allBlogs.find((p) => p.slug === slug)
-  const authorList = post?.authors || ['default']
-  const authorDetails = authorList.map((author) => {
-    const authorResults = allAuthors.find((p) => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
-  if (!post) {
+  const article = await fetchArticleBySlug(slug)
+
+  if (!article) {
     return
   }
 
-  const publishedAt = new Date(post.date).toISOString()
-  const modifiedAt = new Date(post.lastmod || post.date).toISOString()
+  const authorDetails = getAuthorDetails()
+  const publishedAt = normalizeDate(article.date)
+  const modifiedAt = normalizeDate(article.lastmod || article.date)
   const authors = authorDetails.map((author) => author.name)
-  let imageList = [siteMetadata.socialBanner]
-  if (post.images) {
-    imageList = typeof post.images === 'string' ? [post.images] : post.images
-  }
-  const ogImages = imageList.map((img) => {
-    return {
-      url: img && img.includes('http') ? img : siteMetadata.siteUrl + img,
-    }
-  })
+  const imageList = article.coverImageUrl ? [article.coverImageUrl] : [siteMetadata.socialBanner]
 
   return {
-    title: post.title,
-    description: post.summary,
+    title: article.title,
+    description: article.summary,
     openGraph: {
-      title: post.title,
-      description: post.summary,
+      title: article.title,
+      description: article.summary,
       siteName: siteMetadata.title,
-      locale: 'en_US',
+      locale: 'zh_CN',
       type: 'article',
       publishedTime: publishedAt,
       modifiedTime: modifiedAt,
-      url: './',
-      images: ogImages,
+      url: `/blog/${article.url}`,
+      images: resolveOgImages(article),
       authors: authors.length > 0 ? authors : [siteMetadata.author],
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.summary,
+      title: article.title,
+      description: article.summary,
       images: imageList,
     },
   }
 }
 
-export const generateStaticParams = async () => {
-  return allBlogs.map((p) => ({ slug: p.slug.split('/').map((name) => decodeURI(name)) }))
+export async function generateStaticParams() {
+  const articles = await fetchPublishedArticles()
+  return articles.map((article) => ({
+    slug: article.url.split('/').map((name) => decodeURI(name)),
+  }))
 }
 
-export default async function Page(props: { params: Promise<{ slug: string[] }> }) {
+export default async function Page(props: PageProps) {
   const params = await props.params
   const slug = decodeURI(params.slug.join('/'))
-  // Filter out drafts in production
-  const sortedCoreContents = allCoreContent(sortPosts(allBlogs))
-  const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
-  if (postIndex === -1) {
+  const [article, publishedArticles] = await Promise.all([
+    fetchArticleBySlug(slug),
+    fetchPublishedArticles(),
+  ])
+
+  if (!article) {
     return notFound()
   }
 
-  const prev = sortedCoreContents[postIndex + 1]
-  const next = sortedCoreContents[postIndex - 1]
-  const post = allBlogs.find((p) => p.slug === slug) as Blog
-  const authorList = post?.authors || ['default']
-  const authorDetails = authorList.map((author) => {
-    const authorResults = allAuthors.find((p) => p.slug === author)
-    return coreContent(authorResults as Authors)
-  })
-  const mainContent = coreContent(post)
-  const jsonLd = post.structuredData
-  jsonLd['author'] = authorDetails.map((author) => {
-    return {
+  const postIndex = publishedArticles.findIndex((item) => item.url === slug)
+  const prevArticle = postIndex >= 0 ? publishedArticles[postIndex + 1] : undefined
+  const nextArticle = postIndex > 0 ? publishedArticles[postIndex - 1] : undefined
+  const authorDetails = getAuthorDetails()
+  const date = normalizeDate(article.date)
+  const summary = article.summary?.trim()
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    datePublished: date,
+    dateModified: normalizeDate(article.lastmod || article.date),
+    description: summary || siteMetadata.description,
+    image: article.coverImageUrl
+      ? [
+          article.coverImageUrl.includes('http')
+            ? article.coverImageUrl
+            : `${siteMetadata.siteUrl}${article.coverImageUrl}`,
+        ]
+      : [`${siteMetadata.siteUrl}${siteMetadata.socialBanner}`],
+    author: authorDetails.map((author) => ({
       '@type': 'Person',
       name: author.name,
-    }
-  })
-
-  const Layout = layouts[post.layout || defaultLayout]
+    })),
+  }
 
   return (
     <>
@@ -112,9 +172,40 @@ export default async function Page(props: { params: Promise<{ slug: string[] }> 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={post.body.code} components={components} toc={post.toc} />
-      </Layout>
+      <DynamicPostLayout
+        content={{
+          path: 'blog',
+          slug: article.url,
+          title: article.title,
+          summary,
+          date,
+          lastmod: article.lastmod,
+          tags: ['excalidraw', 'visual-story'],
+          coverImageUrl: article.coverImageUrl,
+        }}
+        authorDetails={authorDetails}
+        prev={
+          prevArticle
+            ? {
+                path: `blog/${prevArticle.url}`,
+                title: prevArticle.title,
+              }
+            : undefined
+        }
+        next={
+          nextArticle
+            ? {
+                path: `blog/${nextArticle.url}`,
+                title: nextArticle.title,
+              }
+            : undefined
+        }
+      >
+        <ExcalidrawViewer
+          contentJson={article.contentJson || article.draftJson}
+          title={article.title}
+        />
+      </DynamicPostLayout>
     </>
   )
 }

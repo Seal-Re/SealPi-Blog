@@ -1,6 +1,31 @@
 import { auth, signOut } from '@/auth'
 import Link from '@/components/Link'
 
+function AdminQuickAction({
+  href,
+  title,
+  description,
+}: {
+  href: string
+  title: string
+  description: string
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-[1.75rem] border border-gray-200 bg-white p-5 shadow-[0_18px_60px_-32px_rgba(15,23,42,0.28)] transition hover:-translate-y-1 hover:border-gray-900 hover:shadow-[0_28px_90px_-38px_rgba(15,23,42,0.42)] dark:border-gray-800 dark:bg-gray-900/80 dark:hover:border-gray-200"
+    >
+      <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
+        Admin Action
+      </p>
+      <h3 className="mt-3 text-xl font-black tracking-tight text-gray-950 group-hover:text-gray-700 dark:text-white dark:group-hover:text-gray-200">
+        {title}
+      </h3>
+      <p className="mt-3 text-sm leading-7 text-gray-600 dark:text-gray-300">{description}</p>
+    </Link>
+  )
+}
+
 type StatCardProps = {
   label: string
   value: string
@@ -35,11 +60,11 @@ export default async function AdminPage() {
           </span>
           <div className="space-y-4">
             <h1 className="text-4xl font-black tracking-tight text-gray-950 sm:text-5xl dark:text-white">
-              已进入受保护后台入口
+              后台主入口已具备可执行主链路
             </h1>
             <p className="max-w-2xl text-base leading-8 text-gray-600 sm:text-lg dark:text-gray-300">
-              这里已经跑通 GitHub 登录、管理员白名单校验和中间件保护，后续可以在这个入口继续接
-              文章编辑器、文件上传和 Java 管理接口。
+              当前已打通 GitHub 登录、管理员白名单校验与 Bearer Token 管理接口调用基础设施。
+              下一步可以在这里继续接文章列表、编辑器、文件上传和发布动作。
             </p>
           </div>
         </div>
@@ -58,7 +83,7 @@ export default async function AdminPage() {
           <StatCard
             label="Access Token"
             value={session?.accessToken ? '已写入 session' : '暂不可用'}
-            hint="P0 下一步会把该 token 封装成受控请求能力。"
+            hint="当前已经可以由服务端管理 API Client 自动透传。"
           />
         </div>
 
@@ -88,23 +113,35 @@ export default async function AdminPage() {
                 </dd>
               </div>
               <div className="rounded-2xl bg-gray-50 p-4 sm:col-span-2 dark:bg-gray-950/70">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">后续规划</dt>
+                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">当前主计划</dt>
                 <dd className="mt-2 text-base leading-7 text-gray-700 dark:text-gray-200">
-                  下一步会在这个受保护区域内接入文章列表、草稿保存、封面上传与发布动作，并通过统一的
-                  Bearer Token 请求封装对接管理接口。
+                  先完成文章列表与新建入口，再接 Excalidraw 编辑器、草稿保存、发布与前台动态详情页。
                 </dd>
               </div>
             </dl>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              <AdminQuickAction
+                href="/admin/articles"
+                title="文章列表"
+                description="查看后端文章分页数据，进入后续编辑与发布流程。"
+              />
+              <AdminQuickAction
+                href="/admin/editor"
+                title="新建文章"
+                description="直接进入编辑入口，后续在此接入 Excalidraw 创作与保存能力。"
+              />
+            </div>
           </div>
 
           <div className="rounded-[2rem] border border-gray-200 bg-linear-to-br from-amber-50 via-white to-sky-50 p-6 shadow-[0_18px_60px_-32px_rgba(245,158,11,0.45)] sm:p-8 dark:border-gray-800 dark:from-amber-950/20 dark:via-gray-900 dark:to-sky-950/30">
             <div className="space-y-4">
               <h2 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">
-                管理台入口已就绪
+                管理台基础能力已成型
               </h2>
               <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
-                当前已经具备最小可用的后台壳层：受保护路由、管理员身份识别、登录跳转和服务端 session
-                读取。P0 的后台落点已经建立。
+                登录页、导航入口和服务端 Bearer Token
+                请求封装已经就位，当前后台可以继续向文章管理闭环推进。
               </p>
             </div>
             <div className="mt-6 flex flex-col gap-3">
