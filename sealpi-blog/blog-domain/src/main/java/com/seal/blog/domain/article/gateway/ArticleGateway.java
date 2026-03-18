@@ -26,6 +26,13 @@ public interface ArticleGateway {
     Article findById(Integer articleId);
 
     /**
+     * 根据 slug/url 查找文章
+     * @param slug
+     * @return
+     */
+    Article findBySlug(String slug);
+
+    /**
      * 分页
      * @param articlePageQry
      * @return

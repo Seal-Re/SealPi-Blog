@@ -16,6 +16,12 @@ export type PageResult<T> = {
   errMessage?: string
 }
 
+export type ArticleTag = {
+  tagId: number
+  name: string
+  count?: number
+}
+
 export type AdminArticle = {
   articleId: string
   title: string
@@ -29,4 +35,5 @@ export type AdminArticle = {
   lastmod?: string
   draft?: number
   count?: number
+  tags?: ArticleTag[]
 }

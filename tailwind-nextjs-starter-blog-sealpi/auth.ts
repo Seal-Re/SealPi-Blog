@@ -24,6 +24,7 @@ export const authConfig: NextAuthConfig = {
   callbacks: {
     async signIn({ profile }) {
       const githubUserId = profile?.id ? String(profile.id) : null
+      console.log('[NextAuth][signIn] githubUserId =', githubUserId)
       return isAdminUserId(githubUserId)
     },
     async jwt({ token, account, profile }) {

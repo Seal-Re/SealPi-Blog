@@ -1,41 +1,41 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
-import { allCoreContent, sortPosts } from 'pliny/utils/contentlayer'
-import { allBlogs } from 'contentlayer/generated'
 import { notFound } from 'next/navigation'
+import {
+  BLOG_POSTS_PER_PAGE,
+  fetchPublishedArticlesForStaticPaths,
+  fetchPublishedArticlesPage,
+} from '@/lib/public-blog-api'
 
-const POSTS_PER_PAGE = 5
+export const dynamicParams = true
 
 export const generateStaticParams = async () => {
-  const totalPages = Math.ceil(allBlogs.length / POSTS_PER_PAGE)
-  const paths = Array.from({ length: totalPages }, (_, i) => ({ page: (i + 1).toString() }))
-
-  return paths
+  const allPosts = await fetchPublishedArticlesForStaticPaths()
+  const totalPages = Math.max(1, Math.ceil(allPosts.length / BLOG_POSTS_PER_PAGE))
+  return Array.from({ length: totalPages }, (_, i) => ({ page: String(i + 1) }))
 }
 
 export default async function Page(props: { params: Promise<{ page: string }> }) {
   const params = await props.params
-  const posts = allCoreContent(sortPosts(allBlogs))
-  const pageNumber = parseInt(params.page as string)
-  const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
+  const pageNumber = parseInt(params.page as string, 10)
 
-  // Return 404 for invalid page numbers or empty pages
-  if (pageNumber <= 0 || pageNumber > totalPages || isNaN(pageNumber)) {
+  if (pageNumber <= 0 || Number.isNaN(pageNumber)) {
     return notFound()
   }
-  const initialDisplayPosts = posts.slice(
-    POSTS_PER_PAGE * (pageNumber - 1),
-    POSTS_PER_PAGE * pageNumber
-  )
-  const pagination = {
-    currentPage: pageNumber,
-    totalPages: totalPages,
+
+  const response = await fetchPublishedArticlesPage(pageNumber, BLOG_POSTS_PER_PAGE)
+
+  if (pageNumber > response.totalPages) {
+    return notFound()
   }
 
   return (
     <ListLayout
-      posts={posts}
-      initialDisplayPosts={initialDisplayPosts}
-      pagination={pagination}
+      posts={response.items}
+      initialDisplayPosts={response.items}
+      pagination={{
+        currentPage: response.pageIndex,
+        totalPages: response.totalPages,
+      }}
       title="All Posts"
     />
   )

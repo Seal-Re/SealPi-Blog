@@ -2,9 +2,11 @@ package com.seal.blog.client.article.dto.qry;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ArticlePageQry {
 
     @Min(value = 1, message = "最小页数为1")

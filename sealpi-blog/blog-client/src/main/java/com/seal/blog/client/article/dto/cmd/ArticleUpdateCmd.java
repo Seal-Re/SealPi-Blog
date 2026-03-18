@@ -2,9 +2,11 @@ package com.seal.blog.client.article.dto.cmd;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ArticleUpdateCmd {
 
     @NotNull(message = "id不能为空")

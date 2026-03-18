@@ -1,7 +1,6 @@
-FROM --platform=linux/amd64 maven:3.9.9-eclipse-temurin-21 AS build
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Cache deps
 COPY pom.xml ./pom.xml
 COPY blog-client/pom.xml ./blog-client/pom.xml
 COPY blog-domain/pom.xml ./blog-domain/pom.xml
@@ -12,14 +11,13 @@ COPY blog-start/pom.xml ./blog-start/pom.xml
 
 RUN mvn -q -DskipTests dependency:go-offline
 
-# Build
 COPY . .
 RUN mvn -q -DskipTests package
 
-FROM --platform=linux/amd64 eclipse-temurin:21-jre
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-COPY --from=build /app/blog-start/target/*.jar /app/app.jar
+COPY --from=builder /app/blog-start/target/*.jar /app/app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app/app.jar"]

@@ -5,6 +5,7 @@ import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
 import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
+import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.common.PageResponse;
@@ -25,6 +26,8 @@ public interface ArticleServiceI {
     Response adminUpdate(ArticleDraftUpdateCmd cmd, String action, String coverImageUrl);
 
     SingleResponse<ArticleVO> getSingleById(ArticleByIdQry articleByIdQry);
+
+    SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry articleBySlugQry);
 
     PageResponse<ArticleVO> getPage(ArticlePageQry articlePageQry);
 

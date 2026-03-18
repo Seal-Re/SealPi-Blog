@@ -35,22 +35,23 @@
 
 ### 2.2 鉴权与后台现状
 
-前端 P0 已完成最小可用后台壳层，已具备以下能力：
+前端后台主链路已不再只是“壳层”，而是已经具备最小可用闭环：
 
 - 已接入 Auth.js/NextAuth 的 GitHub OAuth 登录：`tailwind-nextjs-starter-blog-sealpi/auth.ts`
 - 已基于 GitHub User ID 完成管理员白名单校验：`tailwind-nextjs-starter-blog-sealpi/auth.ts`
 - 已通过 Middleware 保护 `/admin` 路由：`tailwind-nextjs-starter-blog-sealpi/middleware.ts`
-- 已具备后台首页入口：`tailwind-nextjs-starter-blog-sealpi/app/admin/page.tsx`
-- 已在 session 中暴露 `accessToken/githubUserId/isAdmin`：`tailwind-nextjs-starter-blog-sealpi/types/next-auth.d.ts`
+- 已实现 `/admin/login` 专用登录页：`tailwind-nextjs-starter-blog-sealpi/app/admin/login/page.tsx`
+- 已在 session 中暴露 `accessToken/githubUserId/isAdmin`，并通过 `adminFetch()` 统一注入 `Authorization: Bearer <token>`：`tailwind-nextjs-starter-blog-sealpi/lib/admin-api.ts`
+- 已具备后台首页、文章列表与编辑页入口：`tailwind-nextjs-starter-blog-sealpi/app/admin/page.tsx`、`tailwind-nextjs-starter-blog-sealpi/app/admin/articles/page.tsx`、`tailwind-nextjs-starter-blog-sealpi/app/admin/editor/page.tsx`
+- 已接入 Excalidraw 编辑器、草稿保存/发布与预览图导出提交流程：`tailwind-nextjs-starter-blog-sealpi/components/admin/AdminEditorClient.tsx`
 
-当前仍缺少的前端能力：
+当前仍缺少或尚未完全收口的前端能力：
 
-- 尚未实现 `Bearer Token` 透传封装，前端还不能统一调用 Spring Boot 管理 API
-- 尚未实现 `/admin/login` 专用登录页
-- 尚未实现后台文章列表、编辑器、草稿保存、发布工作流
-- 尚未实现 Excalidraw 编辑器/查看器与后端动态文章链路对接
+- 首页与博客列表仍未彻底切换到后端动态文章源，仓库内仍保留 Contentlayer/MDX 入口
+- Excalidraw 图片粘贴/拖拽/上传 -> `/api/v1/admin/upload` -> URL 回写场景 的资产外置链路尚未落地
+- 标签体系仍未完全消费后端真实数据，部分详情展示仍为临时占位
 
-> 结论：前端已从“纯静态展示站点”升级到“具备后台鉴权入口的静态站点”，但距离完整动态管理台仍差 API Client、登录页、编辑器与发布链路。
+> 结论：前端已从“具备后台鉴权入口的静态站点”继续演进到“后台创作主链路已打通、前台详情已动态化的混合站点”，未完成点主要集中在列表动态化、图片资产治理与标签数据收口。
 
 ### 2.3 安全策略（CSP / 外链资源约束）
 
@@ -112,15 +113,13 @@
 
 ### 3.4 当前仍未完成的关键项
 
-当前项目距离 v1 闭环，仍剩这些核心工作：
+当前项目距离 v1 完整收口，仍剩这些核心工作：
 
-- 前端 `Bearer Token` 透传封装未完成，无法统一调用 `/api/v1/admin/**`
-- 前端 `/admin/login` 页面未完成，当前仅有受保护入口页
-- 前端后台文章列表、编辑页、草稿保存、发布 UI 未完成
-- 前端 Excalidraw 编辑器与只读查看器未接入
-- 前台文章详情页仍主要依赖本地 MDX + Contentlayer，未切换到后端 `contentJson`
-- 预览图 `coverImageUrl` 尚未接入前台列表、详情页与 Open Graph 元信息
-- 后端管理写接口的行为测试仍不完整，尤其缺少 403 与 previewImage 覆盖 `coverImageUrl` 的测试
+- 首页与博客列表仍处于“动态接口 + Contentlayer/MDX”并存状态，尚未彻底统一为后端动态文章源
+- Excalidraw 图片资产外置链路尚未完成，当前编辑器还未实现“粘贴/拖拽图片 -> 上传接口 -> URL 回写场景”
+- 标签体系仍未真正动态化，部分详情页标签仍为临时占位
+- `coverImageUrl` 在详情页 metadata 中已消费，但首页与列表页尚未统一完成动态展示
+- 后端管理写接口行为测试已补到 401/403 与 previewImage 覆盖场景，但公开读接口契约与更完整回归保障仍偏薄
 
 ## 4. 当前需求与演进方向（向动态全栈演进）
 

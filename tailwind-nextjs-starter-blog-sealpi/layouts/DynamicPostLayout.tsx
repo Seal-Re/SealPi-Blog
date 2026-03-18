@@ -25,6 +25,7 @@ type ArticleLayoutContent = {
   title: string
   summary?: string
   date: string
+  lastmod?: string
   tags?: string[]
   coverImageUrl?: string
 }

@@ -8,6 +8,7 @@ import ExcalidrawViewer from '@/components/ExcalidrawViewer'
 import siteMetadata from '@/data/siteMetadata'
 import { buildApiUrl } from '@/lib/api-config'
 import type { AdminArticle, ApiResult, PageResult } from '@/lib/blog-api-types'
+import { fetchPublishedArticlesForStaticPaths } from '@/lib/public-blog-api'
 
 type ArticleListItem = Pick<
   AdminArticle,
@@ -19,24 +20,12 @@ type PageProps = {
 }
 
 async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
-  const response = await fetch(buildApiUrl('/api/v1/articles?pageIndex=1&pageSize=100'), {
-    next: { revalidate: 60 },
-  })
-
-  if (!response.ok) {
-    return null
-  }
-
-  const payload = (await response.json()) as PageResult<ArticleListItem>
-  const matched = payload.data?.find((article) => article.url === slug)
-
-  if (!matched?.articleId) {
-    return null
-  }
-
-  const detailResponse = await fetch(buildApiUrl(`/api/v1/articles/${matched.articleId}`), {
-    next: { revalidate: 60 },
-  })
+  const detailResponse = await fetch(
+    buildApiUrl(`/api/v1/articles/slug/${encodeURIComponent(slug)}`),
+    {
+      next: { revalidate: 60 },
+    }
+  )
 
   if (!detailResponse.ok) {
     return null
@@ -122,7 +111,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata | und
 }
 
 export async function generateStaticParams() {
-  const articles = await fetchPublishedArticles()
+  const articles = await fetchPublishedArticlesForStaticPaths()
   return articles.map((article) => ({
     slug: article.url.split('/').map((name) => decodeURI(name)),
   }))

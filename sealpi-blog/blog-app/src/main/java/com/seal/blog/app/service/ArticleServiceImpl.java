@@ -7,6 +7,7 @@ import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
 import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
+import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.common.PageResponse;
@@ -16,7 +17,6 @@ import com.seal.blog.domain.article.gateway.ArticleGateway;
 import com.seal.blog.domain.article.model.Article;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleServiceI {
 
-    @Autowired
     private final ArticleAssembler articleAssembler;
 
-    @Autowired
     private final ArticleGateway articleGateway;
 
     @Override
@@ -98,7 +96,18 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     public SingleResponse<ArticleVO> getSingleById(ArticleByIdQry qry) {
-        Article article = articleGateway.findById(qry.getArticleid());
+        Article article = articleGateway.findById(qry.getArticleId());
+
+        if (article == null) {
+            return SingleResponse.buildSingleFailure("404", "文章不存在");
+        }
+
+        return SingleResponse.of(articleAssembler.toVO(article));
+    }
+
+    @Override
+    public SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry qry) {
+        Article article = articleGateway.findBySlug(qry.getSlug());
 
         if (article == null) {
             return SingleResponse.buildSingleFailure("404", "文章不存在");

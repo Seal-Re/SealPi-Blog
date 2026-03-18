@@ -56,6 +56,19 @@ public class ArticleGatewayImpl implements ArticleGateway {
     }
 
     @Override
+    public Article findBySlug(String slug) {
+        if (slug == null || slug.isBlank()) {
+            return null;
+        }
+
+        LambdaQueryWrapper<ArticlePO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ArticlePO::getUrl, slug)
+                .last("limit 1");
+        ArticlePO articlePO = articleMapper.selectOne(queryWrapper);
+        return converter.toEntity(articlePO);
+    }
+
+    @Override
     public void remove(Integer id) {
         ArticlePO articlePO = articleMapper.selectById(id);
         articleMapper.deleteById(id);

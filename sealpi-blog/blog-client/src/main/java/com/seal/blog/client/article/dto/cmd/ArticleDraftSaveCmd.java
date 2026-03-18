@@ -2,8 +2,9 @@ package com.seal.blog.client.article.dto.cmd;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * v1 admin write API: save draft / publish article.
@@ -11,7 +12,8 @@ import lombok.NoArgsConstructor;
  * Note: previewImage is uploaded via multipart (see adapter controller) so the DTO only carries
  * metadata and Excalidraw JSON payload.
  */
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ArticleDraftSaveCmd {
