@@ -1,13 +1,11 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { slug } from 'github-slugger'
 import { formatDate } from 'pliny/utils/formatDate'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
-import tagData from 'app/tag-data.json'
-import type { PublicBlogPost } from '@/lib/public-blog-api'
+import type { PublicBlogPost, PublicTag } from '@/lib/public-blog-api'
 
 interface PaginationProps {
   totalPages: number
@@ -19,6 +17,9 @@ interface ListLayoutProps {
   title: string
   initialDisplayPosts?: PublicBlogPost[]
   pagination?: PaginationProps
+  availableTags?: PublicTag[]
+  emptyTitle?: string
+  emptyDescription?: string
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
@@ -69,10 +70,11 @@ export default function ListLayoutWithTags({
   title,
   initialDisplayPosts = [],
   pagination,
+  availableTags = [],
+  emptyTitle = '当前还没有可展示的文章',
+  emptyDescription = '内容列表暂时为空，可以稍后刷新，或从其他标签和文章入口继续浏览。',
 }: ListLayoutProps) {
   const pathname = usePathname()
-  const tagCounts = tagData as Record<string, number>
-  const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a])
   const displayPosts = initialDisplayPosts.length > 0 ? initialDisplayPosts : posts
 
   return (
@@ -97,19 +99,20 @@ export default function ListLayoutWithTags({
                 </Link>
               )}
               <ul>
-                {sortedTags.map((tagName) => (
-                  <li key={tagName} className="my-3">
-                    {decodeURI(pathname.split('/tags/')[1]) === slug(tagName) ? (
+                {availableTags.map((tag) => (
+                  <li key={tag.slug} className="my-3">
+                    {decodeURI(pathname.split('/tags/')[1] || '').split('/page/')[0] ===
+                    tag.slug ? (
                       <h3 className="text-primary-500 inline px-3 py-2 text-sm font-bold uppercase">
-                        {`${tagName} (${tagCounts[tagName]})`}
+                        {`${tag.name} (${tag.count})`}
                       </h3>
                     ) : (
                       <Link
-                        href={`/tags/${slug(tagName)}`}
+                        href={`/tags/${tag.slug}`}
                         className="hover:text-primary-500 dark:hover:text-primary-500 px-3 py-2 text-sm font-medium text-gray-500 uppercase dark:text-gray-300"
-                        aria-label={`View posts tagged ${tagName}`}
+                        aria-label={`View posts tagged ${tag.name}`}
                       >
-                        {`${tagName} (${tagCounts[tagName]})`}
+                        {`${tag.name} (${tag.count})`}
                       </Link>
                     )}
                   </li>
@@ -118,39 +121,53 @@ export default function ListLayoutWithTags({
             </div>
           </div>
           <div>
-            <ul>
-              {displayPosts.map((post) => (
-                <li key={post.path} className="py-5">
-                  <article className="flex flex-col space-y-2 xl:space-y-0">
-                    <dl>
-                      <dt className="sr-only">Published on</dt>
-                      <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
-                        <time dateTime={post.date} suppressHydrationWarning>
-                          {formatDate(post.date, siteMetadata.locale)}
-                        </time>
-                      </dd>
-                    </dl>
-                    <div className="space-y-3">
-                      <div>
-                        <h2 className="text-2xl leading-8 font-bold tracking-tight">
-                          <Link href={`/${post.path}`} className="text-gray-900 dark:text-gray-100">
-                            {post.title}
-                          </Link>
-                        </h2>
-                        <div className="flex flex-wrap">
-                          {post.tags.map((tagName) => (
-                            <Tag key={tagName} text={tagName} />
-                          ))}
+            {displayPosts.length ? (
+              <ul>
+                {displayPosts.map((post) => (
+                  <li key={post.path} className="py-5">
+                    <article className="flex flex-col space-y-2 xl:space-y-0">
+                      <dl>
+                        <dt className="sr-only">Published on</dt>
+                        <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
+                          <time dateTime={post.date} suppressHydrationWarning>
+                            {formatDate(post.date, siteMetadata.locale)}
+                          </time>
+                        </dd>
+                      </dl>
+                      <div className="space-y-3">
+                        <div>
+                          <h2 className="text-2xl leading-8 font-bold tracking-tight">
+                            <Link
+                              href={`/${post.path}`}
+                              className="text-gray-900 dark:text-gray-100"
+                            >
+                              {post.title}
+                            </Link>
+                          </h2>
+                          <div className="flex flex-wrap">
+                            {post.tags.map((tagName) => (
+                              <Tag key={tagName} text={tagName} />
+                            ))}
+                          </div>
+                        </div>
+                        <div className="prose max-w-none text-gray-500 dark:text-gray-400">
+                          {post.summary}
                         </div>
                       </div>
-                      <div className="prose max-w-none text-gray-500 dark:text-gray-400">
-                        {post.summary}
-                      </div>
-                    </div>
-                  </article>
-                </li>
-              ))}
-            </ul>
+                    </article>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="rounded-[2rem] border border-dashed border-gray-300 bg-gray-50/80 px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-900/60">
+                <h2 className="text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
+                  {emptyTitle}
+                </h2>
+                <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-gray-600 dark:text-gray-300">
+                  {emptyDescription}
+                </p>
+              </div>
+            )}
             {pagination && pagination.totalPages > 1 && (
               <Pagination currentPage={pagination.currentPage} totalPages={pagination.totalPages} />
             )}

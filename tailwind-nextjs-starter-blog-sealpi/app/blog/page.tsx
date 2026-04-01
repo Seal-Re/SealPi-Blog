@@ -1,11 +1,18 @@
 import { genPageMetadata } from 'app/seo'
 import ListLayout from '@/layouts/ListLayoutWithTags'
-import { BLOG_POSTS_PER_PAGE, fetchPublishedArticlesPage } from '@/lib/public-blog-api'
+import {
+  BLOG_POSTS_PER_PAGE,
+  fetchPublishedArticlesPage,
+  fetchPublishedTags,
+} from '@/lib/public-blog-api'
 
 export const metadata = genPageMetadata({ title: 'Blog' })
 
 export default async function BlogPage() {
-  const response = await fetchPublishedArticlesPage(1, BLOG_POSTS_PER_PAGE)
+  const [response, availableTags] = await Promise.all([
+    fetchPublishedArticlesPage(1, BLOG_POSTS_PER_PAGE),
+    fetchPublishedTags(),
+  ])
 
   return (
     <ListLayout
@@ -16,6 +23,7 @@ export default async function BlogPage() {
         totalPages: response.totalPages,
       }}
       title="All Posts"
+      availableTags={availableTags}
     />
   )
 }

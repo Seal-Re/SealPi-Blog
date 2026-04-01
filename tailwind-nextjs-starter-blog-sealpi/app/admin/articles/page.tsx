@@ -1,7 +1,8 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
+import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
 import PageTitle from '@/components/PageTitle'
-import { adminFetch } from '@/lib/admin-api'
+import { AdminApiError, adminFetch } from '@/lib/admin-api'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -33,13 +34,10 @@ function DraftBadge({ draft }: { draft?: number }) {
   const isDraft = draft === 1
 
   return (
-    <span
-      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase ${
-        isDraft
-          ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-200'
-          : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-200'
-      }`}
-    >
+    <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase dark:border-gray-700">
+      <span
+        className={`h-2 w-2 rounded-full ${isDraft ? 'bg-gray-400 dark:bg-gray-500' : 'bg-emerald-500'}`}
+      />
       {isDraft ? '草稿中' : '已发布'}
     </span>
   )
@@ -47,7 +45,7 @@ function DraftBadge({ draft }: { draft?: number }) {
 
 function ArticleRow({ article }: { article: AdminArticle }) {
   return (
-    <tr className="border-t border-gray-200/80 align-top dark:border-gray-800/80">
+    <tr className="group border-t border-gray-200/80 align-top transition-all duration-300 hover:bg-gray-50/70 dark:border-gray-800/80 dark:hover:bg-gray-900/40">
       <td className="px-4 py-5">
         <div className="space-y-2">
           <Link
@@ -82,13 +80,13 @@ function ArticleRow({ article }: { article: AdminArticle }) {
         <div className="flex flex-col gap-2 sm:flex-row">
           <Link
             href={`/admin/editor?articleId=${article.articleId}`}
-            className="inline-flex items-center justify-center rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="inline-flex items-center justify-center rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-gray-800 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             编辑文章
           </Link>
           <Link
             href={`/blog/${article.url}`}
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 opacity-0 transition-all duration-300 group-hover:opacity-100 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             预览前台
           </Link>
@@ -98,38 +96,60 @@ function ArticleRow({ article }: { article: AdminArticle }) {
   )
 }
 
-async function fetchArticles(pageIndex: number) {
+async function fetchArticles(pageIndex: number, q?: string, status?: string) {
   const params = new URLSearchParams({
     pageIndex: String(pageIndex),
     pageSize: '10',
   })
+  if (q) {
+    params.set('q', q)
+  }
+  if (status && status !== 'all') {
+    params.set('status', status)
+  }
 
   return adminFetch<PageResult<AdminArticle>>(`/api/v1/articles?${params.toString()}`)
 }
 
 export default async function AdminArticlesPage(props: {
-  searchParams?: Promise<{ pageIndex?: string }>
+  searchParams?: Promise<{ pageIndex?: string; q?: string; status?: string }>
 }) {
   await auth()
   const searchParams = await props.searchParams
   const pageIndex = Math.max(Number(searchParams?.pageIndex || '1') || 1, 1)
-  const response = await fetchArticles(pageIndex)
-  const articles = response?.data || []
-  const pageSize = response?.pageSize || 10
-  const totalCount = response?.totalCount || 0
-  const totalPages = Math.max(Math.ceil(totalCount / pageSize), 1)
+  const q = searchParams?.q?.trim() || ''
+  const status = searchParams?.status || 'all'
+  let articles: AdminArticle[] = []
+  let pageSize = 10
+  let totalCount = 0
+  let totalPages = 1
+  let loadError = ''
+
+  try {
+    const response = await fetchArticles(pageIndex, q, status)
+    articles = response?.data || []
+    pageSize = response?.pageSize || 10
+    totalCount = response?.totalCount || 0
+    totalPages = Math.max(Math.ceil(totalCount / pageSize), 1)
+  } catch (error) {
+    if (error instanceof AdminApiError) {
+      loadError = `${error.message} (HTTP ${error.status})`
+    } else {
+      loadError = '读取文章列表失败，请稍后重试。'
+    }
+  }
 
   return (
-    <section className="space-y-8 py-10">
-      <div className="flex flex-col gap-5 rounded-[2rem] border border-gray-200 bg-white p-8 shadow-[0_24px_80px_-44px_rgba(15,23,42,0.35)] lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-900/80">
+    <section className="space-y-8">
+      <AdminArticlesTopbarPortal q={q} status={status} />
+      <div className="flex flex-col gap-5 rounded-[2rem] border border-gray-200 bg-white p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-sky-700 uppercase dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-300">
             Admin Articles
           </span>
           <PageTitle>文章列表</PageTitle>
           <p className="max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-300">
-            当前页面直接读取后端分页接口，作为后台内容管理的主入口。下一步将在编辑页接入草稿保存、发布与
-            Excalidraw 创作能力。
+            当前页面直接读取后端分页接口，作为后台内容管理主入口；可从这里进入编辑器，对草稿、发布内容与前台预览进行联动校对。
           </p>
         </div>
 
@@ -150,19 +170,19 @@ export default async function AdminArticlesPage(props: {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/80">
+        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
           <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
             文章总数
           </p>
           <p className="mt-3 text-3xl font-black text-gray-950 dark:text-gray-50">{totalCount}</p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/80">
+        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
           <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
             当前页码
           </p>
           <p className="mt-3 text-3xl font-black text-gray-950 dark:text-gray-50">{pageIndex}</p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/80">
+        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
           <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
             分页规模
           </p>
@@ -170,7 +190,17 @@ export default async function AdminArticlesPage(props: {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_24px_80px_-44px_rgba(15,23,42,0.35)] dark:border-gray-800 dark:bg-gray-900/80">
+      {loadError ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm leading-7 text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-100">
+          <p className="font-semibold">文章列表接口调用失败</p>
+          <p className="mt-1">{loadError}</p>
+          <p className="mt-1 text-xs text-rose-700/80 dark:text-rose-200/80">
+            可先检查后端服务与数据库表是否完整，再刷新重试。
+          </p>
+        </div>
+      ) : null}
+
+      <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left">
             <thead className="bg-gray-50/80 dark:bg-gray-950/60">
@@ -204,7 +234,7 @@ export default async function AdminArticlesPage(props: {
                     colSpan={6}
                     className="px-4 py-14 text-center text-sm leading-7 text-gray-500 dark:text-gray-400"
                   >
-                    当前还没有可展示的文章数据。可以先进入新建页创建草稿，再回到这里查看分页结果。
+                    当前还没有可展示的文章数据。可以先进入新建页创建文章或保存草稿，随后回到这里查看分页结果与发布状态。
                   </td>
                 </tr>
               )}
@@ -213,7 +243,7 @@ export default async function AdminArticlesPage(props: {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[2rem] border border-gray-200 bg-linear-to-br from-amber-50 via-white to-sky-50 p-6 shadow-[0_18px_60px_-32px_rgba(15,23,42,0.18)] sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:from-amber-950/20 dark:via-gray-900 dark:to-sky-950/20">
+      <div className="flex flex-col gap-3 rounded-[2rem] border border-gray-200 bg-white p-6 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-950">
         <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
           当前读取分页接口 `pageIndex={pageIndex}` / `pageSize={pageSize}`，总页数 {totalPages}。
         </p>

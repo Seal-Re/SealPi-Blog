@@ -2,7 +2,6 @@ package com.seal.blog.client.article.dto.vo;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -11,9 +10,12 @@ public class ArticleVO {
     private String articleId;
     private String title;
 
-    // Keep as-is for now; later we can normalize to String/LocalDateTime consistently across layers.
-    private LocalDateTime date;
-    private LocalDateTime lastmod;
+    /**
+     * Domain layer currently stores date/lastmod as ISO-8601 date string (e.g. 2026-03-25).
+     * Keep DTO aligned to avoid runtime parsing errors.
+     */
+    private String date;
+    private String lastmod;
 
     private String url;
 

@@ -2,8 +2,8 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { notFound } from 'next/navigation'
 import {
   BLOG_POSTS_PER_PAGE,
-  fetchPublishedArticlesForStaticPaths,
   fetchPublishedArticlesPage,
+  fetchPublishedTags,
 } from '@/lib/public-blog-api'
 
 function normalizeTagLabel(tag: string) {
@@ -13,19 +13,12 @@ function normalizeTagLabel(tag: string) {
 export const dynamicParams = true
 
 export const generateStaticParams = async () => {
-  const posts = await fetchPublishedArticlesForStaticPaths()
-  const counts = new Map<string, number>()
+  const tags = await fetchPublishedTags()
 
-  posts.forEach((post) => {
-    post.tags.forEach((tag) => {
-      counts.set(tag, (counts.get(tag) || 0) + 1)
-    })
-  })
-
-  return Array.from(counts.entries()).flatMap(([tag, count]) => {
-    const totalPages = Math.max(1, Math.ceil(count / BLOG_POSTS_PER_PAGE))
+  return tags.flatMap((tag) => {
+    const totalPages = Math.max(1, Math.ceil(tag.count / BLOG_POSTS_PER_PAGE))
     return Array.from({ length: totalPages }, (_, index) => ({
-      tag: encodeURI(tag),
+      tag: encodeURI(tag.slug),
       page: String(index + 1),
     }))
   })
@@ -33,36 +26,48 @@ export const generateStaticParams = async () => {
 
 export default async function TagPage(props: { params: Promise<{ tag: string; page: string }> }) {
   const params = await props.params
-  const tag = decodeURI(params.tag)
-  const title = normalizeTagLabel(tag)
+  const tagSlug = decodeURI(params.tag)
   const pageNumber = parseInt(params.page, 10)
 
   if (pageNumber <= 0 || Number.isNaN(pageNumber)) {
     return notFound()
   }
 
-  const response = await fetchPublishedArticlesPage(1, 100)
-  const filteredPosts = response.items.filter((post) => post.tags.some((item) => item === tag))
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / BLOG_POSTS_PER_PAGE))
+  const availableTags = await fetchPublishedTags()
+  const hasTagCatalog = availableTags.length > 0
+  const currentTag = availableTags.find((item) => item.slug === tagSlug)
 
-  if (!filteredPosts.length || pageNumber > totalPages) {
+  if (hasTagCatalog && !currentTag) {
     return notFound()
   }
 
-  const initialDisplayPosts = filteredPosts.slice(
-    BLOG_POSTS_PER_PAGE * (pageNumber - 1),
-    BLOG_POSTS_PER_PAGE * pageNumber
+  const fallbackTagName = tagSlug.replace(/-/g, ' ')
+  const response = await fetchPublishedArticlesPage(
+    pageNumber,
+    BLOG_POSTS_PER_PAGE,
+    currentTag?.name || fallbackTagName
   )
+
+  if (pageNumber > response.totalPages) {
+    return notFound()
+  }
 
   return (
     <ListLayout
-      posts={filteredPosts}
-      initialDisplayPosts={initialDisplayPosts}
+      posts={response.items}
+      initialDisplayPosts={response.items}
       pagination={{
-        currentPage: pageNumber,
-        totalPages,
+        currentPage: response.pageIndex,
+        totalPages: response.totalPages,
       }}
-      title={title}
+      title={normalizeTagLabel(currentTag?.name || fallbackTagName)}
+      availableTags={availableTags}
+      emptyTitle={hasTagCatalog ? '该分页下暂时没有文章' : '标签数据暂不可用'}
+      emptyDescription={
+        hasTagCatalog
+          ? '可能是标签文章数量刚发生变化，或当前分页已无数据；可以返回第一页继续查看。'
+          : '暂时无法加载标签总表，已回退为按当前标签名请求分页；可稍后刷新重试。'
+      }
     />
   )
 }

@@ -5,26 +5,38 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import {
   BLOG_POSTS_PER_PAGE,
-  fetchPublishedArticlesForStaticPaths,
   fetchPublishedArticlesPage,
+  fetchPublishedTags,
 } from '@/lib/public-blog-api'
 
 function normalizeTagLabel(tag: string) {
   return tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
 }
 
+function buildEmptyStateProps(tagName: string) {
+  return {
+    emptyTitle: '该标签下暂时还没有文章',
+    emptyDescription:
+      '标签数据已从后端同步完成，但当前分页结果为空，可稍后重试或返回标签列表查看其他内容。',
+  }
+}
+
 export async function generateMetadata(props: {
   params: Promise<{ tag: string }>
 }): Promise<Metadata> {
   const params = await props.params
-  const tag = decodeURI(params.tag)
+  const tagSlug = decodeURI(params.tag)
+  const availableTags = await fetchPublishedTags()
+  const currentTag = availableTags.find((item) => item.slug === tagSlug)
+  const tag = currentTag?.name || tagSlug
+
   return genPageMetadata({
     title: tag,
     description: `${siteMetadata.title} ${tag} tagged content`,
     alternates: {
       canonical: './',
       types: {
-        'application/rss+xml': `${siteMetadata.siteUrl}/tags/${tag}/feed.xml`,
+        'application/rss+xml': `${siteMetadata.siteUrl}/tags/${tagSlug}/feed.xml`,
       },
     },
   })
@@ -33,37 +45,48 @@ export async function generateMetadata(props: {
 export const dynamicParams = true
 
 export const generateStaticParams = async () => {
-  const posts = await fetchPublishedArticlesForStaticPaths()
-  const tags = new Set<string>()
-  posts.forEach((post) => {
-    post.tags.forEach((tag) => tags.add(tag))
-  })
-  return Array.from(tags).map((tag) => ({ tag: encodeURI(tag) }))
+  const tags = await fetchPublishedTags()
+  return tags.map((tag) => ({ tag: encodeURI(tag.slug) }))
 }
 
 export default async function TagPage(props: { params: Promise<{ tag: string }> }) {
   const params = await props.params
-  const tag = decodeURI(params.tag)
-  const title = normalizeTagLabel(tag)
-  const response = await fetchPublishedArticlesPage(1, 100)
-  const filteredPosts = response.items.filter((post) => post.tags.some((item) => item === tag))
+  const tagSlug = decodeURI(params.tag)
+  const availableTags = await fetchPublishedTags()
+  const hasTagCatalog = availableTags.length > 0
+  const currentTag = availableTags.find((item) => item.slug === tagSlug)
 
-  if (!filteredPosts.length) {
+  if (hasTagCatalog && !currentTag) {
     return notFound()
   }
 
-  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / BLOG_POSTS_PER_PAGE))
-  const initialDisplayPosts = filteredPosts.slice(0, BLOG_POSTS_PER_PAGE)
+  const fallbackTagName = tagSlug.replace(/-/g, ' ')
+  const response = await fetchPublishedArticlesPage(
+    1,
+    BLOG_POSTS_PER_PAGE,
+    currentTag?.name || fallbackTagName
+  )
 
   return (
     <ListLayout
-      posts={filteredPosts}
-      initialDisplayPosts={initialDisplayPosts}
+      posts={response.items}
+      initialDisplayPosts={response.items}
       pagination={{
-        currentPage: 1,
-        totalPages,
+        currentPage: response.pageIndex,
+        totalPages: response.totalPages,
       }}
-      title={title}
+      title={normalizeTagLabel(currentTag?.name || fallbackTagName)}
+      availableTags={availableTags}
+      emptyTitle={
+        hasTagCatalog
+          ? buildEmptyStateProps(currentTag?.name || fallbackTagName).emptyTitle
+          : '标签数据暂不可用'
+      }
+      emptyDescription={
+        hasTagCatalog
+          ? buildEmptyStateProps(currentTag?.name || fallbackTagName).emptyDescription
+          : '暂时无法加载标签总表，已回退为按当前标签名直接拉取分页数据，可稍后刷新重试。'
+      }
     />
   )
 }

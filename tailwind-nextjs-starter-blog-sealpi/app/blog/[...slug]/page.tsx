@@ -22,9 +22,7 @@ type PageProps = {
 async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
   const detailResponse = await fetch(
     buildApiUrl(`/api/v1/articles/slug/${encodeURIComponent(slug)}`),
-    {
-      next: { revalidate: 60 },
-    }
+    { cache: 'no-store' }
   )
 
   if (!detailResponse.ok) {
@@ -37,7 +35,7 @@ async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
 
 async function fetchPublishedArticles(): Promise<ArticleListItem[]> {
   const response = await fetch(buildApiUrl('/api/v1/articles?pageIndex=1&pageSize=100'), {
-    next: { revalidate: 60 },
+    cache: 'no-store',
   })
 
   if (!response.ok) {
@@ -169,7 +167,9 @@ export default async function Page(props: PageProps) {
           summary,
           date,
           lastmod: article.lastmod,
-          tags: ['excalidraw', 'visual-story'],
+          tags:
+            article.tags?.map((tag) => tag.name).filter((name): name is string => Boolean(name)) ||
+            [],
           coverImageUrl: article.coverImageUrl,
         }}
         authorDetails={authorDetails}

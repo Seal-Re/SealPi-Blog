@@ -1,0 +1,2 @@
+FROM sealpi-blog-blog-start:latest
+COPY sealpi-blog/blog-start/target/blog-start-0.0.1-SNAPSHOT.jar /app/app.jar

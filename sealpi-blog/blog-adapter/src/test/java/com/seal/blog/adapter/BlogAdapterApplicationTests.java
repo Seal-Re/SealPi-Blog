@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.seal.blog.client.article.api.ArticleServiceI;
 import com.seal.blog.client.common.Response;
+import com.seal.blog.client.user.api.UserServiceI;
 import com.seal.blog.infra.oss.MinioObjectStorage;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.Mac;
@@ -29,7 +30,8 @@ import org.springframework.test.web.servlet.MockMvc;
                 // Minimal config to let AdminAuthFilter/AdminJwtVerifier start in test context.
                 "admin.jwt.secret=test-secret",
                 "admin.github.userIds=123",
-                "admin.jwt.githubUserIdClaim=githubUserId"
+                "admin.jwt.githubUserIdClaim=githubUserId",
+                "blog.internal.sync.secret=test-internal"
         }
 )
 @AutoConfigureMockMvc
@@ -40,6 +42,9 @@ class BlogAdapterApplicationTests {
 
     @MockBean
     private ArticleServiceI articleService;
+
+    @MockBean
+    private UserServiceI userService;
 
     // ArticleAdminController requires this bean; mock it to avoid pulling full blog-infra context.
     @MockBean

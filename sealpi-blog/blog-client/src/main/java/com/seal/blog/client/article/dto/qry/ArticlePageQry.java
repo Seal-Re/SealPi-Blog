@@ -17,6 +17,34 @@ public class ArticlePageQry {
     private Integer pageSize = 10;
 
     private String keyword;
+    /**
+     * Frontend friendly alias for keyword.
+     */
+    private String q;
     private Integer tagId;
     private Integer draft;
+    /**
+     * Frontend friendly status: all | draft | published.
+     */
+    private String status;
+
+    public String resolveKeyword() {
+        if (q != null && !q.trim().isEmpty()) {
+            return q.trim();
+        }
+        return keyword;
+    }
+
+    public Integer resolveDraft() {
+        if (status == null || status.isBlank() || "all".equalsIgnoreCase(status)) {
+            return draft;
+        }
+        if ("draft".equalsIgnoreCase(status)) {
+            return 1;
+        }
+        if ("published".equalsIgnoreCase(status)) {
+            return 0;
+        }
+        return draft;
+    }
 }

@@ -2,20 +2,39 @@
 
 import { Comments as CommentsComponent } from 'pliny/comments'
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import siteMetadata from '@/data/siteMetadata'
 
 export default function Comments({ slug }: { slug: string }) {
   const [loadComments, setLoadComments] = useState(false)
+  const { data: session } = useSession()
+  const canComment = Boolean(session?.user?.canComment)
 
   if (!siteMetadata.comments?.provider) {
     return null
   }
+
   return (
     <>
-      {loadComments ? (
-        <CommentsComponent commentsConfig={siteMetadata.comments} slug={slug} />
+      <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+        {canComment
+          ? '你已登录且具备评论权限，可加载下方评论组件参与讨论。'
+          : '当前站点评论为只读模式：可浏览讨论，登录后暂不可发表评论（默认 commentPermission=READ_ONLY）。'}
+      </div>
+      {canComment ? (
+        loadComments ? (
+          <CommentsComponent commentsConfig={siteMetadata.comments} slug={slug} />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setLoadComments(true)}
+            className="border-primary-600 text-primary-700 hover:bg-primary-50 dark:border-primary-500 dark:text-primary-300 dark:hover:bg-primary-950/40 rounded-lg border px-4 py-2 text-sm font-medium"
+          >
+            加载评论
+          </button>
+        )
       ) : (
-        <button onClick={() => setLoadComments(true)}>Load Comments</button>
+        <CommentsComponent commentsConfig={siteMetadata.comments} slug={slug} />
       )}
     </>
   )

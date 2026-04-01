@@ -12,7 +12,7 @@ const ContentSecurityPolicy = `
   img-src * blob: data:;
   media-src *.s3.amazonaws.com;
   connect-src *;
-  font-src 'self';
+  font-src 'self' data: https:;
   frame-src giscus.app
 `
 
@@ -94,6 +94,14 @@ module.exports = () => {
         test: /\.svg$/,
         use: ['@svgr/webpack'],
       })
+
+      config.ignoreWarnings = [
+        ...(config.ignoreWarnings || []),
+        {
+          module: /@excalidraw\/excalidraw/,
+          message: /Critical dependency: require function is used in a way in which dependencies cannot be statically extracted/,
+        },
+      ]
 
       return config
     },

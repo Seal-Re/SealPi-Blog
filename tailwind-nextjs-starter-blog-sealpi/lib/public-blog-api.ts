@@ -1,5 +1,6 @@
+import { slug } from 'github-slugger'
 import { buildApiUrl } from '@/lib/api-config'
-import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
+import type { AdminArticle, ArticleTag, PageResult } from '@/lib/blog-api-types'
 
 export const BLOG_POSTS_PER_PAGE = 5
 export const PUBLIC_ARTICLE_PRELOAD_SIZE = 100
@@ -22,6 +23,20 @@ export type PublicBlogPost = Omit<PublishedArticleListItem, 'summary' | 'date' |
   tags: string[]
 }
 
+export type PublicTag = {
+  name: string
+  slug: string
+  count: number
+}
+
+export type PublicArticlePage = {
+  items: PublicBlogPost[]
+  totalCount: number
+  pageIndex: number
+  pageSize: number
+  totalPages: number
+}
+
 function normalizeDate(value?: string) {
   if (!value) {
     return new Date().toISOString()
@@ -37,6 +52,34 @@ function normalizeTags(tags?: AdminArticle['tags']): string[] {
   }
 
   return tags.map((tag) => tag.name).filter((name): name is string => Boolean(name))
+}
+
+function normalizeTagName(name?: string | null) {
+  return name?.trim() || ''
+}
+
+function mergeTagCounts(tagMap: Map<string, PublicTag>, tags?: ArticleTag[]) {
+  if (!tags?.length) {
+    return
+  }
+
+  tags.forEach((tag) => {
+    const name = normalizeTagName(tag.name)
+    if (!name) {
+      return
+    }
+
+    const tagSlug = slug(name)
+    const current = tagMap.get(tagSlug)
+    const nextCount =
+      typeof tag.count === 'number' && tag.count > 0 ? tag.count : (current?.count || 0) + 1
+
+    tagMap.set(tagSlug, {
+      name,
+      slug: tagSlug,
+      count: nextCount,
+    })
+  })
 }
 
 function toPublicPost(article: PublishedArticleListItem): PublicBlogPost {
@@ -56,14 +99,24 @@ function toPublicPost(article: PublishedArticleListItem): PublicBlogPost {
 
 export async function fetchPublishedArticlesPage(
   pageIndex: number,
-  pageSize = BLOG_POSTS_PER_PAGE
-) {
-  const response = await fetch(
-    buildApiUrl(`/api/v1/articles?pageIndex=${pageIndex}&pageSize=${pageSize}&draft=1`),
-    {
-      next: { revalidate: 60 },
-    }
-  )
+  pageSize = BLOG_POSTS_PER_PAGE,
+  tag?: string
+): Promise<PublicArticlePage> {
+  const searchParams = new URLSearchParams({
+    pageIndex: String(pageIndex),
+    pageSize: String(pageSize),
+    draft: '1',
+  })
+
+  const normalizedTag = normalizeTagName(tag)
+  if (normalizedTag) {
+    searchParams.set('keyword', normalizedTag)
+    searchParams.set('tag', normalizedTag)
+  }
+
+  const response = await fetch(buildApiUrl(`/api/v1/articles?${searchParams.toString()}`), {
+    cache: 'no-store',
+  })
 
   if (!response.ok) {
     return {
@@ -90,11 +143,38 @@ export async function fetchPublishedArticlesPage(
   }
 }
 
-export async function fetchPublishedArticles(options?: { pageSize?: number }) {
-  const response = await fetchPublishedArticlesPage(1, options?.pageSize || BLOG_POSTS_PER_PAGE)
+export async function fetchPublishedArticles(options?: { pageSize?: number; tag?: string }) {
+  const response = await fetchPublishedArticlesPage(
+    1,
+    options?.pageSize || BLOG_POSTS_PER_PAGE,
+    options?.tag
+  )
   return response.items
 }
 
 export async function fetchPublishedArticlesForStaticPaths() {
   return fetchPublishedArticles({ pageSize: PUBLIC_ARTICLE_PRELOAD_SIZE })
+}
+
+export async function fetchPublishedTags() {
+  const response = await fetchPublishedArticlesPage(1, PUBLIC_ARTICLE_PRELOAD_SIZE)
+  const tagMap = new Map<string, PublicTag>()
+
+  response.items.forEach((article) => {
+    mergeTagCounts(
+      tagMap,
+      article.tags.map((tagName) => ({
+        tagId: 0,
+        name: tagName,
+      }))
+    )
+  })
+
+  return Array.from(tagMap.values()).sort((a, b) => {
+    if (b.count !== a.count) {
+      return b.count - a.count
+    }
+
+    return a.name.localeCompare(b.name, 'zh-CN')
+  })
 }

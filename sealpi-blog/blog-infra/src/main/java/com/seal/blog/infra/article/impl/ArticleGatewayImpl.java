@@ -100,15 +100,19 @@ public class ArticleGatewayImpl implements ArticleGateway {
         }
 
         LambdaQueryWrapper<ArticlePO> queryWrapper = new LambdaQueryWrapper<>();
-        if(articlePageQry.getKeyword() != null){
+        String keyword = articlePageQry.resolveKeyword();
+        Integer draft = articlePageQry.resolveDraft();
+        if(keyword != null && !keyword.isBlank()){
             queryWrapper.and(w -> w
-                    .like(ArticlePO::getTitle, articlePageQry.getKeyword())
+                    .like(ArticlePO::getTitle, keyword)
                     .or()
-                    .like(ArticlePO::getSummary, articlePageQry.getKeyword())
+                    .like(ArticlePO::getSummary, keyword)
+                    .or()
+                    .like(ArticlePO::getUrl, keyword)
             );
         }
-        if(articlePageQry.getDraft() != null){
-            queryWrapper.eq(ArticlePO::getDraft, articlePageQry.getDraft());
+        if(draft != null){
+            queryWrapper.eq(ArticlePO::getDraft, draft);
         }
         if(articleIds != null){
             queryWrapper.in(ArticlePO::getArticleId, articleIds);

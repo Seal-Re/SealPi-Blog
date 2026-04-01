@@ -5,8 +5,10 @@ import { disableBodyScroll, enableBodyScroll, clearAllBodyScrollLocks } from 'bo
 import { Fragment, useState, useEffect, useRef } from 'react'
 import Link from './Link'
 import headerNavLinks from '@/data/headerNavLinks'
+import { signIn, signOut, useSession } from 'next-auth/react'
 
 const MobileNav = () => {
+  const { data: session } = useSession()
   const [navShow, setNavShow] = useState(false)
   const navRef = useRef(null)
 
@@ -82,6 +84,45 @@ const MobileNav = () => {
                     {link.title}
                   </Link>
                 ))}
+                <div className="mt-8 w-full max-w-xs border-t border-gray-200 pt-6 dark:border-gray-800">
+                  {session?.user?.githubUserId ? (
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                        {session.user.displayName || session.user.name || session.user.githubLogin}
+                      </p>
+                      {session.user.isAdmin ? (
+                        <Link
+                          href="/admin"
+                          className="hover:text-primary-500 dark:hover:text-primary-400 block text-lg font-bold text-gray-900 dark:text-gray-100"
+                          onClick={onToggleNav}
+                        >
+                          平台管理
+                        </Link>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onToggleNav()
+                          signOut({ callbackUrl: '/' })
+                        }}
+                        className="text-lg font-bold text-red-600 dark:text-red-400"
+                      >
+                        退出登录
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onToggleNav()
+                        signIn('github', { callbackUrl: '/' })
+                      }}
+                      className="hover:text-primary-500 dark:hover:text-primary-400 text-lg font-bold text-gray-900 dark:text-gray-100"
+                    >
+                      登录
+                    </button>
+                  )}
+                </div>
               </nav>
 
               <button

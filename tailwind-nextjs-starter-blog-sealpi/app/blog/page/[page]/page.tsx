@@ -4,6 +4,7 @@ import {
   BLOG_POSTS_PER_PAGE,
   fetchPublishedArticlesForStaticPaths,
   fetchPublishedArticlesPage,
+  fetchPublishedTags,
 } from '@/lib/public-blog-api'
 
 export const dynamicParams = true
@@ -22,7 +23,10 @@ export default async function Page(props: { params: Promise<{ page: string }> })
     return notFound()
   }
 
-  const response = await fetchPublishedArticlesPage(pageNumber, BLOG_POSTS_PER_PAGE)
+  const [response, availableTags] = await Promise.all([
+    fetchPublishedArticlesPage(pageNumber, BLOG_POSTS_PER_PAGE),
+    fetchPublishedTags(),
+  ])
 
   if (pageNumber > response.totalPages) {
     return notFound()
@@ -37,6 +41,7 @@ export default async function Page(props: { params: Promise<{ page: string }> })
         totalPages: response.totalPages,
       }}
       title="All Posts"
+      availableTags={availableTags}
     />
   )
 }
