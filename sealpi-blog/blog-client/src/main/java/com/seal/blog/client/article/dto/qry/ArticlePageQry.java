@@ -40,10 +40,10 @@ public class ArticlePageQry {
             return draft;
         }
         if ("draft".equalsIgnoreCase(status)) {
-            return 1;
+            return 0;   // ArticleStatus.DRAFT = 0
         }
         if ("published".equalsIgnoreCase(status)) {
-            return 0;
+            return 1;   // ArticleStatus.PUBLISHED = 1
         }
         return draft;
     }
