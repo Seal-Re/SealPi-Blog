@@ -25,6 +25,7 @@ export default function AdminEditorWorkspace({
   const actionLockRef = useRef(false)
   const [isTriggering, setIsTriggering] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [resolvedArticleId, setResolvedArticleId] = useState<string | undefined>(articleId)
   const [showDraftHint, setShowDraftHint] = useState(Boolean(draftHint && draftHint.draftCount > 0))
   const [feedback, setFeedback] = useState<{
     open: boolean
@@ -39,6 +40,10 @@ export default function AdminEditorWorkspace({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    setResolvedArticleId(article?.articleId ? String(article.articleId) : articleId)
+  }, [article?.articleId, articleId])
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -139,7 +144,7 @@ export default function AdminEditorWorkspace({
               编辑器
             </p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-950 dark:text-gray-50">
-              {articleId ? `编辑文章 #${articleId}` : '新建文章'}
+              {resolvedArticleId ? `编辑文章 #${resolvedArticleId}` : '新建文章'}
             </h1>
           </div>
           <button
@@ -159,13 +164,13 @@ export default function AdminEditorWorkspace({
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
             <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">模式</dt>
             <dd className="mt-1 text-gray-900 dark:text-gray-100">
-              {articleId ? '编辑既有文章' : '创建新文章'}
+              {resolvedArticleId ? '编辑既有文章' : '创建新文章'}
             </dd>
           </div>
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
             <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">文章标识</dt>
             <dd className="mt-1 text-gray-900 dark:text-gray-100">
-              {article?.articleId || articleId || '尚未指定 articleId'}
+              {resolvedArticleId || '尚未指定 articleId'}
             </dd>
           </div>
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
@@ -177,7 +182,12 @@ export default function AdminEditorWorkspace({
         </dl>
       </div>
 
-      <AdminEditorClient ref={editorRef} article={article} onSubmitSuccess={handleSubmitSuccess} />
+      <AdminEditorClient
+        ref={editorRef}
+        article={article}
+        onSubmitSuccess={handleSubmitSuccess}
+        onArticleIdResolved={(id) => setResolvedArticleId(String(id))}
+      />
 
       {showDraftHint ? (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[1px]">

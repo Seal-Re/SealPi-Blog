@@ -107,6 +107,19 @@ async function fetchArticles(pageIndex: number, q?: string, status?: string) {
   return adminFetch<PageResult<AdminArticle>>(`/api/v1/articles?${params.toString()}`)
 }
 
+function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: string) {
+  const params = new URLSearchParams({
+    pageIndex: String(Math.max(pageIndex, 1)),
+  })
+  if (q?.trim()) {
+    params.set('q', q.trim())
+  }
+  if (status && status !== 'all') {
+    params.set('status', status)
+  }
+  return `/admin/articles?${params.toString()}`
+}
+
 export default async function AdminArticlesPage(props: {
   searchParams?: Promise<{ pageIndex?: string; q?: string; status?: string }>
 }) {
@@ -246,7 +259,7 @@ export default async function AdminArticlesPage(props: {
         </p>
         <div className="flex gap-3">
           <Link
-            href={`/admin/articles?pageIndex=${Math.max(pageIndex - 1, 1)}`}
+            href={buildAdminArticlesPageHref(pageIndex - 1, q, status)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex <= 1
                 ? 'pointer-events-none border border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
@@ -256,7 +269,7 @@ export default async function AdminArticlesPage(props: {
             上一页
           </Link>
           <Link
-            href={`/admin/articles?pageIndex=${Math.min(pageIndex + 1, totalPages)}`}
+            href={buildAdminArticlesPageHref(Math.min(pageIndex + 1, totalPages), q, status)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex >= totalPages
                 ? 'pointer-events-none border border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'

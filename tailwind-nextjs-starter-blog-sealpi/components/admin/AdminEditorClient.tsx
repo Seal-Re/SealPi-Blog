@@ -70,6 +70,7 @@ type FieldErrors = {
 type AdminEditorClientProps = {
   article?: AdminArticle | null
   onSubmitSuccess?: (action: SubmitAction) => void | Promise<void>
+  onArticleIdResolved?: (articleId: number) => void
 }
 
 export type AdminEditorClientRef = {
@@ -176,7 +177,7 @@ function StatusDot({ tone }: { tone: SyncState }) {
 }
 
 const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProps>(
-  function AdminEditorClient({ article, onSubmitSuccess }, ref) {
+  function AdminEditorClient({ article, onSubmitSuccess, onArticleIdResolved }, ref) {
     const excalidrawModuleRef = useRef<ExcalidrawModule | null>(null)
     const excalidrawApiRef = useRef<ExcalidrawImperativeAPI | null>(null)
     const latestSceneRef = useRef<{
@@ -592,6 +593,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
             if (createdId) {
               setCurrentArticleId(createdId)
               bindArticleIdToUrl(createdId)
+              onArticleIdResolved?.(createdId)
               setStatusMessage(
                 action === 'publish'
                   ? `文章已发布（ID: ${createdId}）。`
@@ -653,6 +655,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         buildPayload,
         currentArticleId,
         isEditMode,
+        onArticleIdResolved,
         onSubmitSuccess,
         pushSnackbar,
         resolveCreatedArticleId,
