@@ -105,7 +105,7 @@ export async function fetchPublishedArticlesPage(
   const searchParams = new URLSearchParams({
     pageIndex: String(pageIndex),
     pageSize: String(pageSize),
-    draft: '1',
+    status: 'published',
   })
 
   const normalizedTag = normalizeTagName(tag)

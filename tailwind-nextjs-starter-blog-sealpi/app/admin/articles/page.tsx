@@ -5,6 +5,7 @@ import AdminErrorToast from '@/components/admin/AdminErrorToast'
 import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
 import PageTitle from '@/components/PageTitle'
 import { AdminApiError, adminFetch } from '@/lib/admin-api'
+import { isDraftStatus, isPublishedStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -33,7 +34,7 @@ function formatDateLabel(value?: string) {
 }
 
 function DraftBadge({ draft }: { draft?: number }) {
-  const isDraft = draft === 1
+  const isDraft = isDraftStatus(draft)
 
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase dark:border-gray-700">
@@ -83,7 +84,7 @@ function ArticleRow({ article }: { article: AdminArticle }) {
           <AdminArticleRowActions
             articleId={String(article.articleId)}
             articleUrl={article.url}
-            isPublished={article.draft !== 1}
+            isPublished={isPublishedStatus(article.draft)}
           />
         </div>
       </td>
