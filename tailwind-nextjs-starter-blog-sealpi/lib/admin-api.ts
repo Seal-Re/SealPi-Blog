@@ -17,6 +17,25 @@ export class AdminApiError extends Error {
   }
 }
 
+function getStatusHint(status: number) {
+  if (status === 401) {
+    return '登录态可能已失效，请重新登录后重试。'
+  }
+  if (status === 403) {
+    return '当前账号没有管理员权限，请检查管理员白名单配置。'
+  }
+  if (status === 404) {
+    return '目标资源不存在，可能已被删除或链接已过期。'
+  }
+  if (status === 409) {
+    return '请求与现有数据冲突，请检查 slug 等唯一字段后重试。'
+  }
+  if (status >= 500) {
+    return '服务端处理异常，请稍后重试并检查后端日志。'
+  }
+  return ''
+}
+
 type AdminRequestInit = Omit<RequestInit, 'headers'> & { headers?: HeadersInit }
 
 function resolveRequestUrl(path: string) {
@@ -71,8 +90,11 @@ export async function adminFetch<T>(path: string, init: AdminRequestInit = {}) {
   const payload = await parseJsonSafely<T & ApiEnvelope>(response)
 
   if (!response.ok) {
+    const backendMessage =
+      payload?.errMessage || payload?.errorMessage || `管理接口请求失败: ${response.status}`
+    const statusHint = getStatusHint(response.status)
     throw new AdminApiError(
-      payload?.errMessage || payload?.errorMessage || `管理接口请求失败: ${response.status}`,
+      statusHint ? `${backendMessage} ${statusHint}` : backendMessage,
       response.status
     )
   }
