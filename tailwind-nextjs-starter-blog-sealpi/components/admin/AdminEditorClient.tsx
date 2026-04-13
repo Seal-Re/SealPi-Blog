@@ -18,12 +18,13 @@ import {
 import { pinyin } from 'pinyin-pro'
 
 import {
+  adminFetch,
   createAdminArticle,
   type AdminArticleFormPayload,
   updateAdminArticle,
   uploadAdminAsset,
 } from '@/lib/admin-api'
-import type { AdminArticle } from '@/lib/blog-api-types'
+import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 
 type SubmitAction = 'draft' | 'publish'
 type ExcalidrawModule = typeof import('@excalidraw/excalidraw')
@@ -52,6 +53,7 @@ const MAX_UPLOAD_IMAGE_BYTES = 10 * 1024 * 1024
 const AUTO_SYNC_IDLE_MS = 1200
 const AUTO_SAVE_TO_SERVER_MS = 4000
 const DEBUG_PREFIX = '[AdminEditor]'
+const CREATE_LOOKUP_PAGE_SIZE = 10
 
 type EditorState = {
   title: string
@@ -234,8 +236,10 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       slugDetachedFromTitleRef.current = Boolean(article?.articleId)
     }, [article?.articleId])
 
-    const isEditMode = Boolean(article?.articleId)
-    const articleId = article?.articleId ? Number(article.articleId) : null
+    const [currentArticleId, setCurrentArticleId] = useState<number | null>(
+      article?.articleId ? Number(article.articleId) : null
+    )
+    const isEditMode = currentArticleId !== null
 
     const initialData = useMemo(() => {
       const raw = article?.draftJson || article?.contentJson
@@ -533,17 +537,41 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       ]
     )
 
+    const bindArticleIdToUrl = useCallback((id: number) => {
+      if (typeof window === 'undefined') {
+        return
+      }
+      const nextUrl = new URL(window.location.href)
+      nextUrl.searchParams.set('articleId', String(id))
+      nextUrl.searchParams.delete('mode')
+      window.history.replaceState(null, '', nextUrl.toString())
+    }, [])
+
+    const resolveCreatedArticleId = useCallback(
+      async (payload: AdminArticleFormPayload, action: SubmitAction) => {
+        const params = new URLSearchParams({
+          pageIndex: '1',
+          pageSize: String(CREATE_LOOKUP_PAGE_SIZE),
+          q: payload.url,
+          status: action === 'publish' ? 'published' : 'draft',
+        })
+        const response = await adminFetch<PageResult<AdminArticle>>(`/api/v1/articles?${params}`)
+        const matched = (response?.data || []).find((item) => item.url === payload.url)
+        const matchedId = matched?.articleId ? Number(matched.articleId) : NaN
+        if (!Number.isFinite(matchedId) || matchedId <= 0) {
+          return null
+        }
+        return matchedId
+      },
+      []
+    )
+
     const handleSubmit = useCallback(
       async (action: SubmitAction, source: 'manual' | 'auto' = 'manual') => {
         if (submitInFlightRef.current) {
           console.info(DEBUG_PREFIX, 'skip duplicated submit', { action })
           return false
         }
-        if (isEditMode && !articleId) {
-          setErrorMessage('文章标识无效，无法提交。')
-          return false
-        }
-
         submitInFlightRef.current = true
         setIsSubmitting(true)
         setIsUploadingAssets(false)
@@ -556,10 +584,20 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         try {
           const payload = await buildPayload(action)
 
-          if (isEditMode && articleId) {
-            await updateAdminArticle(articleId, payload, action)
+          if (isEditMode && currentArticleId) {
+            await updateAdminArticle(currentArticleId, payload, action)
           } else {
             await createAdminArticle(payload, action)
+            const createdId = await resolveCreatedArticleId(payload, action)
+            if (createdId) {
+              setCurrentArticleId(createdId)
+              bindArticleIdToUrl(createdId)
+              setStatusMessage(
+                action === 'publish'
+                  ? `文章已发布（ID: ${createdId}）。`
+                  : `草稿已保存（ID: ${createdId}）。`
+              )
+            }
           }
 
           setDraftJson(payload.draftJson)
@@ -610,7 +648,15 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           uploadAbortRef.current = true
         }
       },
-      [articleId, buildPayload, isEditMode, onSubmitSuccess, pushSnackbar]
+      [
+        bindArticleIdToUrl,
+        buildPayload,
+        currentArticleId,
+        isEditMode,
+        onSubmitSuccess,
+        pushSnackbar,
+        resolveCreatedArticleId,
+      ]
     )
 
     useEffect(() => {
