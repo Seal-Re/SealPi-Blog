@@ -5,6 +5,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import {
   BLOG_POSTS_PER_PAGE,
+  PUBLIC_FETCH_REVALIDATE_SECONDS,
   fetchPublishedArticlesPage,
   fetchPublishedTags,
 } from '@/lib/public-blog-api'
@@ -43,6 +44,7 @@ export async function generateMetadata(props: {
 }
 
 export const dynamicParams = true
+export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
 
 export const generateStaticParams = async () => {
   const tags = await fetchPublishedTags()

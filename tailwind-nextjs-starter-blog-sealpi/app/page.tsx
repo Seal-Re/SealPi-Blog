@@ -1,7 +1,13 @@
 import Main from './Main'
-import { fetchPublishedArticles } from '@/lib/public-blog-api'
+import {
+  BLOG_POSTS_PER_PAGE,
+  PUBLIC_FETCH_REVALIDATE_SECONDS,
+  fetchPublishedArticles,
+} from '@/lib/public-blog-api'
+
+export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
 
 export default async function Page() {
-  const posts = await fetchPublishedArticles({ pageSize: 5 })
+  const posts = await fetchPublishedArticles({ pageSize: BLOG_POSTS_PER_PAGE })
   return <Main posts={posts} />
 }

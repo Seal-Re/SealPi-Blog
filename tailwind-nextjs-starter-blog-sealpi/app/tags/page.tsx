@@ -1,9 +1,10 @@
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import { genPageMetadata } from 'app/seo'
-import { fetchPublishedTags } from '@/lib/public-blog-api'
+import { PUBLIC_FETCH_REVALIDATE_SECONDS, fetchPublishedTags } from '@/lib/public-blog-api'
 
 export const metadata = genPageMetadata({ title: '标签', description: '按标签浏览文章' })
+export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
 
 export default async function Page() {
   const tags = await fetchPublishedTags()
