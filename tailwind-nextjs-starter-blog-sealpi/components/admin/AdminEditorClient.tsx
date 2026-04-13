@@ -15,6 +15,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { pinyin } from 'pinyin-pro'
 
 import {
   createAdminArticle,
@@ -23,7 +24,6 @@ import {
   uploadAdminAsset,
 } from '@/lib/admin-api'
 import type { AdminArticle } from '@/lib/blog-api-types'
-import { useSession } from 'next-auth/react'
 
 type SubmitAction = 'draft' | 'publish'
 type ExcalidrawModule = typeof import('@excalidraw/excalidraw')
@@ -32,6 +32,11 @@ type ExcalidrawApiLike = {
   getSceneElements?: () => readonly ExcalidrawElement[]
   getAppState?: () => AppState
   getFiles?: () => BinaryFiles
+  updateScene?: (scene: {
+    elements?: readonly ExcalidrawElement[]
+    appState?: AppState
+    files?: BinaryFiles
+  }) => void
 }
 
 const Excalidraw = dynamic(
@@ -45,6 +50,7 @@ const Excalidraw = dynamic(
 const MAX_INLINE_IMAGE_BYTES = 200 * 1024
 const MAX_UPLOAD_IMAGE_BYTES = 10 * 1024 * 1024
 const AUTO_SYNC_IDLE_MS = 1200
+const AUTO_SAVE_TO_SERVER_MS = 4000
 const DEBUG_PREFIX = '[AdminEditor]'
 
 type EditorState = {
@@ -52,6 +58,11 @@ type EditorState = {
   url: string
   summary: string
   coverImageUrl: string
+}
+
+type FieldErrors = {
+  title?: string
+  content?: string
 }
 
 type AdminEditorClientProps = {
@@ -63,16 +74,21 @@ export type AdminEditorClientRef = {
   saveDraft: () => Promise<boolean>
   publish: () => Promise<boolean>
   isBusy: () => boolean
+  hasPendingChanges: () => boolean
 }
 
 function slugify(value: string) {
-  return value
-    .trim()
+  const normalized = pinyin(value.replace(/<[^>]*>/g, '').trim(), {
+    toneType: 'none',
+    nonZh: 'consecutive',
+  })
+
+  return normalized
     .toLowerCase()
-    .replace(/<[^>]*>/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 function sanitizeText(value: string) {
@@ -170,12 +186,16 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const idleSyncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
     const uploadAbortRef = useRef(false)
     const submitInFlightRef = useRef(false)
+    const autoSaveLockRef = useRef(false)
+    const inlineAssetSanitizingRef = useRef(false)
     const pendingDraftJsonRef = useRef<string>(article?.draftJson || article?.contentJson || '')
     const contentFingerprintRef = useRef<string>('')
     const baselineReadyRef = useRef(false)
     const isSceneDirtyRef = useRef(false)
     const isSubmittingRef = useRef(false)
     const isUploadingAssetsRef = useRef(false)
+    /** 新建文章时默认 false：slug 随标题（含拼音）更新；用户手动改过 slug 后为 true。编辑已有文章初始为 true，避免改标题误伤线上 URL。 */
+    const slugDetachedFromTitleRef = useRef(Boolean(article?.articleId))
 
     const [formState, setFormState] = useState<EditorState>(() => getInitialState(article))
     const [draftJson, setDraftJson] = useState<string>(
@@ -187,8 +207,17 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSceneDirty, setIsSceneDirty] = useState(false)
     const [isUploadingAssets, setIsUploadingAssets] = useState(false)
-    const { data: session } = useSession()
-    const adminAccessToken = session?.accessToken
+    const [lastSavedAt, setLastSavedAt] = useState<string>('')
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+    const [snackbar, setSnackbar] = useState<{
+      show: boolean
+      message: string
+      tone: 'ok' | 'error'
+    }>({
+      show: false,
+      message: '',
+      tone: 'ok',
+    })
     useEffect(() => {
       isSceneDirtyRef.current = isSceneDirty
     }, [isSceneDirty])
@@ -201,6 +230,9 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       isUploadingAssetsRef.current = isUploadingAssets
     }, [isUploadingAssets])
 
+    useEffect(() => {
+      slugDetachedFromTitleRef.current = Boolean(article?.articleId)
+    }, [article?.articleId])
 
     const isEditMode = Boolean(article?.articleId)
     const articleId = article?.articleId ? Number(article.articleId) : null
@@ -228,13 +260,31 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     }[syncState]
 
     const updateField = useCallback((key: keyof EditorState, value: string) => {
+      setFieldErrors((prev) => ({ ...prev, [key]: undefined }))
       setFormState((current) => {
         if (key === 'title') {
           const nextTitle = value
-          const nextUrl = current.url.trim() ? current.url : slugify(nextTitle)
+          const followTitle = !slugDetachedFromTitleRef.current || !current.url.trim()
+          const nextUrl = followTitle ? slugify(nextTitle) : current.url
           return {
             ...current,
             title: nextTitle,
+            url: nextUrl,
+          }
+        }
+
+        if (key === 'url') {
+          const nextUrl = slugify(value)
+          if (!nextUrl.trim()) {
+            slugDetachedFromTitleRef.current = false
+            return {
+              ...current,
+              url: slugify(current.title),
+            }
+          }
+          slugDetachedFromTitleRef.current = true
+          return {
+            ...current,
             url: nextUrl,
           }
         }
@@ -244,6 +294,13 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           [key]: value,
         }
       })
+    }, [])
+
+    const pushSnackbar = useCallback((message: string, tone: 'ok' | 'error' = 'ok') => {
+      setSnackbar({ show: true, message, tone })
+      setTimeout(() => {
+        setSnackbar((prev) => ({ ...prev, show: false }))
+      }, 2800)
     }, [])
 
     const handleSceneChange = useCallback(
@@ -281,7 +338,12 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         }
 
         contentFingerprintRef.current = nextFingerprint
-        const nextDraftJson = excalidrawModule.serializeAsJSON(elements, appState, files, 'database')
+        const nextDraftJson = excalidrawModule.serializeAsJSON(
+          elements,
+          appState,
+          files,
+          'database'
+        )
         pendingDraftJsonRef.current = nextDraftJson
         latestSceneRef.current = { elements, appState, files }
         setIsSceneDirty(true)
@@ -336,8 +398,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         const fileBlob = dataUrlToBlob(file.dataURL)
         const uploadResult = await uploadAdminAsset(
           fileBlob,
-          `excalidraw-${fileId}.${inferImageExtension(file.mimeType)}`,
-          adminAccessToken
+          `excalidraw-${fileId}.${inferImageExtension(file.mimeType)}`
         )
         const assetUrl = uploadResult?.data?.trim()
 
@@ -358,125 +419,122 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       }
     }, [])
 
-    const buildPayload = useCallback(async (): Promise<AdminArticleFormPayload> => {
-      let scene = latestSceneRef.current
-      const excalidrawModule = excalidrawModuleRef.current
-      const sanitizedTitle = sanitizeText(formState.title)
-      const sanitizedSummary = sanitizeText(formState.summary)
-      const trimmedCoverImageUrl = formState.coverImageUrl.trim()
-      const trimmedUrl = slugify(formState.url)
+    const buildPayload = useCallback(
+      async (action: SubmitAction): Promise<AdminArticleFormPayload> => {
+        let scene = latestSceneRef.current
+        const excalidrawModule = excalidrawModuleRef.current
+        const sanitizedTitle = sanitizeText(formState.title)
+        const sanitizedSummary = sanitizeText(formState.summary)
+        const trimmedCoverImageUrl = formState.coverImageUrl.trim()
+        const trimmedUrl = slugify(formState.url)
 
-      if (!sanitizedTitle) {
-        throw new Error('标题不能为空。')
-      }
+        if (action === 'publish' && !sanitizedTitle) {
+          setFieldErrors((prev) => ({ ...prev, title: '发布前必须填写标题。' }))
+          throw new Error('发布失败：标题不能为空。')
+        }
 
-      if (!trimmedUrl) {
-        throw new Error('Slug 不能为空。')
-      }
+        if (!excalidrawModule) {
+          throw new Error('编辑器尚未加载完成，请稍后再试。')
+        }
 
-      if (!excalidrawModule) {
-        throw new Error('编辑器尚未加载完成，请稍后再试。')
-      }
-
-      // Always refresh from live Excalidraw API first.
-      if (excalidrawApiRef.current) {
-        const api = excalidrawApiRef.current as unknown as ExcalidrawApiLike
-        const liveElements = api.getSceneElements?.()
-        const liveAppState = api.getAppState?.()
-        const liveFiles = api.getFiles?.()
-        if (liveElements && liveAppState && liveFiles) {
-          scene = {
-            elements: liveElements,
-            appState: liveAppState,
-            files: liveFiles,
+        // Always refresh from live Excalidraw API first.
+        if (excalidrawApiRef.current) {
+          const api = excalidrawApiRef.current as unknown as ExcalidrawApiLike
+          const liveElements = api.getSceneElements?.()
+          const liveAppState = api.getAppState?.()
+          const liveFiles = api.getFiles?.()
+          if (liveElements && liveAppState && liveFiles) {
+            scene = {
+              elements: liveElements,
+              appState: liveAppState,
+              files: liveFiles,
+            }
+            latestSceneRef.current = scene
+            contentFingerprintRef.current = buildSceneFingerprint(liveElements, liveFiles)
+            pendingDraftJsonRef.current = excalidrawModule.serializeAsJSON(
+              liveElements,
+              liveAppState,
+              liveFiles,
+              'database'
+            )
+            console.info(DEBUG_PREFIX, 'payload scene refreshed from api', {
+              elements: liveElements.length,
+              files: Object.keys(liveFiles).length,
+            })
           }
-          latestSceneRef.current = scene
-          contentFingerprintRef.current = buildSceneFingerprint(liveElements, liveFiles)
-          pendingDraftJsonRef.current = excalidrawModule.serializeAsJSON(
-            liveElements,
-            liveAppState,
-            liveFiles,
-            'database'
-          )
-          console.info(DEBUG_PREFIX, 'payload scene refreshed from api', {
-            elements: liveElements.length,
-            files: Object.keys(liveFiles).length,
+        }
+
+        if (!scene) {
+          throw new Error(action === 'publish' ? '请先编辑正文内容。' : '暂无可保存的画布内容。')
+        }
+        const activeElements = scene.elements.filter((element) => !element.isDeleted)
+        if (action === 'publish' && !activeElements.length) {
+          setFieldErrors((prev) => ({ ...prev, content: '发布前必须填写正文内容。' }))
+          throw new Error('发布失败：正文内容不能为空。')
+        }
+
+        setIsUploadingAssets(true)
+        uploadAbortRef.current = false
+
+        const uploadedScene = await uploadSceneAssets(scene.files)
+        const nextDraftJson = excalidrawModule.serializeAsJSON(
+          scene.elements,
+          scene.appState,
+          uploadedScene.files,
+          'database'
+        )
+
+        if (nextDraftJson.includes('data:image') && nextDraftJson.length > MAX_INLINE_IMAGE_BYTES) {
+          throw new Error('检测到仍有较大的内联图片未完成替换，请稍后重试。')
+        }
+
+        let previewImage: Blob | null = null
+        try {
+          previewImage = await excalidrawModule.exportToBlob({
+            elements: activeElements,
+            appState: {
+              ...scene.appState,
+              exportBackground: true,
+            },
+            files: uploadedScene.files,
+            mimeType: 'image/png',
+          })
+        } catch (error) {
+          console.warn(DEBUG_PREFIX, 'preview export failed, fallback without preview image', {
+            raw: error instanceof Error ? { name: error.name, message: error.message } : error,
           })
         }
-      }
 
-      if (!scene) {
-        throw new Error('请先在编辑器中创建或修改内容。')
-      }
-
-      const activeElements = scene.elements.filter((element) => !element.isDeleted)
-      if (!activeElements.length) {
-        throw new Error('当前画布为空，至少需要一个可见元素。')
-      }
-
-      setIsUploadingAssets(true)
-      uploadAbortRef.current = false
-
-      const uploadedScene = await uploadSceneAssets(scene.files)
-      const nextDraftJson = excalidrawModule.serializeAsJSON(
-        scene.elements,
-        scene.appState,
-        uploadedScene.files,
-        'database'
-      )
-
-      if (nextDraftJson.includes('data:image') && nextDraftJson.length > MAX_INLINE_IMAGE_BYTES) {
-        throw new Error('检测到仍有较大的内联图片未完成替换，请稍后重试。')
-      }
-
-      let previewImage: Blob | null = null
-      try {
-        previewImage = await excalidrawModule.exportToBlob({
-          elements: activeElements,
-          appState: {
-            ...scene.appState,
-            exportBackground: true,
-          },
+        latestSceneRef.current = {
+          elements: scene.elements,
+          appState: scene.appState,
           files: uploadedScene.files,
-          mimeType: 'image/png',
-        })
-      } catch (error) {
-        console.warn(DEBUG_PREFIX, 'preview export failed, fallback without preview image', {
-          raw:
-            error instanceof Error
-              ? { name: error.name, message: error.message }
-              : error,
-        })
-      }
+        }
 
-      latestSceneRef.current = {
-        elements: scene.elements,
-        appState: scene.appState,
-        files: uploadedScene.files,
-      }
+        if (uploadedScene.uploadedCount > 0) {
+          setStatusMessage(`已完成 ${uploadedScene.uploadedCount} 张图片上传，正在生成提交内容...`)
+        }
 
-      if (uploadedScene.uploadedCount > 0) {
-        setStatusMessage(`已完成 ${uploadedScene.uploadedCount} 张图片上传，正在生成提交内容...`)
-      }
-
-      return {
-        title: sanitizedTitle,
-        url: trimmedUrl,
-        summary: sanitizedSummary,
-        coverImageUrl: trimmedCoverImageUrl,
-        draftJson: nextDraftJson,
-        previewImage: previewImage || undefined,
-      }
-    }, [
-      formState.coverImageUrl,
-      formState.summary,
-      formState.title,
-      formState.url,
-      uploadSceneAssets,
-    ])
+        return {
+          title: sanitizedTitle || '未命名草稿',
+          url: trimmedUrl || `draft-${Date.now()}`,
+          summary: sanitizedSummary,
+          coverImageUrl: trimmedCoverImageUrl,
+          draftJson: nextDraftJson,
+          previewImage: previewImage || undefined,
+        }
+      },
+      [
+        formState.coverImageUrl,
+        formState.summary,
+        formState.title,
+        formState.url,
+        uploadSceneAssets,
+      ]
+    )
 
     const handleSubmit = useCallback(
-      async (action: SubmitAction) => {
+      async (action: SubmitAction, source: 'manual' | 'auto' = 'manual') => {
         if (submitInFlightRef.current) {
           console.info(DEBUG_PREFIX, 'skip duplicated submit', { action })
           return false
@@ -491,26 +549,30 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         setIsUploadingAssets(false)
         setErrorMessage('')
         setSyncState('UPDATING')
-        setStatusMessage(action === 'publish' ? '正在发布文章...' : '正在保存草稿...')
+        const draftProgressText = source === 'auto' ? '正在自动保存草稿...' : '正在保存草稿...'
+        setStatusMessage(action === 'publish' ? '正在发布文章...' : draftProgressText)
         console.info(DEBUG_PREFIX, 'submit start', { action, isEditMode, articleId })
 
         try {
-          if (!adminAccessToken) {
-            throw new Error('当前登录态缺少管理员访问令牌，请重新登录后再试。')
-          }
-          const payload = await buildPayload()
+          const payload = await buildPayload(action)
 
           if (isEditMode && articleId) {
-            await updateAdminArticle(articleId, payload, action, adminAccessToken)
+            await updateAdminArticle(articleId, payload, action)
           } else {
-            await createAdminArticle(payload, action, adminAccessToken)
+            await createAdminArticle(payload, action)
           }
 
           setDraftJson(payload.draftJson)
           pendingDraftJsonRef.current = payload.draftJson
           setIsSceneDirty(false)
           setSyncState('SUCCESS')
-          setStatusMessage(action === 'publish' ? '文章已提交发布。' : '草稿已保存。')
+          const draftSuccessText = source === 'auto' ? '草稿已自动保存。' : '草稿已保存。'
+          setStatusMessage(action === 'publish' ? '文章已提交发布。' : draftSuccessText)
+          setLastSavedAt(
+            new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+          )
+          const draftToastText = source === 'auto' ? '草稿已自动保存。' : '草稿已保存。'
+          pushSnackbar(action === 'publish' ? '发布成功。' : draftToastText, 'ok')
           if (onSubmitSuccess) {
             await onSubmitSuccess(action)
           }
@@ -526,6 +588,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           setErrorMessage(message)
           setSyncState('FAILED')
           setStatusMessage('提交未完成。')
+          pushSnackbar(message, 'error')
           // Keep debugging signal without triggering Next.js console-error overlay.
           console.warn(DEBUG_PREFIX, 'submit failed', {
             action,
@@ -547,8 +610,62 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           uploadAbortRef.current = true
         }
       },
-      [adminAccessToken, articleId, buildPayload, isEditMode, onSubmitSuccess]
+      [articleId, buildPayload, isEditMode, onSubmitSuccess, pushSnackbar]
     )
+
+    useEffect(() => {
+      if (!isSceneDirty || isSubmitting || isUploadingAssets) {
+        return
+      }
+      const timer = setTimeout(async () => {
+        if (autoSaveLockRef.current || submitInFlightRef.current) return
+        autoSaveLockRef.current = true
+        try {
+          await handleSubmit('draft', 'auto')
+        } finally {
+          autoSaveLockRef.current = false
+        }
+      }, AUTO_SAVE_TO_SERVER_MS)
+      return () => clearTimeout(timer)
+    }, [handleSubmit, isSceneDirty, isSubmitting, isUploadingAssets])
+
+    useEffect(() => {
+      const onSaveShortcut = (event: KeyboardEvent) => {
+        const key = event.key.toLowerCase()
+        if ((event.ctrlKey || event.metaKey) && key === 's') {
+          event.preventDefault()
+          void handleSubmit('draft')
+        }
+      }
+      window.addEventListener('keydown', onSaveShortcut)
+      return () => window.removeEventListener('keydown', onSaveShortcut)
+    }, [handleSubmit])
+
+    useEffect(() => {
+      const scene = latestSceneRef.current
+      if (!scene || inlineAssetSanitizingRef.current) return
+      const hasInlineAssets = Object.values(scene.files || {}).some((file) =>
+        isDataUrl(file?.dataURL)
+      )
+      if (!hasInlineAssets) return
+
+      inlineAssetSanitizingRef.current = true
+      ;(async () => {
+        try {
+          const uploaded = await uploadSceneAssets(scene.files)
+          latestSceneRef.current = { ...scene, files: uploaded.files }
+          const api = excalidrawApiRef.current as unknown as ExcalidrawApiLike
+          api?.updateScene?.({ files: uploaded.files })
+          setStatusMessage('已自动替换内联图片为远程 URL。')
+        } catch (error) {
+          const message = error instanceof Error ? error.message : '自动上传内联图片失败。'
+          setErrorMessage(message)
+          pushSnackbar(message, 'error')
+        } finally {
+          inlineAssetSanitizingRef.current = false
+        }
+      })()
+    }, [draftJson, pushSnackbar, uploadSceneAssets])
 
     useImperativeHandle(
       ref,
@@ -560,6 +677,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           return await handleSubmit('publish')
         },
         isBusy: () => isSubmitting,
+        hasPendingChanges: () => isSceneDirtyRef.current,
       }),
       [handleSubmit, isSubmitting]
     )
@@ -574,197 +692,234 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
 
       return () => {
         active = false
-        if (autoSyncTimerRef.current) {
-          clearInterval(autoSyncTimerRef.current)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const autoSyncTimer = autoSyncTimerRef.current
+
+        const idleSyncTimer = idleSyncTimerRef.current
+        if (autoSyncTimer) {
+          clearInterval(autoSyncTimer)
         }
-        if (idleSyncTimerRef.current) {
-          clearTimeout(idleSyncTimerRef.current)
+        if (idleSyncTimer) {
+          clearTimeout(idleSyncTimer)
         }
       }
     }, [])
 
     return (
-      <div className="space-y-8">
-        <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-          <aside className="relative overflow-hidden rounded-[2rem] border border-gray-200/90 bg-white/95 p-6 shadow-[0_28px_90px_-42px_rgba(15,23,42,0.4)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/85">
-            <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.16),transparent_58%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.14),transparent_42%)]" />
-            <div className="relative space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="inline-flex rounded-full border border-sky-200/80 bg-sky-50/90 px-4 py-1 text-[11px] font-semibold tracking-[0.28em] text-sky-700 uppercase dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">
-                    Editor Control
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${statusBadgeClass}`}
-                  >
-                    <StatusDot tone={syncState} />
-                    {syncState}
-                  </span>
-                </div>
-
-                <div className="space-y-3">
-                  <h2 className="text-2xl font-black tracking-tight text-gray-950 dark:text-gray-50">
-                    {isEditMode ? '编辑既有文章' : '创建新文章'}
-                  </h2>
-                  <p className="text-sm leading-7 text-gray-600 dark:text-gray-300">
-                    保留现有后台设计语言，强化卡片层级、焦点状态和异步反馈，使编辑过程更稳定也更有掌控感。
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 rounded-[1.75rem] border border-white/80 bg-white/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-gray-800 dark:bg-gray-950/60">
-                <label className="group block space-y-2.5">
-                  <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    标题
-                  </span>
-                  <input
-                    value={formState.title}
-                    maxLength={120}
-                    onChange={(event) => updateField('title', event.target.value)}
-                    placeholder="输入文章标题"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
-                  />
-                  <FieldHint>标题会用于列表展示与默认 slug 生成。</FieldHint>
-                </label>
-
-                <label className="group block space-y-2.5">
-                  <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    Slug
-                  </span>
-                  <input
-                    value={formState.url}
-                    maxLength={120}
-                    onChange={(event) => updateField('url', slugify(event.target.value))}
-                    placeholder="例如：sealpi-excalidraw-notes"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
-                  />
-                  <FieldHint>仅保留小写字母、数字和连字符，避免 URL 污染。</FieldHint>
-                </label>
-
-                <label className="group block space-y-2.5">
-                  <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    摘要
-                  </span>
-                  <textarea
-                    value={formState.summary}
-                    maxLength={220}
-                    onChange={(event) => updateField('summary', event.target.value)}
-                    rows={4}
-                    placeholder="用于文章列表与 SEO 的简述"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm leading-7 text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
-                  />
-                  <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
-                </label>
-
-                <label className="group block space-y-2.5">
-                  <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                    封面图 URL
-                  </span>
-                  <input
-                    value={formState.coverImageUrl}
-                    onChange={(event) => updateField('coverImageUrl', event.target.value)}
-                    placeholder="可选；为空时使用自动导出的预览图"
-                    className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
-                  />
-                  <FieldHint>如已上传 OSS，可直接覆写自动生成的预览图地址。</FieldHint>
-                </label>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-                <div className="rounded-[1.75rem] border border-gray-200/80 bg-gray-50/90 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/70">
-                  <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
-                    <StatusDot tone={syncState} />
-                    当前状态
+      <>
+        <div className="space-y-8">
+          <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
+            <aside className="relative overflow-hidden rounded-[2rem] border border-gray-200/90 bg-white/95 p-6 shadow-[0_28px_90px_-42px_rgba(15,23,42,0.4)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/85">
+              <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.16),transparent_58%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.14),transparent_42%)]" />
+              <div className="relative space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="inline-flex rounded-full border border-sky-200/80 bg-sky-50/90 px-4 py-1 text-[11px] font-semibold tracking-[0.28em] text-sky-700 uppercase dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">
+                      Editor Control
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${statusBadgeClass}`}
+                    >
+                      <StatusDot tone={syncState} />
+                      {syncState}
+                    </span>
                   </div>
-                  <p className="mt-3 text-sm leading-7 text-gray-700 dark:text-gray-200">
-                    {syncState}
-                  </p>
-                  <p className="mt-1 text-xs leading-6 text-gray-500 dark:text-gray-400">
-                    {statusMessage}
-                  </p>
-                  {errorMessage ? (
-                    <div className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
-                      {errorMessage}
+
+                  <div className="space-y-3">
+                    <h2 className="text-2xl font-black tracking-tight text-gray-950 dark:text-gray-50">
+                      {isEditMode ? '编辑既有文章' : '创建新文章'}
+                    </h2>
+                    <p className="text-sm leading-7 text-gray-600 dark:text-gray-300">
+                      保留现有后台设计语言，强化卡片层级、焦点状态和异步反馈，使编辑过程更稳定也更有掌控感。
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 rounded-[1.75rem] border border-white/80 bg-white/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-gray-800 dark:bg-gray-950/60">
+                  <label className="group block space-y-2.5">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                      标题
+                    </span>
+                    <input
+                      value={formState.title}
+                      maxLength={120}
+                      onChange={(event) => updateField('title', event.target.value)}
+                      placeholder="输入文章标题"
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                    />
+                    {fieldErrors.title ? (
+                      <p className="text-xs text-rose-600 dark:text-rose-300">
+                        {fieldErrors.title}
+                      </p>
+                    ) : null}
+                    <FieldHint>标题会用于列表展示与默认 slug 生成。</FieldHint>
+                  </label>
+
+                  <label className="group block space-y-2.5">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                      Slug
+                    </span>
+                    <input
+                      value={formState.url}
+                      maxLength={120}
+                      onChange={(event) => updateField('url', event.target.value)}
+                      placeholder="例如：sealpi-excalidraw-notes"
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                    />
+                    <FieldHint>
+                      新建时随标题自动生成（中文转拼音）。若已手动修改
+                      slug，改标题不再覆盖；清空本框可恢复跟随标题。
+                    </FieldHint>
+                  </label>
+
+                  <label className="group block space-y-2.5">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                      摘要
+                    </span>
+                    <textarea
+                      value={formState.summary}
+                      maxLength={220}
+                      onChange={(event) => updateField('summary', event.target.value)}
+                      rows={4}
+                      placeholder="用于文章列表与 SEO 的简述"
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm leading-7 text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                    />
+                    <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
+                  </label>
+
+                  <label className="group block space-y-2.5">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                      封面图 URL
+                    </span>
+                    <input
+                      value={formState.coverImageUrl}
+                      onChange={(event) => updateField('coverImageUrl', event.target.value)}
+                      placeholder="可选；为空时使用自动导出的预览图"
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                    />
+                    <FieldHint>如已上传 OSS，可直接覆写自动生成的预览图地址。</FieldHint>
+                  </label>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+                  <div className="rounded-[1.75rem] border border-gray-200/80 bg-gray-50/90 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/70">
+                    <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                      <StatusDot tone={syncState} />
+                      当前状态
                     </div>
+                    <p className="mt-3 text-sm leading-7 text-gray-700 dark:text-gray-200">
+                      {syncState}
+                    </p>
+                    <p className="mt-1 text-xs leading-6 text-gray-500 dark:text-gray-400">
+                      {statusMessage}
+                      {lastSavedAt ? ` 最近保存于 ${lastSavedAt}` : ''}
+                    </p>
+                    {errorMessage ? (
+                      <div className="mt-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
+                        {errorMessage}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="rounded-[1.75rem] border border-gray-200/80 bg-white/90 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/60">
+                    <p className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                      内容指标
+                    </p>
+                    <dl className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
+                      <div>
+                        <dt className="text-xs text-gray-500 dark:text-gray-400">draftJson 大小</dt>
+                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                          {draftJson ? `${Math.round(draftJson.length / 1024) || 1} KB` : '未生成'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-gray-500 dark:text-gray-400">文章模式</dt>
+                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                          {isEditMode ? '编辑' : '新建'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-gray-500 dark:text-gray-400">图片上传</dt>
+                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                          {isUploadingAssets ? '处理中' : '待命'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-gray-500 dark:text-gray-400">快捷键</dt>
+                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                          Ctrl/Cmd + S
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
+                  <button
+                    type="button"
+                    disabled={isSubmitting || isUploadingAssets}
+                    onClick={() => void handleSubmit('draft')}
+                    className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-18px_rgba(15,23,42,0.55)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-gray-800 focus:ring-gray-200 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:focus:ring-gray-700"
+                  >
+                    {isSubmitting ? '提交中...' : '保存草稿'}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isSubmitting || isUploadingAssets}
+                    onClick={() => void handleSubmit('publish')}
+                    className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-linear-to-r from-sky-50 to-cyan-50 px-5 py-3.5 text-sm font-semibold text-sky-700 shadow-[0_18px_38px_-24px_rgba(14,165,233,0.45)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-500 hover:from-sky-100 hover:to-cyan-100 focus:ring-sky-100 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:border-sky-500/40 dark:bg-linear-to-r dark:from-sky-500/10 dark:to-cyan-500/10 dark:text-sky-200 dark:hover:from-sky-500/20 dark:hover:to-cyan-500/20 dark:focus:ring-sky-500/10"
+                  >
+                    {isSubmitting ? '提交中...' : '直接发布'}
+                  </button>
+                  {fieldErrors.content ? (
+                    <p className="text-xs text-rose-600 dark:text-rose-300">
+                      {fieldErrors.content}
+                    </p>
                   ) : null}
                 </div>
+              </div>
+            </aside>
 
-                <div className="rounded-[1.75rem] border border-gray-200/80 bg-white/90 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/60">
+            <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_28px_90px_-42px_rgba(15,23,42,0.38)] dark:border-gray-800 dark:bg-gray-900/80">
+              <div className="flex flex-col gap-4 border-b border-gray-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.88))] px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.55),rgba(17,24,39,0.78))]">
+                <div>
                   <p className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
-                    内容指标
+                    Excalidraw Canvas
                   </p>
-                  <dl className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
-                    <div>
-                      <dt className="text-xs text-gray-500 dark:text-gray-400">draftJson 大小</dt>
-                      <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
-                        {draftJson ? `${Math.round(draftJson.length / 1024) || 1} KB` : '未生成'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-gray-500 dark:text-gray-400">文章模式</dt>
-                      <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
-                        {isEditMode ? '编辑' : '新建'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-gray-500 dark:text-gray-400">图片上传</dt>
-                      <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
-                        {isUploadingAssets ? '处理中' : '待命'}
-                      </dd>
-                    </div>
-                  </dl>
+                  <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300">
+                    支持直接绘制、序列化为数据库 JSON，并在提交时导出预览图。
+                  </p>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/90 px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-950/80 dark:text-gray-300">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                  Canvas Ready
                 </div>
               </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
-                <button
-                  type="button"
-                  disabled={isSubmitting}
-                  onClick={() => void handleSubmit('draft')}
-                  className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-18px_rgba(15,23,42,0.55)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-gray-800 focus:ring-gray-200 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:focus:ring-gray-700"
-                >
-                  {isSubmitting ? '提交中...' : '保存草稿'}
-                </button>
-                <button
-                  type="button"
-                  disabled={isSubmitting}
-                  onClick={() => void handleSubmit('publish')}
-                  className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-linear-to-r from-sky-50 to-cyan-50 px-5 py-3.5 text-sm font-semibold text-sky-700 shadow-[0_18px_38px_-24px_rgba(14,165,233,0.45)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-500 hover:from-sky-100 hover:to-cyan-100 focus:ring-sky-100 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:border-sky-500/40 dark:bg-linear-to-r dark:from-sky-500/10 dark:to-cyan-500/10 dark:text-sky-200 dark:hover:from-sky-500/20 dark:hover:to-cyan-500/20 dark:focus:ring-sky-500/10"
-                >
-                  {isSubmitting ? '提交中...' : '直接发布'}
-                </button>
+              <div className="h-[72vh] min-h-[680px] bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.9),rgba(248,250,252,0.94))] dark:bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_36%),linear-gradient(180deg,rgba(2,6,23,0.6),rgba(15,23,42,0.65))]">
+                <Excalidraw
+                  initialData={initialData}
+                  excalidrawAPI={(api) => {
+                    excalidrawApiRef.current = api
+                  }}
+                  onChange={handleSceneChange}
+                  viewModeEnabled={false}
+                />
               </div>
-            </div>
-          </aside>
-
-          <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_28px_90px_-42px_rgba(15,23,42,0.38)] dark:border-gray-800 dark:bg-gray-900/80">
-            <div className="flex flex-col gap-4 border-b border-gray-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.88))] px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.55),rgba(17,24,39,0.78))]">
-              <div>
-                <p className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
-                  Excalidraw Canvas
-                </p>
-                <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300">
-                  支持直接绘制、序列化为数据库 JSON，并在提交时导出预览图。
-                </p>
-              </div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/90 px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-950/80 dark:text-gray-300">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Canvas Ready
-              </div>
-            </div>
-            <div className="h-[72vh] min-h-[680px] bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.9),rgba(248,250,252,0.94))] dark:bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_36%),linear-gradient(180deg,rgba(2,6,23,0.6),rgba(15,23,42,0.65))]">
-              <Excalidraw
-                initialData={initialData}
-                excalidrawAPI={(api) => {
-                  excalidrawApiRef.current = api
-                }}
-                onChange={handleSceneChange}
-                viewModeEnabled={false}
-              />
             </div>
           </div>
         </div>
-      </div>
+        {snackbar.show ? (
+          <div
+            className={`fixed right-4 bottom-4 z-[85] rounded-xl border px-4 py-3 text-sm shadow-lg ${
+              snackbar.tone === 'ok'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200'
+                : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200'
+            }`}
+          >
+            {snackbar.message}
+          </div>
+        ) : null}
+      </>
     )
   }
 )

@@ -1,6 +1,5 @@
 'use client'
 
-import Link from '@/components/Link'
 import AdminEditorClient, { type AdminEditorClientRef } from '@/components/admin/AdminEditorClient'
 import type { AdminArticle } from '@/lib/blog-api-types'
 import { useRouter } from 'next/navigation'
@@ -10,14 +9,23 @@ import { useEffect, useRef, useState } from 'react'
 type AdminEditorWorkspaceProps = {
   article?: AdminArticle | null
   articleId?: string
+  draftHint?: {
+    draftCount: number
+    latestDraftId?: string
+  }
 }
 
-export default function AdminEditorWorkspace({ article, articleId }: AdminEditorWorkspaceProps) {
+export default function AdminEditorWorkspace({
+  article,
+  articleId,
+  draftHint,
+}: AdminEditorWorkspaceProps) {
   const router = useRouter()
   const editorRef = useRef<AdminEditorClientRef | null>(null)
   const actionLockRef = useRef(false)
   const [isTriggering, setIsTriggering] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [showDraftHint, setShowDraftHint] = useState(Boolean(draftHint && draftHint.draftCount > 0))
   const [feedback, setFeedback] = useState<{
     open: boolean
     title: string
@@ -31,6 +39,26 @@ export default function AdminEditorWorkspace({ article, articleId }: AdminEditor
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!editorRef.current?.hasPendingChanges()) {
+        return
+      }
+      event.preventDefault()
+      event.returnValue = ''
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
+  const confirmLeaveWhenDirty = () => {
+    if (!editorRef.current?.hasPendingChanges()) {
+      return true
+    }
+    return window.confirm('检测到未保存的变更，确认离开当前页面吗？')
+  }
 
   const handleSubmitSuccess = async (action: 'draft' | 'publish') => {
     if (action === 'draft') {
@@ -51,6 +79,12 @@ export default function AdminEditorWorkspace({ article, articleId }: AdminEditor
   const runAction = async (action: 'draft' | 'publish') => {
     if (!editorRef.current || editorRef.current.isBusy() || actionLockRef.current) {
       return
+    }
+    if (action === 'publish') {
+      const confirmed = window.confirm('确认发布当前文章吗？发布后前台将可见。')
+      if (!confirmed) {
+        return
+      }
     }
 
     actionLockRef.current = true
@@ -80,7 +114,7 @@ export default function AdminEditorWorkspace({ article, articleId }: AdminEditor
         disabled={isTriggering}
         className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-900 transition-all duration-300 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
       >
-        {isTriggering ? 'Saving...' : 'Save Draft'}
+        {isTriggering ? '保存中...' : '保存草稿'}
       </button>
       <button
         type="button"
@@ -89,7 +123,7 @@ export default function AdminEditorWorkspace({ article, articleId }: AdminEditor
         className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-black active:scale-95 disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
       >
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/80 dark:bg-gray-700" />
-        Publish
+        发布
       </button>
     </>
   )
@@ -102,18 +136,24 @@ export default function AdminEditorWorkspace({ article, articleId }: AdminEditor
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-xs tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
-              Immersive Editor
+              编辑器
             </p>
             <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-950 dark:text-gray-50">
               {articleId ? `编辑文章 #${articleId}` : '新建文章'}
             </h1>
           </div>
-          <Link
-            href="/admin/articles"
+          <button
+            type="button"
+            onClick={() => {
+              if (!confirmLeaveWhenDirty()) {
+                return
+              }
+              router.push('/admin/articles')
+            }}
             className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-300 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             返回列表
-          </Link>
+          </button>
         </div>
         <dl className="grid gap-3 text-sm sm:grid-cols-3">
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
@@ -139,11 +179,45 @@ export default function AdminEditorWorkspace({ article, articleId }: AdminEditor
 
       <AdminEditorClient ref={editorRef} article={article} onSubmitSuccess={handleSubmitSuccess} />
 
+      {showDraftHint ? (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[1px]">
+          <div className="w-full max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl dark:border-amber-500/40 dark:bg-gray-950">
+            <h3 className="text-lg font-bold text-amber-700 dark:text-amber-300">
+              检测到未完成草稿
+            </h3>
+            <p className="mt-2 text-sm leading-7 text-gray-700 dark:text-gray-200">
+              你当前有 {draftHint?.draftCount || 0}{' '}
+              篇未发布草稿。建议先进入草稿箱继续编辑，或继续创建新文章。
+            </p>
+            <div className="mt-5 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDraftHint(false)}
+                className="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+              >
+                创建新文章
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/admin/articles?status=draft')}
+                className="rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
+              >
+                进入草稿箱
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {feedback.open ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[1px]">
           <div className="w-full max-w-md rounded-2xl border border-emerald-200 bg-white p-6 shadow-2xl dark:border-emerald-700/60 dark:bg-gray-950">
-            <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{feedback.title}</h3>
-            <p className="mt-2 text-sm leading-7 text-gray-700 dark:text-gray-200">{feedback.description}</p>
+            <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
+              {feedback.title}
+            </h3>
+            <p className="mt-2 text-sm leading-7 text-gray-700 dark:text-gray-200">
+              {feedback.description}
+            </p>
             <div className="mt-5 flex justify-end gap-3">
               <button
                 type="button"
