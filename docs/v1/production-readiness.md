@@ -2,7 +2,7 @@
 
 > 审计日期：2026-04-13  
 > 最近更新：2026-04-13（T09-T14/T16 已完成）  
-> 当前阶段：v1.2 进行中，P0 仅剩 T12（siteMetadata，需用户提供站点信息）
+> 当前阶段：v1.2 **全部 P0/P1 已完成**，仅剩 T15（前端部署方案架构决策）
 
 ---
 
@@ -10,35 +10,22 @@
 
 当前项目处于 **"配置基本收口，等待站点信息确认"** 阶段：原 4 项 P0 阻断中的 3 项（T09/T10/T11）已修复，P1/P2 中可自动执行的项（T13/T14/T16）也已完成。
 
-**唯一剩余 P0 阻断项**：T12 — `siteMetadata.js` 需用户提供真实站点域名、标题、作者信息后方可完成。
+全部 P0 阻断项（T09-T12）和 P1 质量保障项（T13-T14/T16）已完成。当前唯一未决项是 **T15 — 前端部署方案**（架构决策，不阻断功能开发）。
 
 ---
 
 ## P0 — 阻断落地（必须在正式部署前修复）
 
-### P0-1 `siteMetadata.js` 全部为模板占位值【BLOCKING】
+### P0-1 `siteMetadata.js` 全部为模板占位值【✅ 已修复 T12】
 
-**文件**: `tailwind-nextjs-starter-blog-sealpi/data/siteMetadata.js`
-
-**问题**:
-
-| 字段 | 当前值 | 影响 |
-|------|--------|------|
-| `title` | `'Next.js Starter Blog'` | 所有页面 `<title>`、OG 标题错误 |
-| `author` | `'Tails Azimuth'` | 文章 JSON-LD 结构化数据作者字段错误 |
-| `headerTitle` | `'TailwindBlog'` | 页头显示错误品牌名 |
-| `siteUrl` | `'https://tailwind-nextjs-starter-blog.vercel.app'` | **sitemap、canonical URL、JSON-LD 全部指向错误域名**，SEO 权重完全流失 |
-| `siteRepo` | `'https://github.com/timlrx/tailwind-nextjs-starter-blog'` | 仓库链接错误 |
-| `email` / 社交链接 | `address@yoursite.com` / 各平台模板 URL | 展示给用户的联系信息全部错误 |
-| `description` | `'A blog created with Next.js and Tailwind.css'` | 页面描述和 OG 描述不准确 |
-
-**影响范围**:
-- `app/layout.tsx:20` — `metadataBase: new URL(siteMetadata.siteUrl)` — 影响所有 canonical URL
-- `app/sitemap.ts:8` — `siteMetadata.siteUrl` — sitemap 中所有 URL 指向错误域名
-- `app/seo.tsx:20` — OG/Twitter 卡片 siteName 字段
-- 文章详情页 JSON-LD（若有）
-
-**修复**: 按实际部署域名和作者信息填写 `siteMetadata.js` 所有字段。
+**修复**: 已更新为真实站点信息：
+- `title` / `headerTitle`: `'Sealの小屋'`
+- `author`: `'Seal'`
+- `siteUrl`: `'https://sealpi.cn'`
+- `siteRepo`: `'https://github.com/Seal-Re/SealPi-Blog'`
+- `description`: `'Seal 的个人博客，记录技术探索与日常思考。'`
+- `language` / `locale`: `'zh-CN'`
+- 无用社交链接全部清空（不展示空链接给用户）
 
 ---
 
@@ -112,7 +99,7 @@ export const PUBLIC_ARTICLE_PRELOAD_SIZE = 100
 
 | ID | 描述 | 优先级 | 状态 |
 |----|------|--------|------|
-| P0-1 / T12 | siteMetadata.js 填写真实站点信息 | P0 | ⏳ **待用户提供信息** |
+| P0-1 / T12 | siteMetadata.js 填写真实站点信息 | P0 | ✅ 已修复 |
 | P0-2 / T09 | MinIO 公开地址改为环境变量 | P0 | ✅ 已修复 |
 | P0-3 / T10 | next.config.js 补充 remotePatterns | P0 | ✅ 已修复 |
 | P0-4 / T11 | 前端 .env.example 补齐所有必要变量 | P0 | ✅ 已修复 |

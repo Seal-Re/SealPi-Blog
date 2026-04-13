@@ -210,10 +210,10 @@ v1.1 完成标志：
     `ADMIN_GITHUB_USERIDS`, `ADMIN_JWT_SECRET`, `BLOG_INTERNAL_SYNC_SECRET`, `MINIO_PUBLIC_HOSTNAME`
   - 每个变量附注说明和获取方式
 
-- [ ] **T12** `siteMetadata.js` 填写真实站点信息
-  - 文件: `tailwind-nextjs-starter-blog-sealpi/data/siteMetadata.js`
-  - 需填写: `title`, `author`, `headerTitle`, `siteUrl`, `siteRepo`, `description`, 社交链接
-  - **注意**: 此项需要用户提供真实站点信息，代码层无法自动完成
+- [x] **T12** `siteMetadata.js` 填写真实站点信息 ✓
+  - `title` / `headerTitle`: `'Sealの小屋'`、`author`: `'Seal'`
+  - `siteUrl`: `'https://sealpi.cn'`、`siteRepo`: `'https://github.com/Seal-Re/SealPi-Blog'`
+  - `language` / `locale`: `'zh-CN'`，无用社交链接清空
 
 ### P1 — 质量保障（v1.2 建议完成）
 
