@@ -176,7 +176,7 @@ export default function AdminEditorWorkspace({
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
             <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">数据来源</dt>
             <dd className="mt-1 text-gray-900 dark:text-gray-100">
-              {article ? '已从后端读取文章详情' : '新建模式，无需预加载'}
+              {article ? '已加载文章内容' : '新文章'}
             </dd>
           </div>
         </dl>
@@ -209,7 +209,7 @@ export default function AdminEditorWorkspace({
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/admin/articles?status=draft')}
+                onClick={() => router.push('/admin/drafts')}
                 className="rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
               >
                 进入草稿箱

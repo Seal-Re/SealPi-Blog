@@ -4,7 +4,7 @@ import type { AdminArticle, ArticleTag, PageResult } from '@/lib/blog-api-types'
 
 export const BLOG_POSTS_PER_PAGE = 5
 export const PUBLIC_ARTICLE_PRELOAD_SIZE = 50
-export const PUBLIC_FETCH_REVALIDATE_SECONDS = 60
+export const PUBLIC_FETCH_REVALIDATE_SECONDS = 300
 
 type PublishedArticleListItem = Omit<
   Pick<

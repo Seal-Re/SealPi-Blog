@@ -44,7 +44,6 @@ public class Article {
         this.summary = summary;
         this.url = url;
 
-        this.draft = ArticleStatus.DRAFT;
         this.lastmod = LocalDate.now().toString();
 
         this.initValidation();
@@ -74,6 +73,11 @@ public class Article {
 
     public void publish() {
         this.draft = ArticleStatus.PUBLISHED;
+    }
+
+    public void offlineToDraft() {
+        this.draft = ArticleStatus.DRAFT;
+        this.lastmod = LocalDate.now().toString();
     }
 
     public void updateCount(Integer count) {

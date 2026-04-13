@@ -580,7 +580,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         setSyncState('UPDATING')
         const draftProgressText = source === 'auto' ? '正在自动保存草稿...' : '正在保存草稿...'
         setStatusMessage(action === 'publish' ? '正在发布文章...' : draftProgressText)
-        console.info(DEBUG_PREFIX, 'submit start', { action, isEditMode, articleId })
+        console.info(DEBUG_PREFIX, 'submit start', { action, isEditMode, currentArticleId })
 
         try {
           const payload = await buildPayload(action)
