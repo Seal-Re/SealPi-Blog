@@ -4,6 +4,7 @@ import type { AdminArticle, ArticleTag, PageResult } from '@/lib/blog-api-types'
 
 export const BLOG_POSTS_PER_PAGE = 5
 export const PUBLIC_ARTICLE_PRELOAD_SIZE = 100
+export const PUBLIC_FETCH_REVALIDATE_SECONDS = 60
 
 type PublishedArticleListItem = Omit<
   Pick<
@@ -115,7 +116,7 @@ export async function fetchPublishedArticlesPage(
   }
 
   const response = await fetch(buildApiUrl(`/api/v1/articles?${searchParams.toString()}`), {
-    cache: 'no-store',
+    next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
   })
 
   if (!response.ok) {
