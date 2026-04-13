@@ -10,12 +10,14 @@
 ## 演进规划
 
 - **v1.1 演进基线（当前阶段）**：[`docs/v1/evolution-baseline-v1.1.md`](evolution-baseline-v1.1.md)
-  - 全量状态审计、已知缺陷清单、v1.1 TODO
+  - 全量状态审计、已知缺陷清单、v1.1 TODO（T01-T08 全部完成）、v1.2 TODO（T09-T20）
 - v1 实施计划（阶段 A-D）：[`docs/v1/implementation-plan.md`](implementation-plan.md)
 - 本轮开发执行清单：[`docs/v1/current-development-checklist.md`](current-development-checklist.md)
 
 ## 运维与验收
 
+- **生产就绪审计（v1.2 目标）**：[`docs/v1/production-readiness.md`](production-readiness.md)
+  - 落地阻断项清单（P0-4 项）、已修复项、架构待决策
 - v1 验收清单：[`docs/v1/acceptance-checklist.md`](acceptance-checklist.md)
 - v1 验收 Runbook（可执行版）：[`docs/v1/acceptance-runbook.md`](acceptance-runbook.md)
 - 配置安全迁移回归与回滚手册：[`docs/v1/security-migration-runbook.md`](security-migration-runbook.md)

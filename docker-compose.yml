@@ -3,8 +3,8 @@ services:
     image: mysql:8.0
     container_name: sealpi-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: sealpi_blog
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sealpi_blog}
     ports:
       - "13307:3306"
     volumes:
@@ -15,8 +15,8 @@ services:
     image: minio/minio:latest
     container_name: sealpi-minio
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "13308:9000"
       - "13309:9001"
@@ -32,7 +32,7 @@ services:
       - /bin/sh
       - -c
     command: >
-      "mc alias set local http://minio:9000 minioadmin minioadmin &&
+      "mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
       mc mb -p local/blog-assets || true"
 
   blog-start:
@@ -43,20 +43,19 @@ services:
       - minio
       - minio-init
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sealpi_blog?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-sealpi_blog}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      ADMIN_JWT_SECRET: "e4b7b2f4c9a0d8e1f5b6a7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8"
-      ADMIN_GITHUB_USERIds: "190578785"
-      ADMIN_JWT_GITHUBUSERIDCLAIM: githubUserId
-      # 兜底：用 Spring 应用 JSON 强制覆盖属性（绕过 env key 到 camelCase 的映射差异）
-      SPRING_APPLICATION_JSON: '{"admin":{"github":{"userIds":"190578785"}}}'
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      ADMIN_GITHUB_USERIDS: ${ADMIN_GITHUB_USERIDS}
+      ADMIN_JWT_GITHUBUSERIDCLAIM: ${ADMIN_JWT_GITHUBUSERIDCLAIM:-githubUserId}
+      ADMIN_GITHUB_USERAPI: https://api.github.com/user
       ADMIN_UPLOAD_MINIO_ENDPOINT: http://minio:9000
-      ADMIN_UPLOAD_MINIO_ACCESSKEY: minioadmin
-      ADMIN_UPLOAD_MINIO_SECRETKEY: minioadmin
+      ADMIN_UPLOAD_MINIO_ACCESSKEY: ${MINIO_ROOT_USER}
+      ADMIN_UPLOAD_MINIO_SECRETKEY: ${MINIO_ROOT_PASSWORD}
       ADMIN_UPLOAD_MINIO_BUCKET: blog-assets
-      ADMIN_UPLOAD_PUBLICBASEURL: http://localhost:13308
-      BLOG_INTERNAL_SYNC_SECRET: "change-me-internal-sync"
+      ADMIN_UPLOAD_PUBLICBASEURL: ${MINIO_PUBLIC_BASE_URL:-http://localhost:13308}
+      BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
     ports:
       - "13310:8080"
 

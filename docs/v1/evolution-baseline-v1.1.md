@@ -187,3 +187,59 @@ v1.1 完成标志：
 3. `./mvnw -q test` 全部通过（含新增测试）
 4. Flyway 迁移可在全新数据库上自动执行（V0→V1→V2）
 5. 文档索引与阶段标记与代码实现一致
+
+---
+
+## 7. v1.2 演进目标（生产就绪基线）
+
+> 基于 2026-04-13 生产就绪审计，v1.2 的核心目标是 **消除落地阻断项，建立实际可部署基线**。
+> 完整审计见 [`docs/v1/production-readiness.md`](production-readiness.md)。
+
+### P0 — 落地阻断修复（v1.2 必须完成）
+
+- [x] **T09** 修复 `docker-compose.yml` MinIO 公开地址硬编码为 localhost ✓
+  - 改为 `${MINIO_PUBLIC_BASE_URL:-http://localhost:13308}`
+  - 补充 `.env.backend.example` 中 `MINIO_PUBLIC_BASE_URL` 变量
+
+- [x] **T10** 修复 `next.config.js` `images.remotePatterns` 缺失实际使用域名 ✓
+  - 添加 `avatars.githubusercontent.com`（GitHub 头像）
+  - 添加 `minioHostname`（通过 `MINIO_PUBLIC_HOSTNAME` 环境变量注入）
+
+- [x] **T11** 补全前端 `.env.example` 所有必要生产变量 ✓
+  - 补充: `BLOG_API_BASE_URL`, `GITHUB_ID/SECRET`, `AUTH_SECRET`, `AUTH_URL`,
+    `ADMIN_GITHUB_USERIDS`, `ADMIN_JWT_SECRET`, `BLOG_INTERNAL_SYNC_SECRET`, `MINIO_PUBLIC_HOSTNAME`
+  - 每个变量附注说明和获取方式
+
+- [ ] **T12** `siteMetadata.js` 填写真实站点信息
+  - 文件: `tailwind-nextjs-starter-blog-sealpi/data/siteMetadata.js`
+  - 需填写: `title`, `author`, `headerTitle`, `siteUrl`, `siteRepo`, `description`, 社交链接
+  - **注意**: 此项需要用户提供真实站点信息，代码层无法自动完成
+
+### P1 — 质量保障（v1.2 建议完成）
+
+- [ ] **T13** CI 增加前端构建检查
+  - 在 `.github/workflows/ci.yml` 增加 `frontend` job
+  - 执行: `npm ci && npx next lint && npx next build`
+  - 验证: TypeScript 编译错误能被 CI 捕获
+
+- [ ] **T14** `api-config.ts` / `admin-api.ts` fallback 地址加警告日志
+  - 当 `BLOG_API_BASE_URL` / `AUTH_URL` 未设置时打印 `console.warn`
+  - 防止生产环境静默回退到 127.0.0.1
+
+### P2 — 架构决策（v1.2 确认方向）
+
+- [ ] **T15** 明确前端部署方案并补充到文档
+  - 选项 A: 在 `docker-compose.yml` 增加 `frontend` service（`next start`）
+  - 选项 B: 文档记录"前端部署到 Vercel/PaaS"的配置步骤
+  - 完成后更新 README 和部署文档
+
+- [ ] **T16** MinIO 桶访问策略在部署文档中说明
+  - 文档化 `blog-assets` 桶需设置 public-read 策略
+  - 补充 `minio-init` 中的策略设置命令
+
+### P3 — 功能演进（v1.2 可选，v1.3 兜底）
+
+- [ ] **T17** 后端独立标签聚合 API（替代当前前端拉 100 篇聚合的方案）
+- [ ] **T18** 浏览量递增端点（`viewCount` 字段已就位）
+- [ ] **T19** 阶段 C-1/C-2：Admin 信息架构拆分 + 基础监控面板
+- [ ] **T20** 前端测试框架（Vitest 单元 + Playwright E2E smoke）

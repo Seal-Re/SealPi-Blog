@@ -58,6 +58,10 @@ const output = process.env.EXPORT ? 'export' : undefined
 const basePath = process.env.BASE_PATH || undefined
 const unoptimized = process.env.UNOPTIMIZED ? true : undefined
 
+// MinIO 公开主机名（用于 Next.js Image 优化白名单）
+// 通过 MINIO_PUBLIC_HOSTNAME 环境变量注入，避免硬编码
+const minioHostname = process.env.MINIO_PUBLIC_HOSTNAME || 'localhost'
+
 /**
  * @type {import('next/dist/next-server/server/config').NextConfig}
  **/
@@ -77,6 +81,21 @@ module.exports = () => {
         {
           protocol: 'https',
           hostname: 'picsum.photos',
+        },
+        // GitHub avatars (used in UserMenu and admin pages)
+        {
+          protocol: 'https',
+          hostname: 'avatars.githubusercontent.com',
+        },
+        // MinIO uploaded assets (coverImageUrl, article images)
+        // Protocol is intentionally flexible: http for local dev, https for production
+        {
+          protocol: 'https',
+          hostname: minioHostname,
+        },
+        {
+          protocol: 'http',
+          hostname: minioHostname,
         },
       ],
       unoptimized,
