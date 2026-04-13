@@ -62,7 +62,7 @@ export default function AdminEditorWorkspace({
     if (!editorRef.current?.hasPendingChanges()) {
       return true
     }
-    return window.confirm('检测到未保存的变更，确认离开当前页面吗？')
+    return window.confirm('有未保存的更改，确认离开？')
   }
 
   const handleSubmitSuccess = async (action: 'draft' | 'publish') => {
@@ -86,7 +86,7 @@ export default function AdminEditorWorkspace({
       return
     }
     if (action === 'publish') {
-      const confirmed = window.confirm('确认发布当前文章吗？发布后前台将可见。')
+      const confirmed = window.confirm('确认发布此文章？发布后将公开可见。')
       if (!confirmed) {
         return
       }
@@ -169,9 +169,7 @@ export default function AdminEditorWorkspace({
           </div>
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
             <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">文章标识</dt>
-            <dd className="mt-1 text-gray-900 dark:text-gray-100">
-              {resolvedArticleId || '尚未指定 articleId'}
-            </dd>
+            <dd className="mt-1 text-gray-900 dark:text-gray-100">{resolvedArticleId || '—'}</dd>
           </div>
           <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
             <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">数据来源</dt>
@@ -192,12 +190,9 @@ export default function AdminEditorWorkspace({
       {showDraftHint ? (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[1px]">
           <div className="w-full max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl dark:border-amber-500/40 dark:bg-gray-950">
-            <h3 className="text-lg font-bold text-amber-700 dark:text-amber-300">
-              检测到未完成草稿
-            </h3>
+            <h3 className="text-lg font-bold text-amber-700 dark:text-amber-300">有未发布的草稿</h3>
             <p className="mt-2 text-sm leading-7 text-gray-700 dark:text-gray-200">
-              你当前有 {draftHint?.draftCount || 0}{' '}
-              篇未发布草稿。建议先进入草稿箱继续编辑，或继续创建新文章。
+              {draftHint?.draftCount || 0} 篇草稿尚未发布。
             </p>
             <div className="mt-5 flex flex-wrap justify-end gap-3">
               <button

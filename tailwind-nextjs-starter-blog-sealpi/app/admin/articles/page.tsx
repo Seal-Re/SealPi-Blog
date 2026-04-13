@@ -65,7 +65,7 @@ function ArticleRow({ article }: { article: AdminArticle }) {
       </td>
       <td className="px-4 py-5">
         <p className="max-w-md text-sm leading-7 text-gray-600 dark:text-gray-300">
-          {article.summary || '暂无摘要，建议在编辑页补充摘要用于列表与 Open Graph 展示。'}
+          {article.summary || '暂无摘要'}
         </p>
       </td>
       <td className="px-4 py-5">
@@ -204,9 +204,6 @@ export default async function AdminArticlesPage(props: {
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm leading-7 text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-100">
           <p className="font-semibold">文章列表接口调用失败</p>
           <p className="mt-1">{loadError}</p>
-          <p className="mt-1 text-xs text-rose-700/80 dark:text-rose-200/80">
-            可先检查后端服务与数据库表是否完整，再刷新重试。
-          </p>
         </div>
       ) : null}
 

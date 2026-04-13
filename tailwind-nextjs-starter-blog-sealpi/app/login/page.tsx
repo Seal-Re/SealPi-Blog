@@ -29,8 +29,7 @@ export default async function LoginPage(props: {
       <div className="w-full max-w-lg rounded-[2rem] border border-gray-200/80 bg-white/90 p-8 shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
         <h1 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">登录</h1>
         <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-          使用 GitHub
-          登录以使用个性化能力（当前评论默认为只读模式）。需要管理后台时请使用已加入白名单的账号。
+          使用 GitHub 账号登录。
         </p>
         {err ? (
           <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">

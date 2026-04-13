@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { formatDate } from 'pliny/utils/formatDate'
+import Image from 'next/image'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
@@ -71,8 +72,8 @@ export default function ListLayoutWithTags({
   initialDisplayPosts = [],
   pagination,
   availableTags = [],
-  emptyTitle = '当前还没有可展示的文章',
-  emptyDescription = '内容列表暂时为空，可以稍后刷新，或从其他标签和文章入口继续浏览。',
+  emptyTitle = '暂无文章',
+  emptyDescription = '',
 }: ListLayoutProps) {
   const pathname = usePathname()
   const displayPosts = initialDisplayPosts.length > 0 ? initialDisplayPosts : posts
@@ -135,6 +136,17 @@ export default function ListLayoutWithTags({
                         </dd>
                       </dl>
                       <div className="space-y-3">
+                        {post.coverImageUrl ? (
+                          <div className="relative h-48 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700">
+                            <Image
+                              src={post.coverImageUrl}
+                              alt={`${post.title} cover`}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 1280px) 100vw, 60vw"
+                            />
+                          </div>
+                        ) : null}
                         <div>
                           <h2 className="text-2xl leading-8 font-bold tracking-tight">
                             <Link
@@ -163,9 +175,11 @@ export default function ListLayoutWithTags({
                 <h2 className="text-2xl font-bold tracking-tight text-gray-950 dark:text-gray-50">
                   {emptyTitle}
                 </h2>
-                <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-gray-600 dark:text-gray-300">
-                  {emptyDescription}
-                </p>
+                {emptyDescription ? (
+                  <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-gray-600 dark:text-gray-300">
+                    {emptyDescription}
+                  </p>
+                ) : null}
               </div>
             )}
             {pagination && pagination.totalPages > 1 && (

@@ -470,12 +470,14 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         }
 
         if (!scene) {
-          throw new Error(action === 'publish' ? '请先编辑正文内容。' : '暂无可保存的画布内容。')
+          throw new Error(
+            action === 'publish' ? '正文内容为空，无法发布。' : '画布内容为空，无法保存。'
+          )
         }
         const activeElements = scene.elements.filter((element) => !element.isDeleted)
         if (action === 'publish' && !activeElements.length) {
-          setFieldErrors((prev) => ({ ...prev, content: '发布前必须填写正文内容。' }))
-          throw new Error('发布失败：正文内容不能为空。')
+          setFieldErrors((prev) => ({ ...prev, content: '正文内容为空。' }))
+          throw new Error('正文内容为空，无法发布。')
         }
 
         setIsUploadingAssets(true)
