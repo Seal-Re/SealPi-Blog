@@ -1,28 +1,26 @@
-import { coreContent } from 'pliny/utils/contentlayer'
-import { allAuthors } from 'contentlayer/generated'
-import type { Authors } from 'contentlayer/generated'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import DynamicPostLayout from '@/layouts/DynamicPostLayout'
 import ExcalidrawViewer from '@/components/ExcalidrawViewer'
 import siteMetadata from '@/data/siteMetadata'
 import { buildApiUrl } from '@/lib/api-config'
-import type { AdminArticle, ApiResult, PageResult } from '@/lib/blog-api-types'
-import { fetchPublishedArticlesForStaticPaths } from '@/lib/public-blog-api'
-
-type ArticleListItem = Pick<
-  AdminArticle,
-  'articleId' | 'title' | 'url' | 'summary' | 'coverImageUrl' | 'viewCount' | 'date'
->
+import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
+import {
+  PUBLIC_FETCH_REVALIDATE_SECONDS,
+  fetchAllPublishedArticles,
+  fetchPublishedArticlesForStaticPaths,
+} from '@/lib/public-blog-api'
 
 type PageProps = {
   params: Promise<{ slug: string[] }>
 }
 
+export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
+
 async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
   const detailResponse = await fetch(
     buildApiUrl(`/api/v1/articles/slug/${encodeURIComponent(slug)}`),
-    { cache: 'no-store' }
+    { next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS } }
   )
 
   if (!detailResponse.ok) {
@@ -33,22 +31,8 @@ async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
   return detailPayload.data || null
 }
 
-async function fetchPublishedArticles(): Promise<ArticleListItem[]> {
-  const response = await fetch(buildApiUrl('/api/v1/articles?pageIndex=1&pageSize=100'), {
-    cache: 'no-store',
-  })
-
-  if (!response.ok) {
-    return []
-  }
-
-  const payload = (await response.json()) as PageResult<ArticleListItem>
-  return payload.data || []
-}
-
 function getAuthorDetails() {
-  const authorResults = allAuthors.find((author) => author.slug === 'default')
-  return [coreContent(authorResults as Authors)]
+  return [{ name: siteMetadata.author }]
 }
 
 function normalizeDate(value?: string) {
@@ -120,7 +104,7 @@ export default async function Page(props: PageProps) {
   const slug = decodeURI(params.slug.join('/'))
   const [article, publishedArticles] = await Promise.all([
     fetchArticleBySlug(slug),
-    fetchPublishedArticles(),
+    fetchAllPublishedArticles(),
   ])
 
   if (!article) {

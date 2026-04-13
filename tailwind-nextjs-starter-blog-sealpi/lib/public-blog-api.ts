@@ -3,7 +3,7 @@ import { buildApiUrl } from '@/lib/api-config'
 import type { AdminArticle, ArticleTag, PageResult } from '@/lib/blog-api-types'
 
 export const BLOG_POSTS_PER_PAGE = 5
-export const PUBLIC_ARTICLE_PRELOAD_SIZE = 100
+export const PUBLIC_ARTICLE_PRELOAD_SIZE = 50
 export const PUBLIC_FETCH_REVALIDATE_SECONDS = 60
 
 type PublishedArticleListItem = Omit<
@@ -154,14 +154,33 @@ export async function fetchPublishedArticles(options?: { pageSize?: number; tag?
 }
 
 export async function fetchPublishedArticlesForStaticPaths() {
-  return fetchPublishedArticles({ pageSize: PUBLIC_ARTICLE_PRELOAD_SIZE })
+  return fetchAllPublishedArticles()
+}
+
+export async function fetchAllPublishedArticles() {
+  const allItems: PublicBlogPost[] = []
+  let currentPage = 1
+  let totalPages = 1
+
+  while (currentPage <= totalPages) {
+    const response = await fetchPublishedArticlesPage(currentPage, PUBLIC_ARTICLE_PRELOAD_SIZE)
+    totalPages = response.totalPages
+    allItems.push(...response.items)
+
+    if (response.items.length === 0) {
+      break
+    }
+    currentPage += 1
+  }
+
+  return allItems
 }
 
 export async function fetchPublishedTags() {
-  const response = await fetchPublishedArticlesPage(1, PUBLIC_ARTICLE_PRELOAD_SIZE)
+  const allArticles = await fetchAllPublishedArticles()
   const tagMap = new Map<string, PublicTag>()
 
-  response.items.forEach((article) => {
+  allArticles.forEach((article) => {
     mergeTagCounts(
       tagMap,
       article.tags.map((tagName) => ({
