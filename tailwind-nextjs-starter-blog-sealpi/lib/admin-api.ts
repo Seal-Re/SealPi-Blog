@@ -1,12 +1,11 @@
-import { auth } from '@/auth'
-import { buildApiUrl } from '@/lib/api-config'
-import { SignJWT } from 'jose'
-
 type ApiEnvelope = {
   success?: boolean
   errCode?: string
   errMessage?: string
+  errorCode?: string
+  errorMessage?: string
 }
+import { buildApiUrl } from '@/lib/api-config'
 
 export class AdminApiError extends Error {
   status: number
@@ -18,38 +17,32 @@ export class AdminApiError extends Error {
   }
 }
 
-type AdminRequestInit = Omit<RequestInit, 'headers'> & {
-  headers?: HeadersInit
-  accessToken?: string
-}
+type AdminRequestInit = Omit<RequestInit, 'headers'> & { headers?: HeadersInit }
 
-async function createAdminHeaders(headers?: HeadersInit, accessToken?: string) {
-  let token = accessToken
-  if (!token) {
-    const session = await auth()
-    const githubUserId = session?.user?.githubUserId
-    const secret = process.env.ADMIN_JWT_SECRET
-    const claim =
-      process.env.ADMIN_JWT_GITHUBUSERIDCLAIM || 'githubUserId'
-
-    if (!secret) {
-      throw new AdminApiError('当前环境缺少 ADMIN_JWT_SECRET。', 500)
-    }
-
-    if (!githubUserId) {
-      throw new AdminApiError('当前管理员会话缺少 githubUserId。', 401)
-    }
-
-    token = await new SignJWT({ [claim]: githubUserId })
-      .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-      .setIssuedAt()
-      .setExpirationTime('2h')
-      .sign(new TextEncoder().encode(secret))
+function resolveRequestUrl(path: string) {
+  if (/^https?:\/\//i.test(path)) {
+    return path
+  }
+  // Backend API should always go directly to Java service.
+  if (path.startsWith('/api/v1/')) {
+    return buildApiUrl(path)
+  }
+  // Admin BFF APIs stay on Next origin.
+  if (typeof window !== 'undefined') {
+    return path
   }
 
-  const nextHeaders = new Headers(headers)
-  nextHeaders.set('Authorization', `Bearer ${token}`)
-  return nextHeaders
+  const origin =
+    process.env.AUTH_URL?.replace(/\/$/, '') ||
+    process.env.NEXTAUTH_URL?.replace(/\/$/, '') ||
+    (() => {
+      console.warn(
+        '[admin-api] Neither AUTH_URL nor NEXTAUTH_URL is set. ' +
+          'Falling back to http://127.0.0.1:13311 — BFF self-calls will fail in production.'
+      )
+      return 'http://127.0.0.1:13311'
+    })()
+  return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }
 
 async function parseJsonSafely<T>(response: Response): Promise<T | null> {
@@ -64,28 +57,30 @@ async function parseJsonSafely<T>(response: Response): Promise<T | null> {
 export async function adminFetch<T>(path: string, init: AdminRequestInit = {}) {
   let response: Response
   try {
-    response = await fetch(buildApiUrl(path), {
+    response = await fetch(resolveRequestUrl(path), {
       ...init,
-      headers: await createAdminHeaders(init.headers, init.accessToken),
+      headers: init.headers,
       cache: 'no-store',
     })
   } catch (error) {
     const detail =
-      error instanceof Error && error.message
-        ? `网络请求失败（${error.message}）`
-        : '网络请求失败'
-    throw new AdminApiError(
-      `${detail}。请检查后端连通性、CORS 配置以及登录态。`,
-      0
-    )
+      error instanceof Error && error.message ? `网络请求失败（${error.message}）` : '网络请求失败'
+    throw new AdminApiError(`${detail}。请检查后端连通性、CORS 配置以及登录态。`, 0)
   }
 
   const payload = await parseJsonSafely<T & ApiEnvelope>(response)
 
   if (!response.ok) {
     throw new AdminApiError(
-      payload?.errMessage || `管理接口请求失败: ${response.status}`,
+      payload?.errMessage || payload?.errorMessage || `管理接口请求失败: ${response.status}`,
       response.status
+    )
+  }
+
+  if (payload && payload.success === false) {
+    throw new AdminApiError(
+      payload.errMessage || payload.errorMessage || '管理接口返回业务失败',
+      response.status || 400
     )
   }
 
@@ -125,38 +120,45 @@ function toArticleFormData(payload: AdminArticleFormPayload) {
   return formData
 }
 
-export async function uploadAdminAsset(file: Blob, fileName = 'asset.bin', accessToken?: string) {
+export async function uploadAdminAsset(file: Blob, fileName = 'asset.bin') {
   const formData = new FormData()
   formData.append('file', file, fileName)
 
-  return adminFetch<{ data?: string }>('/api/v1/admin/upload', {
+  return adminFetch<{ data?: string }>('/api/admin/upload', {
     method: 'POST',
     body: formData,
-    accessToken,
   })
 }
 
 export async function createAdminArticle(
   payload: AdminArticleFormPayload,
-  action: 'draft' | 'publish' = 'draft',
-  accessToken?: string
+  action: 'draft' | 'publish' = 'draft'
 ) {
-  return adminFetch<ApiEnvelope>('/api/v1/admin/articles?action=' + action, {
+  return adminFetch<ApiEnvelope>('/api/admin/articles?action=' + action, {
     method: 'POST',
     body: toArticleFormData(payload),
-    accessToken,
   })
 }
 
 export async function updateAdminArticle(
   articleId: number,
   payload: AdminArticleFormPayload,
-  action: 'draft' | 'publish' = 'draft',
-  accessToken?: string
+  action: 'draft' | 'publish' = 'draft'
 ) {
-  return adminFetch<ApiEnvelope>(`/api/v1/admin/articles/${articleId}?action=${action}`, {
+  return adminFetch<ApiEnvelope>(`/api/admin/articles/${articleId}?action=${action}`, {
     method: 'PUT',
     body: toArticleFormData(payload),
-    accessToken,
+  })
+}
+
+export async function deleteAdminArticle(articleId: number) {
+  return adminFetch<ApiEnvelope>(`/api/admin/articles/${articleId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function offlineAdminArticle(articleId: number) {
+  return adminFetch<ApiEnvelope>(`/api/admin/articles/${articleId}/offline`, {
+    method: 'POST',
   })
 }

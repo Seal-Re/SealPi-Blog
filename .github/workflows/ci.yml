@@ -25,6 +25,40 @@ jobs:
           chmod +x ./mvnw
           ./mvnw -q test
 
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tailwind-nextjs-starter-blog-sealpi
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: tailwind-nextjs-starter-blog-sealpi/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npx next lint --dir app --dir components --dir lib --dir layouts
+
+      - name: Build
+        # Provide minimal env vars so Next.js build does not crash on missing
+        # required values. Real secrets are not needed for a type/compile check.
+        env:
+          BLOG_API_BASE_URL: http://localhost:13310
+          NEXT_PUBLIC_BLOG_API_BASE_URL: http://localhost:13310
+          AUTH_SECRET: ci-placeholder-secret-not-real
+          ADMIN_JWT_SECRET: ci-placeholder-secret-not-real
+          ADMIN_GITHUB_USERIDS: '0'
+          BLOG_INTERNAL_SYNC_SECRET: ci-placeholder-secret-not-real
+          MINIO_PUBLIC_HOSTNAME: localhost
+        run: npx next build
+
   docker-compose:
     runs-on: ubuntu-latest
     steps:

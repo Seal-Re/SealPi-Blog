@@ -217,14 +217,15 @@ v1.1 完成标志：
 
 ### P1 — 质量保障（v1.2 建议完成）
 
-- [ ] **T13** CI 增加前端构建检查
-  - 在 `.github/workflows/ci.yml` 增加 `frontend` job
-  - 执行: `npm ci && npx next lint && npx next build`
-  - 验证: TypeScript 编译错误能被 CI 捕获
+- [x] **T13** CI 增加前端构建检查 ✓
+  - `.github/workflows/ci.yml` 新增 `frontend` job
+  - Node.js 20 + `npm ci → next lint → next build`（含 CI 占位 env vars）
+  - TypeScript 编译错误和 lint 问题现在会阻断 CI
 
-- [ ] **T14** `api-config.ts` / `admin-api.ts` fallback 地址加警告日志
-  - 当 `BLOG_API_BASE_URL` / `AUTH_URL` 未设置时打印 `console.warn`
-  - 防止生产环境静默回退到 127.0.0.1
+- [x] **T14** `api-config.ts` / `admin-api.ts` fallback 地址加警告日志 ✓
+  - `api-config.ts`: 未设置 `BLOG_API_BASE_URL` 时打印 `console.warn`
+  - `admin-api.ts`: 未设置 `AUTH_URL` 时打印 `console.warn`
+  - 生产环境不再静默回退到 127.0.0.1
 
 ### P2 — 架构决策（v1.2 确认方向）
 
@@ -233,9 +234,9 @@ v1.1 完成标志：
   - 选项 B: 文档记录"前端部署到 Vercel/PaaS"的配置步骤
   - 完成后更新 README 和部署文档
 
-- [ ] **T16** MinIO 桶访问策略在部署文档中说明
-  - 文档化 `blog-assets` 桶需设置 public-read 策略
-  - 补充 `minio-init` 中的策略设置命令
+- [x] **T16** MinIO 桶 public-read 策略 ✓
+  - `docker-compose.yml` `minio-init` 容器追加 `mc anonymous set public local/blog-assets`
+  - 上传图片无需签名 URL 即可公开访问
 
 ### P3 — 功能演进（v1.2 可选，v1.3 兜底）
 

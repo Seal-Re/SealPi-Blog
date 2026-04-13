@@ -31,9 +31,13 @@ services:
     entrypoint:
       - /bin/sh
       - -c
+    # Create bucket and set public-read policy so uploaded images are accessible
+    # without signed URLs. The blog-assets bucket serves cover images and article
+    # assets; only write operations remain protected by MinIO credentials.
     command: >
       "mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
-      mc mb -p local/blog-assets || true"
+      mc mb -p local/blog-assets || true &&
+      mc anonymous set public local/blog-assets"
 
   blog-start:
     image: sealpi-blog-blog-start:latest
