@@ -229,10 +229,10 @@ v1.1 完成标志：
 
 ### P2 — 架构决策（v1.2 确认方向）
 
-- [ ] **T15** 明确前端部署方案并补充到文档
-  - 选项 A: 在 `docker-compose.yml` 增加 `frontend` service（`next start`）
-  - 选项 B: 文档记录"前端部署到 Vercel/PaaS"的配置步骤
-  - 完成后更新 README 和部署文档
+- [x] **T15** 前端容器化部署方案（选 A：自托管 docker-compose）✓
+  - `tailwind-nextjs-starter-blog-sealpi/Dockerfile`：两阶段构建（builder + runner），非 root 用户
+  - `docker-compose.yml` 新增 `frontend` service：内部 SSR 通过 `http://blog-start:8080`，端口 13311
+  - `.env.backend.example` 补充 `AUTH_URL`、`MINIO_PUBLIC_HOSTNAME`、`NEXT_PUBLIC_BLOG_API_BASE_URL`
 
 - [x] **T16** MinIO 桶 public-read 策略 ✓
   - `docker-compose.yml` `minio-init` 容器追加 `mc anonymous set public local/blog-assets`

@@ -2,7 +2,7 @@
 
 > 审计日期：2026-04-13  
 > 最近更新：2026-04-13（T09-T14/T16 已完成）  
-> 当前阶段：v1.2 **全部 P0/P1 已完成**，仅剩 T15（前端部署方案架构决策）
+> 当前阶段：v1.2 **全部 P0/P1/P2 已完成**，项目具备自托管一键部署能力
 
 ---
 
@@ -63,15 +63,13 @@
 
 ## P2 — 架构待决策（v1.2 确认，不阻断 v1 落地）
 
-### P2-1 前端无容器化部署方案
+### P2-1 前端无容器化部署方案【✅ 已修复 T15 — 选择自托管方案】
 
-**现状**: `docker-compose.yml` 仅包含 MySQL、MinIO、Java 后端三个服务，没有 Next.js 前端的容器定义。前端的部署方式未在项目中定义（Vercel? PM2? Docker?）。
-
-**影响**: 完整的"一键部署"还不可行；前端需要单独配置部署流水线。
-
-**建议方向** (择一):
-1. 在 `docker-compose.yml` 中增加 `frontend` service（`next build` + `next start`）
-2. 明确记录"前端部署到 Vercel"或其他 PaaS 方案，并在 README 说明
+**修复**:
+- `tailwind-nextjs-starter-blog-sealpi/Dockerfile` — 两阶段构建（builder → runner），非 root 用户，端口 3000
+- `docker-compose.yml` 新增 `frontend` service：SSR 端通过内部网络访问 `blog-start:8080`，对外暴露 13311
+- `.env.backend.example` 补充前端容器所需变量（`AUTH_URL`、`NEXT_PUBLIC_BLOG_API_BASE_URL`、`MINIO_PUBLIC_HOSTNAME`）
+- GitHub OAuth App 的 callback URL 需设置为 `http://localhost:13311/api/auth/callback/github`（本地部署）
 
 ---
 
@@ -105,7 +103,7 @@ export const PUBLIC_ARTICLE_PRELOAD_SIZE = 100
 | P0-4 / T11 | 前端 .env.example 补齐所有必要变量 | P0 | ✅ 已修复 |
 | P1-1 / T13 | CI 增加前端构建检查 | P1 | ✅ 已修复 |
 | P1-2 / T14 | fallback 地址加 console.warn | P1 | ✅ 已修复 |
-| P2-1 / T15 | 明确前端部署方案（Vercel/Docker） | P2 | ⏳ 待架构决策 |
+| P2-1 / T15 | 前端容器化（自托管 docker-compose） | P2 | ✅ 已修复 |
 | P2-2 / T17 | 独立标签 API（v1.2） | P2 | 📋 已记录，v1.2 |
 | P2-3 / T16 | MinIO 桶 public-read 策略 | P2 | ✅ 已修复 |
 

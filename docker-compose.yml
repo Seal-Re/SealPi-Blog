@@ -63,6 +63,36 @@ services:
     ports:
       - "13310:8080"
 
+  frontend:
+    build:
+      context: tailwind-nextjs-starter-blog-sealpi
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* is baked into the JS bundle at build time.
+        # For local all-in-one deployment the browser accesses backend via host port 13310.
+        # For production, set NEXT_PUBLIC_BLOG_API_BASE_URL to the real backend public URL.
+        NEXT_PUBLIC_BLOG_API_BASE_URL: ${NEXT_PUBLIC_BLOG_API_BASE_URL:-http://localhost:13310}
+        MINIO_PUBLIC_HOSTNAME: ${MINIO_PUBLIC_HOSTNAME:-localhost}
+    container_name: sealpi-frontend
+    depends_on:
+      - blog-start
+    environment:
+      # Server-side (SSR/BFF) calls go through the internal Docker network.
+      BLOG_API_BASE_URL: http://blog-start:8080
+      # NextAuth — AUTH_URL must match the GitHub OAuth callback URL registered in your app.
+      # For local deployment: http://localhost:13311
+      AUTH_URL: ${AUTH_URL:-http://localhost:13311}
+      AUTH_SECRET: ${AUTH_SECRET}
+      GITHUB_ID: ${GITHUB_ID}
+      GITHUB_SECRET: ${GITHUB_SECRET}
+      ADMIN_GITHUB_USERIDS: ${ADMIN_GITHUB_USERIDS}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      ADMIN_JWT_GITHUBUSERIDCLAIM: ${ADMIN_JWT_GITHUBUSERIDCLAIM:-githubUserId}
+      BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
+      MINIO_PUBLIC_HOSTNAME: ${MINIO_PUBLIC_HOSTNAME:-localhost}
+    ports:
+      - "13311:3000"
+
 volumes:
   mysql_data:
   minio_data:
