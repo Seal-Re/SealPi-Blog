@@ -1,5 +1,7 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
+import AdminArticleRowActions from '@/components/admin/AdminArticleRowActions'
+import AdminErrorToast from '@/components/admin/AdminErrorToast'
 import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
 import PageTitle from '@/components/PageTitle'
 import { AdminApiError, adminFetch } from '@/lib/admin-api'
@@ -77,19 +79,12 @@ function ArticleRow({ article }: { article: AdminArticle }) {
         <div className="mt-2">封面: {article.coverImageUrl ? '已配置' : '未配置'}</div>
       </td>
       <td className="px-4 py-5">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Link
-            href={`/admin/editor?articleId=${article.articleId}`}
-            className="inline-flex items-center justify-center rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white opacity-0 transition-all duration-300 group-hover:opacity-100 hover:bg-gray-800 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
-          >
-            编辑文章
-          </Link>
-          <Link
-            href={`/blog/${article.url}`}
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-900 opacity-0 transition-all duration-300 group-hover:opacity-100 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
-          >
-            预览前台
-          </Link>
+        <div className="opacity-100 transition-all duration-300 group-hover:opacity-100">
+          <AdminArticleRowActions
+            articleId={String(article.articleId)}
+            articleUrl={article.url}
+            isPublished={article.draft !== 1}
+          />
         </div>
       </td>
     </tr>
@@ -142,6 +137,7 @@ export default async function AdminArticlesPage(props: {
   return (
     <section className="space-y-8">
       <AdminArticlesTopbarPortal q={q} status={status} />
+      <AdminErrorToast message={loadError} />
       <div className="flex flex-col gap-5 rounded-[2rem] border border-gray-200 bg-white p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-sky-700 uppercase dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-300">
@@ -149,7 +145,7 @@ export default async function AdminArticlesPage(props: {
           </span>
           <PageTitle>文章列表</PageTitle>
           <p className="max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-300">
-            当前页面直接读取后端分页接口，作为后台内容管理主入口；可从这里进入编辑器，对草稿、发布内容与前台预览进行联动校对。
+            管理所有文章，进行创建、编辑、发布与删除。
           </p>
         </div>
 
@@ -161,7 +157,7 @@ export default async function AdminArticlesPage(props: {
             返回后台首页
           </Link>
           <Link
-            href="/admin/editor"
+            href="/admin/editor?mode=new"
             className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             新建文章
@@ -234,7 +230,7 @@ export default async function AdminArticlesPage(props: {
                     colSpan={6}
                     className="px-4 py-14 text-center text-sm leading-7 text-gray-500 dark:text-gray-400"
                   >
-                    当前还没有可展示的文章数据。可以先进入新建页创建文章或保存草稿，随后回到这里查看分页结果与发布状态。
+                    当前没有文章数据。可点击“新建文章”创建，或通过筛选查看草稿与已发布内容。
                   </td>
                 </tr>
               )}
@@ -245,7 +241,7 @@ export default async function AdminArticlesPage(props: {
 
       <div className="flex flex-col gap-3 rounded-[2rem] border border-gray-200 bg-white p-6 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-950">
         <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
-          当前读取分页接口 `pageIndex={pageIndex}` / `pageSize={pageSize}`，总页数 {totalPages}。
+          共 {totalCount} 篇 · 第 {pageIndex} / {totalPages} 页
         </p>
         <div className="flex gap-3">
           <Link

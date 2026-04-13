@@ -10,6 +10,7 @@ type AdminTopbarProps = {
 
 function getCrumb(pathname: string) {
   if (pathname.startsWith('/admin/articles')) return '文章管理'
+  if (pathname.startsWith('/admin/drafts')) return '草稿库'
   if (pathname.startsWith('/admin/editor')) return '创作台'
   return '仪表盘'
 }

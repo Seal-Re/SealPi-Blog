@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/admin', label: '仪表盘' },
   { href: '/admin/articles', label: '文章管理' },
+  { href: '/admin/drafts', label: '草稿库' },
   { href: '/admin/editor', label: '新建文章' },
 ]
 
@@ -32,7 +33,9 @@ export default function AdminSidebar() {
                   : 'text-gray-300 hover:bg-white/6 hover:text-white'
               }`}
             >
-              {active ? <span className="mr-3 h-4 w-1 rounded-full bg-sky-400" /> : null}
+              {active ? (
+                <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-sky-400" />
+              ) : null}
               {item.label}
             </Link>
           )

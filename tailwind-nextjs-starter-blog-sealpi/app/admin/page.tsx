@@ -59,16 +59,15 @@ export default async function AdminPage() {
           </span>
           <div className="space-y-4">
             <h1 className="text-4xl font-black tracking-tight text-gray-950 sm:text-5xl dark:text-white">
-              后台主入口已进入内容管理闭环
+              管理后台
             </h1>
             <p className="max-w-2xl text-base leading-8 text-gray-600 sm:text-lg dark:text-gray-300">
-              当前已具备 GitHub 登录、管理员白名单校验、文章列表、编辑器以及管理接口调用能力，
-              后台主链路可直接用于内容创建与维护。
+              通过 GitHub 登录与管理员校验后，可进行文章创建、草稿保存、发布与删除。
             </p>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <StatCard
             label="管理员状态"
             value={user?.isAdmin ? '已授权' : '未授权'}
@@ -77,12 +76,7 @@ export default async function AdminPage() {
           <StatCard
             label="GitHub 用户 ID"
             value={user?.githubUserId || '未获取'}
-            hint="后续透传 Bearer Token 给管理后端时会继续使用这个身份。"
-          />
-          <StatCard
-            label="Access Token"
-            value={session?.accessToken ? '已写入 session' : '暂不可用'}
-            hint="当前已经可以由服务端管理 API Client 自动透传。"
+            hint="用于识别管理员身份的 GitHub 用户编号。"
           />
         </div>
 
@@ -90,10 +84,7 @@ export default async function AdminPage() {
           <div className="rounded-[2rem] border border-gray-200 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
             <div className="flex flex-wrap items-center gap-3">
               <span className="rounded-full bg-gray-900 px-3 py-1 text-xs font-semibold tracking-[0.24em] text-white uppercase dark:bg-white dark:text-gray-950">
-                Session Snapshot
-              </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                当前页面由服务端 session 读取。
+                当前登录信息
               </span>
             </div>
             <dl className="mt-6 grid gap-5 sm:grid-cols-2">
@@ -109,14 +100,6 @@ export default async function AdminPage() {
                 <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">邮箱</dt>
                 <dd className="mt-2 text-base font-semibold break-all text-gray-950 dark:text-gray-50">
                   {user?.email || '未提供'}
-                </dd>
-              </div>
-              <div className="rounded-2xl bg-gray-50 p-4 sm:col-span-2 dark:bg-gray-950/70">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  当前可执行能力
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-gray-700 dark:text-gray-200">
-                  后台已支持文章列表、编辑、保存草稿、发布与前台预览联动，当前建议重点关注内容质量与回归验证。
                 </dd>
               </div>
             </dl>
@@ -138,11 +121,10 @@ export default async function AdminPage() {
           <div className="rounded-[2rem] border border-gray-200 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
             <div className="space-y-4">
               <h2 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">
-                管理台内容链路已可执行
+                常用入口
               </h2>
               <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
-                登录页、导航入口、服务端 Bearer Token 请求封装与内容管理入口均已落位，
-                当前可围绕编辑体验和资源上传继续做增强。
+                使用下方入口快速返回前台或结束当前管理员会话。
               </p>
             </div>
             <div className="mt-6 flex flex-col gap-3">

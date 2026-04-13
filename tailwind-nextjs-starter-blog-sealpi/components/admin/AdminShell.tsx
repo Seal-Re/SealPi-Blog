@@ -25,7 +25,7 @@ export default function AdminShell({ children, userName }: AdminShellProps) {
         {!isEditor ? <AdminSidebar /> : null}
         <div className="flex min-h-screen min-w-0 flex-1 flex-col">
           <AdminTopbar userName={userName} />
-          <main className={`min-w-0 flex-1 p-5 sm:p-8 ${isEditor ? 'max-w-none p-4 sm:p-5' : ''}`}>
+          <main className={`min-w-0 flex-1 p-5 sm:p-8 ${isEditor ? 'max-w-none p-4 sm:p-5' : 'mx-auto w-full max-w-7xl'}`}>
             {children}
           </main>
         </div>
