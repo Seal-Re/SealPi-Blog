@@ -125,9 +125,9 @@ export default function AdminEditorWorkspace({
         type="button"
         onClick={() => void runAction('publish')}
         disabled={isTriggering}
-        className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-black active:scale-95 disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+        className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
       >
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/80 dark:bg-gray-700" />
+        <span className="bg-wb-paper/80 h-1.5 w-1.5 animate-pulse rounded-full dark:bg-gray-700" />
         发布
       </button>
     </>

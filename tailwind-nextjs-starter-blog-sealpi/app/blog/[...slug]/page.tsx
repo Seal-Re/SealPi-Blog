@@ -6,6 +6,7 @@ import { buildApiUrl } from '@/lib/api-config'
 import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
 import {
   PUBLIC_FETCH_REVALIDATE_SECONDS,
+  fetchAllPublishedArticles,
   fetchPublishedArticlesForStaticPaths,
 } from '@/lib/public-blog-api'
 
@@ -31,6 +32,31 @@ async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
 
 function getAuthorDetails() {
   return [{ name: siteMetadata.author }]
+}
+
+function estimateReadMinutes(markdown?: string | null): number | undefined {
+  if (!markdown?.trim()) {
+    return undefined
+  }
+  const words = markdown.trim().split(/\s+/).length
+  const minutes = Math.max(1, Math.round(words / 220))
+  return minutes
+}
+
+async function fetchAdjacentArticles(currentUrl: string) {
+  const allArticles = await fetchAllPublishedArticles()
+  const idx = allArticles.findIndex((a) => a.url === currentUrl)
+  if (idx === -1) return { prev: null, next: null }
+
+  // API returns newest-first; idx-1 = newer, idx+1 = older
+  // Blog convention: "上一篇" = newer (left), "下一篇" = older (right)
+  const prevRaw = idx > 0 ? allArticles[idx - 1] : null
+  const nextRaw = idx < allArticles.length - 1 ? allArticles[idx + 1] : null
+
+  return {
+    prev: prevRaw ? { title: prevRaw.title, path: prevRaw.path } : null,
+    next: nextRaw ? { title: nextRaw.title, path: nextRaw.path } : null,
+  }
 }
 
 function normalizeDate(value?: string) {
@@ -109,6 +135,7 @@ export default async function Page(props: PageProps) {
   const authorDetails = getAuthorDetails()
   const date = normalizeDate(article.date)
   const summary = article.summary?.trim()
+  const { prev, next } = await fetchAdjacentArticles(article.url)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -145,11 +172,13 @@ export default async function Page(props: PageProps) {
         tags={
           article.tags?.map((tag) => tag.name).filter((name): name is string => Boolean(name)) || []
         }
-        readMinutes={undefined}
+        readMinutes={estimateReadMinutes(article.bodyMd)}
         contentJson={article.contentJson || article.draftJson}
         coverImageUrl={article.coverImageUrl}
         coverCaption={article.coverCaption}
         bodyMd={article.bodyMd}
+        prevPost={prev}
+        nextPost={next}
       />
     </>
   )

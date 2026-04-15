@@ -1,9 +1,15 @@
 import type { ReactNode } from 'react'
+import Link from 'next/link'
 import ExcalidrawHero from './ExcalidrawHero'
 import WbMeta from './WbMeta'
 import WbDivider from './WbDivider'
 import BodyMarkdown from './BodyMarkdown'
 import WorkbookRevealInit from './WorkbookRevealInit'
+
+type AdjacentPost = {
+  title: string
+  path: string
+}
 
 type WorkbookArticleLayoutProps = {
   title: string
@@ -15,6 +21,8 @@ type WorkbookArticleLayoutProps = {
   coverCaption?: string
   bodyMd?: string
   eyebrow?: string
+  prevPost?: AdjacentPost | null
+  nextPost?: AdjacentPost | null
   children?: ReactNode
 }
 
@@ -28,6 +36,8 @@ export default function WorkbookArticleLayout({
   coverCaption,
   bodyMd,
   eyebrow = 'Essay',
+  prevPost,
+  nextPost,
   children,
 }: WorkbookArticleLayoutProps) {
   return (
@@ -64,6 +74,49 @@ export default function WorkbookArticleLayout({
       ) : null}
 
       {children}
+
+      {(prevPost || nextPost) && (
+        <div className="border-wb-rule-soft mt-16 grid grid-cols-1 gap-4 border-t pt-8 sm:grid-cols-2">
+          {prevPost ? (
+            <Link
+              href={`/${prevPost.path}`}
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-1.5 rounded-xl border px-4 py-3 transition-colors"
+            >
+              <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
+                ← 上一篇
+              </span>
+              <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
+                {prevPost.title}
+              </span>
+            </Link>
+          ) : (
+            <div />
+          )}
+          {nextPost ? (
+            <Link
+              href={`/${nextPost.path}`}
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-1.5 rounded-xl border px-4 py-3 text-right transition-colors sm:items-end"
+            >
+              <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
+                下一篇 →
+              </span>
+              <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
+                {nextPost.title}
+              </span>
+            </Link>
+          ) : null}
+        </div>
+      )}
+
+      <div className="border-wb-rule-soft mt-8 border-t pt-8">
+        <Link
+          href="/blog"
+          className="text-wb-meta hover:text-wb-accent font-inter inline-flex items-center gap-2 text-sm transition-colors duration-200"
+        >
+          <span aria-hidden="true">←</span>
+          所有文章
+        </Link>
+      </div>
     </article>
   )
 }
