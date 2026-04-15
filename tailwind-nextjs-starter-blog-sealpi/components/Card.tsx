@@ -8,7 +8,7 @@ const Card = ({ title, description, imgSrc, href }) => (
     >
       {imgSrc &&
         (href ? (
-          <Link href={href} aria-label={`Link to ${title}`}>
+          <Link href={href} aria-label={`查看 ${title}`}>
             <Image
               alt={title}
               src={imgSrc}
@@ -27,9 +27,9 @@ const Card = ({ title, description, imgSrc, href }) => (
           />
         ))}
       <div className="p-6">
-        <h2 className="mb-3 text-2xl leading-8 font-bold tracking-tight">
+        <h2 className="text-wb-ink hover:text-wb-accent mb-3 text-2xl leading-8 font-bold tracking-tight transition-colors">
           {href ? (
-            <Link href={href} aria-label={`Link to ${title}`}>
+            <Link href={href} aria-label={`查看 ${title}`}>
               {title}
             </Link>
           ) : (
@@ -41,7 +41,7 @@ const Card = ({ title, description, imgSrc, href }) => (
           <Link
             href={href}
             className="text-wb-accent hover:text-wb-ink text-base leading-6 font-medium transition-colors duration-200"
-            aria-label={`Link to ${title}`}
+            aria-label={`查看 ${title}`}
           >
             了解更多 &rarr;
           </Link>
