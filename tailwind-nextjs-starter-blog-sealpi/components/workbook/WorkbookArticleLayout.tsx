@@ -62,7 +62,7 @@ export default function WorkbookArticleLayout({
   const hasRelated = relatedPosts && relatedPosts.length > 0
 
   return (
-    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] md:px-16 md:py-14">
+    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] dark:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.55)] md:px-16 md:py-14">
       <WorkbookRevealInit />
       <WorkbookReadingProgress />
       <CopyCodeInit />

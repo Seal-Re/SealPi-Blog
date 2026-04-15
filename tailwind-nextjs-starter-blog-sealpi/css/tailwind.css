@@ -461,6 +461,21 @@ input:-webkit-autofill:focus {
   font-weight: bold;
 }
 
+/* hljs token dark-mode overrides — boost contrast for hardcoded light colors */
+.dark .hljs-string,
+.dark .hljs-attr,
+.dark .hljs-attribute {
+  color: #9cc48b;
+}
+.dark .hljs-number,
+.dark .hljs-literal {
+  color: #88a8d8;
+}
+.dark .hljs-type,
+.dark .hljs-class .hljs-title {
+  color: #b891cc;
+}
+
 /* Workbook paper texture — very subtle dot-matrix overlay */
 .wb-frame::before {
   content: '';
