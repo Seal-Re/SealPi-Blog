@@ -16,7 +16,7 @@ export default function Home({ posts }) {
           </li>
         )}
         {posts.slice(0, MAX_DISPLAY).map((post) => {
-          const { slug, date, title, summary, tags, coverImageUrl } = post
+          const { slug, date, title, summary, tags, coverImageUrl, viewCount } = post
           return (
             <li key={slug}>
               <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-gray-800 dark:bg-gray-950">
@@ -32,13 +32,18 @@ export default function Home({ posts }) {
                   </div>
                 ) : null}
                 <div className="p-6">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <time
                       dateTime={date}
                       className="text-wb-meta text-sm font-medium dark:text-gray-500"
                     >
                       {formatDate(date, siteMetadata.locale)}
                     </time>
+                    {viewCount != null && viewCount > 0 ? (
+                      <span className="text-wb-meta text-xs dark:text-gray-500">
+                        {viewCount.toLocaleString('zh-CN')} 次阅读
+                      </span>
+                    ) : null}
                     {tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {tags.map((tag) => (

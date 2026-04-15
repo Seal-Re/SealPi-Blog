@@ -193,6 +193,7 @@ export default async function Page(props: PageProps) {
         })}
         tags={currentTags}
         readMinutes={estimateReadMinutes(article.bodyMd)}
+        viewCount={article.viewCount}
         contentJson={article.contentJson || article.draftJson}
         coverImageUrl={article.coverImageUrl}
         coverCaption={article.coverCaption}

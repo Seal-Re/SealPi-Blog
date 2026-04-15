@@ -24,6 +24,7 @@ type WorkbookArticleLayoutProps = {
   date: string
   tags?: string[]
   readMinutes?: number
+  viewCount?: number
   contentJson?: string
   coverImageUrl?: string
   coverCaption?: string
@@ -40,6 +41,7 @@ export default function WorkbookArticleLayout({
   date,
   tags,
   readMinutes,
+  viewCount,
   contentJson,
   coverImageUrl,
   coverCaption,
@@ -76,7 +78,7 @@ export default function WorkbookArticleLayout({
         {title}
       </h1>
 
-      <WbMeta date={date} readMinutes={readMinutes} tags={tags} />
+      <WbMeta date={date} readMinutes={readMinutes} viewCount={viewCount} tags={tags} />
       <WbDivider />
 
       {bodyMd ? (
