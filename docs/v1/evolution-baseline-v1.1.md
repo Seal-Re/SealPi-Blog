@@ -40,8 +40,8 @@
 | Admin 鉴权（JWT+OAuth） | ✓ | — | — | — | ✓ |
 | 内部同步鉴权 | ✓ | — | — | — | ✓ |
 | 标签 CRUD | ✗ | ✗ | ✗ | ✓(mapper) | ✗ |
-| 浏览量递增 | ✗ | ✗ | ✗ | — | ✗ |
-| 用户管理 | ✗ | ✗ | ✗ | ✓(mapper) | ✗ |
+| 浏览量递增 | ✓(public) | ✓ | ✓ | — | ✓ |
+| 用户管理（分页列表） | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### 1.3 前端功能矩阵
 
@@ -60,6 +60,8 @@
 | Admin 编辑器 | app/admin/editor/ | AdminEditorClient | BFF proxy | ✓ |
 | 图片上传+URL回写 | — | AdminEditorClient | BFF proxy | ✓ |
 | 自动保存草稿 | — | AdminEditorClient | BFF proxy | ✓ |
+| Admin 用户列表 | app/admin/users/ | — | BFF proxy | ✓ |
+| Admin 运维控制台 | app/admin/ops/ | — | BFF proxy | ✓ |
 | 评论系统（Giscus） | — | Comments | Giscus | ✓ |
 
 ---
