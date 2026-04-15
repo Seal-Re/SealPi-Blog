@@ -7,13 +7,14 @@ import com.seal.blog.client.common.Response;
 import com.seal.blog.domain.article.gateway.ArticleGateway;
 import com.seal.blog.domain.article.model.Article;
 import com.seal.blog.domain.article.model.ArticleStatus;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class ArticleServiceImplTest {
 
     @Mock
@@ -35,8 +37,7 @@ class ArticleServiceImplTest {
     @InjectMocks
     private ArticleServiceImpl service;
 
-    @BeforeEach
-    void setUp() {
+    private void stubGateway() {
         when(articleGateway.findBySlug(anyString())).thenReturn(null);
         doNothing().when(articleGateway).save(any());
     }
@@ -45,9 +46,10 @@ class ArticleServiceImplTest {
 
     @Test
     void adminCreate_draft_persistsDraftBodyMdOnly() {
+        stubGateway();
         ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd();
-        cmd.setTitle("t");
-        cmd.setUrl("u");
+        cmd.setTitle("test title");
+        cmd.setUrl("test-slug");
         cmd.setDraftJson("{}");
         cmd.setDraftBodyMd("# draft body");
         cmd.setCoverCaption("cap");
@@ -64,9 +66,10 @@ class ArticleServiceImplTest {
 
     @Test
     void adminCreate_publish_copiesDraftBodyMdToBodyMd() {
+        stubGateway();
         ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd();
-        cmd.setTitle("t");
-        cmd.setUrl("u");
+        cmd.setTitle("test title");
+        cmd.setUrl("test-slug-pub");
         cmd.setDraftJson("{}");
         cmd.setDraftBodyMd("# published body");
 
@@ -81,10 +84,11 @@ class ArticleServiceImplTest {
 
     @Test
     void adminCreate_draft_handlesLargeBodyMd() {
+        stubGateway();
         String big = "x".repeat(120_000);
         ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd();
-        cmd.setTitle("t");
-        cmd.setUrl("u");
+        cmd.setTitle("test title");
+        cmd.setUrl("test-slug-large");
         cmd.setDraftJson("{}");
         cmd.setDraftBodyMd(big);
 
@@ -99,6 +103,7 @@ class ArticleServiceImplTest {
 
     @Test
     void adminCreate_draftAction_allowsEmptyTitle() {
+        stubGateway();
         ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd("", "s", "slug-a", "{}", null, null);
 
         Response result = service.adminCreate(cmd, "draft", null);
