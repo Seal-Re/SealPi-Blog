@@ -53,7 +53,7 @@ function ArticleRow({ article }: { article: AdminArticle }) {
         <div className="space-y-2">
           <Link
             href={`/admin/editor?articleId=${article.articleId}`}
-            className="text-wb-ink hover:text-wb-accent text-base font-semibold transition-colors duration-200 dark:text-gray-50 dark:hover:text-wb-accent"
+            className="text-wb-ink hover:text-wb-accent dark:hover:text-wb-accent text-base font-semibold transition-colors duration-200 dark:text-gray-50"
           >
             {article.title}
           </Link>

@@ -804,7 +804,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       maxLength={120}
                       onChange={(event) => updateField('title', event.target.value)}
                       placeholder="输入文章标题"
-                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
                     {fieldErrors.title ? (
                       <p className="text-xs text-rose-600 dark:text-rose-300">
@@ -823,7 +823,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       maxLength={120}
                       onChange={(event) => updateField('url', event.target.value)}
                       placeholder="例如：sealpi-excalidraw-notes"
-                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
                     <FieldHint>
                       新建时随标题自动生成（中文转拼音）。若已手动修改
@@ -841,7 +841,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       onChange={(event) => updateField('summary', event.target.value)}
                       rows={4}
                       placeholder="用于文章列表与 SEO 的简述"
-                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm leading-7 shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm leading-7 shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
                     <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
                   </label>
@@ -854,7 +854,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       value={formState.coverImageUrl}
                       onChange={(event) => updateField('coverImageUrl', event.target.value)}
                       placeholder="可选；为空时使用自动导出的预览图"
-                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
                     <FieldHint>如已上传 OSS，可直接覆写自动生成的预览图地址。</FieldHint>
                   </label>
@@ -926,7 +926,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     type="button"
                     disabled={isSubmitting || isUploadingAssets}
                     onClick={() => void handleSubmit('publish')}
-                    className="border-wb-rule text-wb-accent hover:border-wb-accent hover:text-wb-accent focus:ring-wb-accent/10 inline-flex items-center justify-center rounded-full border bg-[linear-gradient(135deg,rgba(251,245,236,0.95),rgba(245,236,225,0.90))] px-5 py-3.5 text-sm font-semibold shadow-[0_18px_38px_-24px_rgba(166,88,43,0.30)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(245,236,225,0.98),rgba(237,223,207,0.95))] focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:border-wb-accent/40 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(166,88,43,0.06))] dark:text-wb-accent/80 dark:hover:bg-[linear-gradient(135deg,rgba(166,88,43,0.20),rgba(166,88,43,0.14))]"
+                    className="border-wb-rule text-wb-accent hover:border-wb-accent hover:text-wb-accent focus:ring-wb-accent/10 dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center rounded-full border bg-[linear-gradient(135deg,rgba(251,245,236,0.95),rgba(245,236,225,0.90))] px-5 py-3.5 text-sm font-semibold shadow-[0_18px_38px_-24px_rgba(166,88,43,0.30)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(245,236,225,0.98),rgba(237,223,207,0.95))] focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(166,88,43,0.06))] dark:hover:bg-[linear-gradient(135deg,rgba(166,88,43,0.20),rgba(166,88,43,0.14))]"
                   >
                     {isSubmitting ? '提交中...' : '直接发布'}
                   </button>

@@ -45,7 +45,7 @@ const SocialIcon = ({ kind, href, size = 8 }: SocialIconProps) => {
 
   return (
     <a
-      className="text-wb-meta text-sm transition hover:text-wb-accent"
+      className="text-wb-meta hover:text-wb-accent text-sm transition"
       target="_blank"
       rel="noopener noreferrer"
       href={href}

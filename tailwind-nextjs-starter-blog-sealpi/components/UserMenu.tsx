@@ -61,7 +61,9 @@ export default function UserMenu() {
               <p className="text-wb-meta mt-0.5 truncate text-xs dark:text-gray-400">@{handle}</p>
             ) : null}
             {email ? (
-              <p className="text-wb-meta mt-1 truncate text-xs opacity-75 dark:text-gray-500">{email}</p>
+              <p className="text-wb-meta mt-1 truncate text-xs opacity-75 dark:text-gray-500">
+                {email}
+              </p>
             ) : null}
             {user.profileBio ? (
               <p className="text-wb-meta mt-2 line-clamp-2 text-xs leading-relaxed dark:text-gray-400">
