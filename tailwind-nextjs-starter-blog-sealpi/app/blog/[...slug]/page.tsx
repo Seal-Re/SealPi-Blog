@@ -1,13 +1,11 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import DynamicPostLayout from '@/layouts/DynamicPostLayout'
-import ExcalidrawViewer from '@/components/ExcalidrawViewer'
+import WorkbookArticleLayout from '@/components/workbook/WorkbookArticleLayout'
 import siteMetadata from '@/data/siteMetadata'
 import { buildApiUrl } from '@/lib/api-config'
 import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
 import {
   PUBLIC_FETCH_REVALIDATE_SECONDS,
-  fetchAllPublishedArticles,
   fetchPublishedArticlesForStaticPaths,
 } from '@/lib/public-blog-api'
 
@@ -102,18 +100,12 @@ export async function generateStaticParams() {
 export default async function Page(props: PageProps) {
   const params = await props.params
   const slug = decodeURI(params.slug.join('/'))
-  const [article, publishedArticles] = await Promise.all([
-    fetchArticleBySlug(slug),
-    fetchAllPublishedArticles(),
-  ])
+  const article = await fetchArticleBySlug(slug)
 
   if (!article) {
     return notFound()
   }
 
-  const postIndex = publishedArticles.findIndex((item) => item.url === slug)
-  const prevArticle = postIndex >= 0 ? publishedArticles[postIndex + 1] : undefined
-  const nextArticle = postIndex > 0 ? publishedArticles[postIndex - 1] : undefined
   const authorDetails = getAuthorDetails()
   const date = normalizeDate(article.date)
   const summary = article.summary?.trim()
@@ -143,42 +135,24 @@ export default async function Page(props: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <DynamicPostLayout
-        content={{
-          path: 'blog',
-          slug: article.url,
-          title: article.title,
-          summary,
-          date,
-          lastmod: article.lastmod,
-          tags:
-            article.tags?.map((tag) => tag.name).filter((name): name is string => Boolean(name)) ||
-            [],
-          coverImageUrl: article.coverImageUrl,
-        }}
-        authorDetails={authorDetails}
-        prev={
-          prevArticle
-            ? {
-                path: `blog/${prevArticle.url}`,
-                title: prevArticle.title,
-              }
-            : undefined
+      <WorkbookArticleLayout
+        title={article.title}
+        date={new Date(date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}
+        tags={
+          article.tags
+            ?.map((tag) => tag.name)
+            .filter((name): name is string => Boolean(name)) || []
         }
-        next={
-          nextArticle
-            ? {
-                path: `blog/${nextArticle.url}`,
-                title: nextArticle.title,
-              }
-            : undefined
-        }
-      >
-        <ExcalidrawViewer
-          contentJson={article.contentJson || article.draftJson}
-          title={article.title}
-        />
-      </DynamicPostLayout>
+        readMinutes={undefined}
+        contentJson={article.contentJson || article.draftJson}
+        coverImageUrl={article.coverImageUrl}
+        coverCaption={article.coverCaption}
+        bodyMd={article.bodyMd}
+      />
     </>
   )
 }
