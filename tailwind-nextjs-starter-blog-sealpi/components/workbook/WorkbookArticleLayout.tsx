@@ -8,6 +8,8 @@ import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
+import Comments from '@/components/Comments'
+import siteMetadata from '@/data/siteMetadata'
 
 type AdjacentPost = {
   title: string
@@ -33,6 +35,7 @@ type WorkbookArticleLayoutProps = {
   coverCaption?: string
   bodyMd?: string
   eyebrow?: string
+  slug?: string
   prevPost?: AdjacentPost | null
   nextPost?: AdjacentPost | null
   relatedPosts?: RelatedPost[]
@@ -50,6 +53,7 @@ export default function WorkbookArticleLayout({
   coverCaption,
   bodyMd,
   eyebrow = '随笔',
+  slug,
   prevPost,
   nextPost,
   relatedPosts,
@@ -158,6 +162,12 @@ export default function WorkbookArticleLayout({
           ) : null}
         </div>
       )}
+
+      {slug && siteMetadata.comments?.provider ? (
+        <div className="border-wb-rule-soft mt-12 border-t pt-10">
+          <Comments slug={slug} />
+        </div>
+      ) : null}
 
       <div className="border-wb-rule-soft mt-8 flex items-center justify-between border-t pt-8">
         <Link
