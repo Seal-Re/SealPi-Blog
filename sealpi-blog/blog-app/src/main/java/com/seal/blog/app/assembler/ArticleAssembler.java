@@ -3,8 +3,10 @@ package com.seal.blog.app.assembler;
 import com.seal.blog.client.article.dto.cmd.ArticleCreateCmd;
 import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
+import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.domain.article.model.Article;
 import com.seal.blog.domain.article.model.ArticleStatus;
+import com.seal.blog.domain.article.model.Tag;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -27,6 +29,11 @@ public interface ArticleAssembler {
      * Entity -> VO
      */
     ArticleVO toVO(Article article);
+
+    /**
+     * Domain Tag -> VO
+     */
+    TagVO toTagVO(Tag tag);
 
     /**
      * 列表转换 (Collection -> Collection)

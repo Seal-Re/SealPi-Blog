@@ -3,6 +3,8 @@ package com.seal.blog.domain.article.model;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 public class Article {
@@ -27,6 +29,8 @@ public class Article {
 
     private ArticleStatus draft;
     private Integer count;
+
+    private List<Tag> tags = Collections.emptyList();
 
     public Article(String title, String summary, String url) {
         this.title = title;
@@ -132,6 +136,11 @@ public class Article {
     public String getBodyMd() { return bodyMd; }
     public String getDraftBodyMd() { return draftBodyMd; }
     public String getCoverCaption() { return coverCaption; }
+
+    public Article withTags(List<Tag> tags) {
+        this.tags = tags != null ? tags : Collections.emptyList();
+        return this;
+    }
 
     private void initValidation() {
         if (title == null || title.length() < 2) {

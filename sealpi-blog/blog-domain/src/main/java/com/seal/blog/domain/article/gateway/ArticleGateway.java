@@ -3,6 +3,9 @@ package com.seal.blog.domain.article.gateway;
 import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.domain.article.model.Article;
+import com.seal.blog.domain.article.model.Tag;
+
+import java.util.List;
 
 public interface ArticleGateway {
 
@@ -44,5 +47,10 @@ public interface ArticleGateway {
      * @param articleId
      */
     void incrementViewCount(Integer articleId);
+
+    /**
+     * 返回至少有一篇已发布文章的所有标签，按文章数降序排列。
+     */
+    List<Tag> getAllPublishedTags();
 
 }

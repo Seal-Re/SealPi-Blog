@@ -10,11 +10,15 @@ import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
+import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.Response;
 import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.domain.article.gateway.ArticleGateway;
 import com.seal.blog.domain.article.model.Article;
+
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -198,6 +202,13 @@ public class ArticleServiceImpl implements ArticleServiceI {
         PageResponse<Article> articlePage = articleGateway.PageQuery(qry);
 
         return articleAssembler.toPageResponse(articlePage);
+    }
+
+    @Override
+    public List<TagVO> getTags() {
+        return articleGateway.getAllPublishedTags().stream()
+                .map(articleAssembler::toTagVO)
+                .collect(Collectors.toList());
     }
 
 }

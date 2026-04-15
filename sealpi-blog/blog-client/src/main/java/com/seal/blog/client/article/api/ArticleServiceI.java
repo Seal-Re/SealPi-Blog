@@ -8,9 +8,12 @@ import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
+import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.Response;
 import com.seal.blog.client.common.SingleResponse;
+
+import java.util.List;
 
 public interface ArticleServiceI {
 
@@ -32,5 +35,7 @@ public interface ArticleServiceI {
     SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry articleBySlugQry);
 
     PageResponse<ArticleVO> getPage(ArticlePageQry articlePageQry);
+
+    List<TagVO> getTags();
 
 }

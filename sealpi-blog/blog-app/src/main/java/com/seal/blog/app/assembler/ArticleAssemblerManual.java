@@ -1,12 +1,16 @@
 package com.seal.blog.app.assembler;
 
 import com.seal.blog.client.article.dto.vo.ArticleVO;
+import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.domain.article.model.Article;
+import com.seal.blog.domain.article.model.Tag;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Fallback assembler used when MapStruct generated implementation is unavailable at runtime.
@@ -33,8 +37,29 @@ public class ArticleAssemblerManual implements ArticleAssembler {
         vo.setDraftJson(article.getDraftJson());
         vo.setCoverImageUrl(article.getCoverImageUrl());
         vo.setViewCount(article.getViewCount());
+        vo.setBodyMd(article.getBodyMd());
+        vo.setDraftBodyMd(article.getDraftBodyMd());
+        vo.setCoverCaption(article.getCoverCaption());
         vo.setDraft(map(article.getDraft()));
         vo.setCount(article.getCount());
+        if (article.getTags() != null) {
+            List<TagVO> tagVOs = article.getTags().stream()
+                    .map(this::toTagVO)
+                    .collect(Collectors.toList());
+            vo.setTags(tagVOs);
+        }
+        return vo;
+    }
+
+    @Override
+    public TagVO toTagVO(Tag tag) {
+        if (tag == null) {
+            return null;
+        }
+        TagVO vo = new TagVO();
+        vo.setTagId(tag.getTagId());
+        vo.setName(tag.getName());
+        vo.setCount(tag.getCount());
         return vo;
     }
 

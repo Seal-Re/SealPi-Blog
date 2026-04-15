@@ -22,6 +22,10 @@ public class ArticlePageQry {
      */
     private String q;
     private Integer tagId;
+    /**
+     * Tag name for filtering (resolved to tagId by the infra layer).
+     */
+    private String tag;
     private Integer draft;
     /**
      * Frontend friendly status: all | draft | published.

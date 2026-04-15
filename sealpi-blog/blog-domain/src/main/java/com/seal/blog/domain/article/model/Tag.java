@@ -23,6 +23,13 @@ public class Tag {
         this.initValidation();
     }
 
+    public static Tag reconstruct(Integer tagId, String name, Integer count) {
+        Tag tag = new Tag(name != null ? name : "");
+        tag.tagId = tagId;
+        tag.count = count != null ? count : 0;
+        return tag;
+    }
+
     public void assignId(Integer id) {
         if (this.tagId != null) {
             throw new IllegalStateException("已有id，不能重复赋值");

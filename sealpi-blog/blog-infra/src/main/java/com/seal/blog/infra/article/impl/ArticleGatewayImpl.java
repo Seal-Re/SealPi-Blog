@@ -7,18 +7,24 @@ import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.domain.article.gateway.ArticleGateway;
 import com.seal.blog.domain.article.model.Article;
+import com.seal.blog.domain.article.model.Tag;
 import com.seal.blog.infra.article.converter.ArticleInfraConverter;
 import com.seal.blog.infra.article.mapper.ArticleMapper;
 import com.seal.blog.infra.article.mapper.RelyMapper;
+import com.seal.blog.infra.article.mapper.TagMapper;
 import com.seal.blog.infra.article.po.ArticlePO;
 import com.seal.blog.infra.article.po.RelyPO;
+import com.seal.blog.infra.article.po.TagPO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
@@ -33,6 +39,9 @@ public class ArticleGatewayImpl implements ArticleGateway {
 
     @Autowired
     RelyMapper relyMapper;
+
+    @Autowired
+    TagMapper tagMapper;
 
     @Override
     public void save(Article article) {
@@ -53,6 +62,10 @@ public class ArticleGatewayImpl implements ArticleGateway {
     public Article findById(Integer articleId) {
         ArticlePO articlePO = articleMapper.selectById(articleId);
         Article article = converter.toEntity(articlePO);
+        if (article != null) {
+            Map<Integer, List<Tag>> tagsMap = loadTagsForArticles(List.of(articleId));
+            article.withTags(tagsMap.getOrDefault(articleId, Collections.emptyList()));
+        }
         return article;
     }
 
@@ -66,7 +79,12 @@ public class ArticleGatewayImpl implements ArticleGateway {
         queryWrapper.eq(ArticlePO::getUrl, slug)
                 .last("limit 1");
         ArticlePO articlePO = articleMapper.selectOne(queryWrapper);
-        return converter.toEntity(articlePO);
+        Article article = converter.toEntity(articlePO);
+        if (article != null && article.getArticleId() != null) {
+            Map<Integer, List<Tag>> tagsMap = loadTagsForArticles(List.of(article.getArticleId()));
+            article.withTags(tagsMap.getOrDefault(article.getArticleId(), Collections.emptyList()));
+        }
+        return article;
     }
 
     @Override
@@ -90,10 +108,27 @@ public class ArticleGatewayImpl implements ArticleGateway {
     public PageResponse<Article> PageQuery(ArticlePageQry articlePageQry){
         List<Integer> articleIds = null;
 
-        if(articlePageQry.getTagId() != null){
+        // Resolve tag name → tagId if a tag name was provided
+        Integer resolvedTagId = articlePageQry.getTagId();
+        if (resolvedTagId == null && articlePageQry.getTag() != null && !articlePageQry.getTag().isBlank()) {
+            LambdaQueryWrapper<TagPO> tagWrapper = new LambdaQueryWrapper<>();
+            tagWrapper.eq(TagPO::getName, articlePageQry.getTag()).last("limit 1");
+            TagPO tagPO = tagMapper.selectOne(tagWrapper);
+            if (tagPO == null) {
+                return PageResponse.of(
+                        Collections.emptyList(),
+                        0,
+                        articlePageQry.getPageSize(),
+                        articlePageQry.getPageIndex()
+                );
+            }
+            resolvedTagId = tagPO.getTagId();
+        }
+
+        if (resolvedTagId != null) {
             LambdaQueryWrapper<RelyPO> relyWrapper = new LambdaQueryWrapper<>();
             relyWrapper.select(RelyPO::getArticleId)
-                    .eq(RelyPO::getTagId, articlePageQry.getTagId());
+                    .eq(RelyPO::getTagId, resolvedTagId);
             List<Object> ids = relyMapper.selectObjs(relyWrapper);
 
             if (ids.isEmpty()) {
@@ -108,7 +143,6 @@ public class ArticleGatewayImpl implements ArticleGateway {
             articleIds = ids.stream()
                     .map(id -> (Integer) id)
                     .collect(Collectors.toList());
-
         }
 
         LambdaQueryWrapper<ArticlePO> queryWrapper = new LambdaQueryWrapper<>();
@@ -137,9 +171,17 @@ public class ArticleGatewayImpl implements ArticleGateway {
                 articlePageQry.getPageSize());
         Page<ArticlePO> pageResult = articleMapper.selectPage(pageRequest, queryWrapper);
 
-        Collection<Article> entities = pageResult.getRecords().stream()
+        List<Article> entities = pageResult.getRecords().stream()
                 .map(converter::toEntity)
                 .collect(Collectors.toList());
+
+        // Batch-load tags for all returned articles
+        List<Integer> resultIds = entities.stream()
+                .filter(a -> a.getArticleId() != null)
+                .map(Article::getArticleId)
+                .collect(Collectors.toList());
+        Map<Integer, List<Tag>> tagsMap = loadTagsForArticles(resultIds);
+        entities.forEach(a -> a.withTags(tagsMap.getOrDefault(a.getArticleId(), Collections.emptyList())));
 
         return PageResponse.of(
                 entities,
@@ -148,6 +190,51 @@ public class ArticleGatewayImpl implements ArticleGateway {
                 (int) pageResult.getCurrent()
         );
 
+    }
+
+    @Override
+    public List<Tag> getAllPublishedTags() {
+        List<TagPO> tagPos = tagMapper.selectPublishedTagsWithCount();
+        return tagPos.stream()
+                .map(po -> Tag.reconstruct(po.getTagId(), po.getName(), po.getCount()))
+                .collect(Collectors.toList());
+    }
+
+    private Map<Integer, List<Tag>> loadTagsForArticles(List<Integer> articleIds) {
+        if (articleIds == null || articleIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<RelyPO> relyWrapper = new LambdaQueryWrapper<>();
+        relyWrapper.in(RelyPO::getArticleId, articleIds);
+        List<RelyPO> relies = relyMapper.selectList(relyWrapper);
+
+        if (relies.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Integer> tagIds = relies.stream()
+                .map(RelyPO::getTagId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        LambdaQueryWrapper<TagPO> tagWrapper = new LambdaQueryWrapper<>();
+        tagWrapper.in(TagPO::getTagId, tagIds);
+        List<TagPO> tagPos = tagMapper.selectList(tagWrapper);
+
+        Map<Integer, TagPO> tagPoMap = tagPos.stream()
+                .collect(Collectors.toMap(TagPO::getTagId, t -> t));
+
+        Map<Integer, List<Tag>> result = new HashMap<>();
+        for (RelyPO rely : relies) {
+            TagPO tagPO = tagPoMap.get(rely.getTagId());
+            if (tagPO != null) {
+                Tag tag = Tag.reconstruct(tagPO.getTagId(), tagPO.getName(), tagPO.getCount());
+                result.computeIfAbsent(rely.getArticleId(), k -> new ArrayList<>()).add(tag);
+            }
+        }
+
+        return result;
     }
 
 }
