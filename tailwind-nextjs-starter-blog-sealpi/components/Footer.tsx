@@ -5,7 +5,7 @@ import AdminEasterEgg from '@/components/footer/AdminEasterEgg'
 
 export default function Footer() {
   return (
-    <footer>
+    <footer className="border-wb-rule-soft border-t dark:border-gray-800">
       <div className="mt-16 flex flex-col items-center">
         <div className="mb-3 flex space-x-4">
           <SocialIcon kind="mail" href={`mailto:${siteMetadata.email}`} size={6} />
@@ -20,16 +20,18 @@ export default function Footer() {
           <SocialIcon kind="threads" href={siteMetadata.threads} size={6} />
           <SocialIcon kind="medium" href={siteMetadata.medium} size={6} />
         </div>
-        <div className="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-wb-meta mb-2 flex space-x-2 text-sm dark:text-gray-400">
           <AdminEasterEgg>
             <span>{siteMetadata.author}</span>
           </AdminEasterEgg>
           <div>{` • `}</div>
           <div>{`© ${new Date().getFullYear()}`}</div>
           <div>{` • `}</div>
-          <Link href="/">{siteMetadata.title}</Link>
+          <Link href="/" className="hover:text-wb-accent transition-colors duration-200">
+            {siteMetadata.title}
+          </Link>
         </div>
-        <div className="mb-8 text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-wb-meta mb-8 text-sm dark:text-gray-400">
           <Link href="https://github.com/timlrx/tailwind-nextjs-starter-blog">
             Tailwind Nextjs Theme
           </Link>
