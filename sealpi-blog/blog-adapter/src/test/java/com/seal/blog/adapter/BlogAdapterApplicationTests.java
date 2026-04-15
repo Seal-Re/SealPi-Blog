@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,6 +16,7 @@ import com.seal.blog.client.article.api.ArticleServiceI;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.common.Response;
 import com.seal.blog.client.user.api.UserServiceI;
+import com.seal.blog.client.user.dto.qry.UserPageQry;
 import org.mockito.ArgumentCaptor;
 import com.seal.blog.infra.oss.MinioObjectStorage;
 import java.nio.charset.StandardCharsets;
@@ -158,6 +160,26 @@ class BlogAdapterApplicationTests {
         ArticleDraftSaveCmd captured = cmdCaptor.getValue();
         org.assertj.core.api.Assertions.assertThat(captured.getDraftBodyMd()).isEqualTo("# Hello\n\n:::note\nsidenote\n:::");
         org.assertj.core.api.Assertions.assertThat(captured.getCoverCaption()).isEqualTo("图示：架构");
+    }
+
+    @Test
+    void adminUsers_withoutAuth_returns401() throws Exception {
+        mvc.perform(get("/api/v1/admin/users"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void adminUsers_withWhitelistedUser_returnsOk() throws Exception {
+        when(userService.getUsers(any(UserPageQry.class))).thenReturn(
+                com.seal.blog.client.common.PageResponse.empty()
+        );
+
+        mvc.perform(
+                get("/api/v1/admin/users")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk());
+
+        verify(userService).getUsers(any());
     }
 
     @Test
