@@ -64,7 +64,7 @@ const ThemeSwitch = () => {
   return (
     <div className="flex items-center">
       <Menu as="div" className="relative inline-block text-left">
-        <div className="hover:text-wb-accent dark:hover:text-wb-accent flex items-center justify-center">
+        <div className="hover:text-wb-accent text-wb-ink flex items-center justify-center">
           <MenuButton aria-label="Theme switcher">
             {mounted ? resolvedTheme === 'dark' ? <Moon /> : <Sun /> : <Blank />}
           </MenuButton>
@@ -78,7 +78,7 @@ const ThemeSwitch = () => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <MenuItems className="ring-opacity-5 divide-wb-rule-soft bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-32 origin-top-right divide-y rounded-md shadow-lg ring-1 focus:outline-hidden dark:bg-gray-800">
+          <MenuItems className="ring-opacity-5 divide-wb-rule-soft bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-32 origin-top-right divide-y rounded-md shadow-lg ring-1 focus:outline-hidden">
             <RadioGroup value={theme} onChange={setTheme}>
               <div className="p-1">
                 <Radio value="light">
