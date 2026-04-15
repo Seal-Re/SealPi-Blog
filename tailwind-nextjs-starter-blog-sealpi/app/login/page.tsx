@@ -27,7 +27,9 @@ export default async function LoginPage(props: {
     <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden p-6 sm:p-10">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.15),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(14,165,233,0.12),transparent_38%),linear-gradient(160deg,#f8fafc_0%,#eef2ff_50%,#f8fafc_100%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.18),transparent_36%),radial-gradient(circle_at_80%_80%,rgba(14,165,233,0.14),transparent_34%),linear-gradient(160deg,#020617_0%,#0b1120_50%,#020617_100%)]" />
       <div className="w-full max-w-lg rounded-[2rem] border border-gray-200/80 bg-white/90 p-8 shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
-        <h1 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">登录</h1>
+        <h1 className="font-fraunces text-wb-ink text-2xl font-medium tracking-tight italic dark:text-white">
+          登录
+        </h1>
         <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
           使用 GitHub 账号登录。
         </p>
