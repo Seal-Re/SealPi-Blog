@@ -62,7 +62,7 @@ export default function Home({ posts }) {
                     <Link
                       href={`/blog/${slug}`}
                       className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
-                      aria-label={`Read more: "${title}"`}
+                      aria-label={`阅读全文：${title}`}
                     >
                       阅读全文 &rarr;
                     </Link>
@@ -79,7 +79,7 @@ export default function Home({ posts }) {
           <Link
             href="/blog"
             className="text-wb-accent hover:text-wb-ink transition-colors duration-200"
-            aria-label="All posts"
+            aria-label="查看全部文章"
           >
             查看全部文章 &rarr;
           </Link>

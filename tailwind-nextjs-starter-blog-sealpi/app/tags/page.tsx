@@ -26,7 +26,7 @@ export default async function Page() {
                 <Link
                   href={`/tags/${tag.slug}`}
                   className="text-wb-meta -ml-2 text-sm font-semibold uppercase"
-                  aria-label={`View posts tagged ${tag.name}`}
+                  aria-label={`查看标签：${tag.name}`}
                 >
                   {` (${tag.count})`}
                 </Link>

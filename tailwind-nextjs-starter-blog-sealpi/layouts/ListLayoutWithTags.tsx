@@ -111,7 +111,7 @@ export default function ListLayoutWithTags({
                       <Link
                         href={`/tags/${tag.slug}`}
                         className="hover:text-wb-accent text-wb-meta px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
-                        aria-label={`View posts tagged ${tag.name}`}
+                        aria-label={`查看标签：${tag.name}`}
                       >
                         {`${tag.name} (${tag.count})`}
                       </Link>
@@ -128,7 +128,7 @@ export default function ListLayoutWithTags({
                   <li key={post.path} className="py-5">
                     <article className="flex flex-col space-y-2 xl:space-y-0">
                       <dl>
-                        <dt className="sr-only">Published on</dt>
+                        <dt className="sr-only">发布于</dt>
                         <dd className="text-wb-meta text-base leading-6 font-medium">
                           <time dateTime={post.date} suppressHydrationWarning>
                             {formatDate(post.date, siteMetadata.locale)}

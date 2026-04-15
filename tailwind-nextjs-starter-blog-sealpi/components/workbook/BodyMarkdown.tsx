@@ -60,7 +60,7 @@ function HeadingAnchor({
     <Tag id={id} className="wb-heading group">
       {children}
       {id ? (
-        <a href={`#${id}`} aria-label={`Link to section`} className="wb-heading-anchor">
+        <a href={`#${id}`} aria-label="段落链接" className="wb-heading-anchor">
           #
         </a>
       ) : null}

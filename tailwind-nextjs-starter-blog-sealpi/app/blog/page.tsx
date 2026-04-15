@@ -7,7 +7,7 @@ import {
   fetchPublishedTags,
 } from '@/lib/public-blog-api'
 
-export const metadata = genPageMetadata({ title: 'Blog' })
+export const metadata = genPageMetadata({ title: '文章' })
 export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
 
 export default async function BlogPage() {
