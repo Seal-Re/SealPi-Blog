@@ -23,7 +23,7 @@ function formatDateLabel(value?: string) {
 
 function DraftCard({ article }: { article: AdminArticle }) {
   return (
-    <div className="border-wb-rule-soft bg-wb-canvas group flex flex-col overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950">
+    <div className="border-wb-rule-soft bg-wb-canvas group flex flex-col overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:border-gray-800 dark:bg-gray-950 dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]">
       <div className="bg-wb-paper relative h-40 w-full shrink-0 overflow-hidden dark:bg-gray-900">
         {article.coverImageUrl ? (
           <Image
