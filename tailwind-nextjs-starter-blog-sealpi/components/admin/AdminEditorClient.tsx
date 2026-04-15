@@ -60,6 +60,8 @@ type EditorState = {
   url: string
   summary: string
   coverImageUrl: string
+  draftBodyMd: string
+  coverCaption: string
 }
 
 type FieldErrors = {
@@ -159,6 +161,8 @@ function getInitialState(article?: AdminArticle | null): EditorState {
     url: article?.url || '',
     summary: article?.summary || '',
     coverImageUrl: article?.coverImageUrl || '',
+    draftBodyMd: article?.draftBodyMd ?? '',
+    coverCaption: article?.coverCaption ?? '',
   }
 }
 
@@ -529,10 +533,14 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           coverImageUrl: trimmedCoverImageUrl,
           draftJson: nextDraftJson,
           previewImage: previewImage || undefined,
+          draftBodyMd: formState.draftBodyMd || undefined,
+          coverCaption: formState.coverCaption || undefined,
         }
       },
       [
         formState.coverImageUrl,
+        formState.coverCaption,
+        formState.draftBodyMd,
         formState.summary,
         formState.title,
         formState.url,
@@ -955,6 +963,36 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   onChange={handleSceneChange}
                   viewModeEnabled={false}
                 />
+              </div>
+              <div className="mt-4 space-y-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
+                <label className="block">
+                  <span className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase">
+                    画布注释（Caveat 手写体显示）
+                  </span>
+                  <input
+                    type="text"
+                    value={formState.coverCaption}
+                    onChange={(e) =>
+                      setFormState((prev) => ({ ...prev, coverCaption: e.target.value }))
+                    }
+                    maxLength={200}
+                    placeholder="例：DDD 分层一张图就够了"
+                    className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase">
+                    Markdown 正文
+                  </span>
+                  <textarea
+                    value={formState.draftBodyMd}
+                    onChange={(e) =>
+                      setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
+                    }
+                    placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
+                    className="mt-1 min-h-[200px] w-full resize-y rounded border border-gray-300 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-900"
+                  />
+                </label>
               </div>
             </div>
           </div>

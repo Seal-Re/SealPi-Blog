@@ -42,6 +42,13 @@ public class ArticlePO implements Serializable {
     // Static preview image URL for OG/list fallback.
     private String coverImageUrl;
 
+    // v2: Markdown body + Excalidraw hero caption.
+    private String bodyMd;
+    private String draftBodyMd;
+
+    // Excalidraw cover caption (handwriting annotation under hero).
+    private String coverCaption;
+
     // Explicit v1 field.
     private Integer viewCount;
 

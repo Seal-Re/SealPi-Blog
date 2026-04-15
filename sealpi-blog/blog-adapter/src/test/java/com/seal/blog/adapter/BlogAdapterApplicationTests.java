@@ -11,8 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.seal.blog.client.article.api.ArticleServiceI;
+import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.common.Response;
 import com.seal.blog.client.user.api.UserServiceI;
+import org.mockito.ArgumentCaptor;
 import com.seal.blog.infra.oss.MinioObjectStorage;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.Mac;
@@ -131,6 +133,28 @@ class BlogAdapterApplicationTests {
 
         verify(objectStorage, never()).upload(any(), anyLong(), anyString(), anyString());
         verify(articleService).adminCreate(any(), anyString(), anyString());
+    }
+
+    @Test
+    void adminCreateMultipart_forwardsDraftBodyMdAndCoverCaption() throws Exception {
+        when(articleService.adminCreate(any(), anyString(), any())).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                multipart("/api/v1/admin/articles")
+                        .header("Authorization", bearerToken("123"))
+                        .param("title", "t")
+                        .param("url", "u")
+                        .param("draftJson", "{}")
+                        .param("draftBodyMd", "# Hello\n\n:::note\nsidenote\n:::")
+                        .param("coverCaption", "图示：架构")
+                        .param("action", "draft")
+        ).andExpect(status().isOk());
+
+        ArgumentCaptor<ArticleDraftSaveCmd> cmdCaptor = ArgumentCaptor.forClass(ArticleDraftSaveCmd.class);
+        verify(articleService).adminCreate(cmdCaptor.capture(), anyString(), any());
+        ArticleDraftSaveCmd captured = cmdCaptor.getValue();
+        org.assertj.core.api.Assertions.assertThat(captured.getDraftBodyMd()).isEqualTo("# Hello\n\n:::note\nsidenote\n:::");
+        org.assertj.core.api.Assertions.assertThat(captured.getCoverCaption()).isEqualTo("图示：架构");
     }
 
     private static String bearerToken(String githubUserId) throws Exception {

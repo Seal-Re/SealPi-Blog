@@ -29,4 +29,10 @@ public class ArticleDraftSaveCmd {
     /** Excalidraw scene JSON (string) */
     @NotBlank(message = "draftJson不能为空")
     private String draftJson;
+
+    /** Markdown body for draft. Nullable. */
+    private String draftBodyMd;
+
+    /** Handwriting caption under the Excalidraw hero. Nullable. */
+    private String coverCaption;
 }

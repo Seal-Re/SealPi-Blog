@@ -42,7 +42,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
     @Transactional(rollbackFor = Exception.class)
     public Response adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl) {
         Article article = new Article(cmd.getTitle(), cmd.getSummary(), cmd.getUrl());
-        article.saveDraft(cmd.getDraftJson(), coverImageUrl);
+        article.saveDraft(cmd.getDraftJson(), coverImageUrl, cmd.getDraftBodyMd(), cmd.getCoverCaption());
 
         if ("publish".equalsIgnoreCase(action)) {
             article.publishFromDraft(coverImageUrl);
@@ -61,7 +61,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
         }
 
         article.modify(cmd.getTitle(), cmd.getSummary(), cmd.getUrl());
-        article.saveDraft(cmd.getDraftJson(), coverImageUrl);
+        article.saveDraft(cmd.getDraftJson(), coverImageUrl, cmd.getDraftBodyMd(), cmd.getCoverCaption());
 
         if ("publish".equalsIgnoreCase(action)) {
             article.publishFromDraft(coverImageUrl);

@@ -53,6 +53,27 @@
     0% { transform: translateX(-100%); }
     100% { transform: translateX(250%); }
   }
+
+  /* === Workbook tokens === */
+  --color-wb-paper: #f5ece1;
+  --color-wb-canvas: #fbf5ec;
+  --color-wb-ink: #1f1a15;
+  --color-wb-ink-soft: #2a241e;
+  --color-wb-meta: #7d6955;
+  --color-wb-accent: #a6582b;
+  --color-wb-rule: #c9b597;
+  --color-wb-rule-soft: #ded7cc;
+  --color-wb-card-shadow: #e6d6bd;
+
+  --font-fraunces: var(--font-fraunces-loaded), 'Times New Roman', serif;
+  --font-caveat: var(--font-caveat-loaded), cursive;
+  --font-geist-mono: var(--font-geist-mono-loaded), ui-monospace, monospace;
+  --font-inter: var(--font-inter-loaded), system-ui, sans-serif;
+
+  --duration-micro: 150ms;
+  --duration-ui: 250ms;
+  --duration-reveal: 400ms;
+  --duration-page: 600ms;
 }
 
 /*
@@ -179,4 +200,65 @@ input:-webkit-autofill:focus {
 .linkicon {
   display: inline-block;
   vertical-align: middle;
+}
+
+.wb-body > p:first-of-type::first-letter {
+  font-family: var(--font-fraunces);
+  font-size: 48px;
+  font-weight: 500;
+  font-style: italic;
+  float: left;
+  line-height: 0.92;
+  margin: 4px 6px 0 0;
+  color: var(--color-wb-accent);
+}
+
+[data-reveal] {
+  opacity: 0.35;
+  filter: blur(8px);
+  transition:
+    opacity var(--duration-reveal) cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter var(--duration-reveal) cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+[data-reveal][data-revealed='true'] {
+  opacity: 1;
+  filter: blur(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    filter: none;
+    transition: none;
+  }
+}
+
+/* Workbook page-enter animation (spec §4.3, no framer-motion needed) */
+@keyframes wb-page-in {
+  from {
+    opacity: 0.35;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+.wb-page-enter {
+  animation: wb-page-in var(--duration-page) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Workbook paper texture — very subtle dot-matrix overlay */
+.wb-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(166, 88, 43, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+.wb-frame > * {
+  position: relative;
+  z-index: 1;
 }

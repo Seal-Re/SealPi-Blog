@@ -28,6 +28,11 @@ public class ArticleInfraConverter {
         po.setCoverImageUrl(entity.getCoverImageUrl());
         po.setViewCount(entity.getViewCount());
 
+        // v2 fields.
+        po.setBodyMd(entity.getBodyMd());
+        po.setDraftBodyMd(entity.getDraftBodyMd());
+        po.setCoverCaption(entity.getCoverCaption());
+
         po.setDraft(entity.getDraft().getCode());
         return po;
     }
@@ -48,7 +53,10 @@ public class ArticleInfraConverter {
                 po.getContentJson(),
                 po.getDraftJson(),
                 po.getCoverImageUrl(),
-                po.getViewCount()
+                po.getViewCount(),
+                po.getBodyMd(),
+                po.getDraftBodyMd(),
+                po.getCoverCaption()
         );
         return entity;
     }

@@ -116,6 +116,8 @@ export type AdminArticleFormPayload = {
   summary?: string
   coverImageUrl?: string
   previewImage?: Blob | null
+  draftBodyMd?: string
+  coverCaption?: string
 }
 
 function appendIfPresent(formData: FormData, key: string, value?: string | null) {
@@ -138,6 +140,9 @@ function toArticleFormData(payload: AdminArticleFormPayload) {
   if (payload.previewImage) {
     formData.append('previewImage', payload.previewImage, 'preview-image.png')
   }
+
+  appendIfPresent(formData, 'draftBodyMd', payload.draftBodyMd)
+  appendIfPresent(formData, 'coverCaption', payload.coverCaption)
 
   return formData
 }

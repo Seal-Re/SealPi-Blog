@@ -36,4 +36,7 @@ export type AdminArticle = {
   draft?: number
   count?: number
   tags?: ArticleTag[]
+  bodyMd?: string
+  draftBodyMd?: string
+  coverCaption?: string
 }

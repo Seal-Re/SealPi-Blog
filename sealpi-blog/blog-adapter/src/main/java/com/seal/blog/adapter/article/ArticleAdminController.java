@@ -72,11 +72,12 @@ public class ArticleAdminController {
             @RequestParam(name = "summary", required = false) String summary,
             @RequestParam("url") String url,
             @RequestParam("draftJson") String draftJson,
+            @RequestParam(name = "draftBodyMd", required = false) String draftBodyMd,
+            @RequestParam(name = "coverCaption", required = false) String coverCaption,
             @RequestParam(name = "previewImage", required = false) MultipartFile previewImage,
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
     ) {
-        // v1: multipart accepts a preview image; if provided, upload it and use returned URL as coverImageUrl.
         String finalCoverUrl = coverImageUrl;
         if (previewImage != null && !previewImage.isEmpty()) {
             try {
@@ -91,11 +92,15 @@ public class ArticleAdminController {
             }
         }
 
-        return articleService.adminCreate(
-                new ArticleDraftSaveCmd(title, summary, url, draftJson),
-                action,
-                finalCoverUrl
-        );
+        ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd();
+        cmd.setTitle(title);
+        cmd.setSummary(summary);
+        cmd.setUrl(url);
+        cmd.setDraftJson(draftJson);
+        cmd.setDraftBodyMd(draftBodyMd);
+        cmd.setCoverCaption(coverCaption);
+
+        return articleService.adminCreate(cmd, action, finalCoverUrl);
     }
 
     /**
@@ -124,6 +129,8 @@ public class ArticleAdminController {
             @RequestParam(name = "summary", required = false) String summary,
             @RequestParam("url") String url,
             @RequestParam("draftJson") String draftJson,
+            @RequestParam(name = "draftBodyMd", required = false) String draftBodyMd,
+            @RequestParam(name = "coverCaption", required = false) String coverCaption,
             @RequestParam(name = "previewImage", required = false) MultipartFile previewImage,
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
@@ -148,6 +155,8 @@ public class ArticleAdminController {
         cmd.setSummary(summary);
         cmd.setUrl(url);
         cmd.setDraftJson(draftJson);
+        cmd.setDraftBodyMd(draftBodyMd);
+        cmd.setCoverCaption(coverCaption);
         return articleService.adminUpdate(cmd, action, finalCoverUrl);
     }
 
