@@ -33,36 +33,37 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
   const nextPage = currentPage + 1 <= totalPages
 
   return (
-    <div className="space-y-2 pt-6 pb-8 md:space-y-5">
-      <nav className="flex justify-between">
-        {!prevPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!prevPage}>
-            上一页
-          </button>
-        )}
-        {prevPage && (
-          <Link
-            href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
-            rel="prev"
-          >
-            上一页
-          </Link>
-        )}
-        <span>
-          第 {currentPage} / {totalPages} 页
+    <nav className="mt-8 flex items-center justify-between">
+      {prevPage ? (
+        <Link
+          href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
+          rel="prev"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200"
+        >
+          <span aria-hidden="true">←</span> 上一页
+        </Link>
+      ) : (
+        <span className="border-wb-rule-soft text-wb-rule inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
+          <span aria-hidden="true">←</span> 上一页
         </span>
-        {!nextPage && (
-          <button className="cursor-auto disabled:opacity-50" disabled={!nextPage}>
-            下一页
-          </button>
-        )}
-        {nextPage && (
-          <Link href={`/${basePath}/page/${currentPage + 1}`} rel="next">
-            下一页
-          </Link>
-        )}
-      </nav>
-    </div>
+      )}
+      <span className="text-wb-meta text-sm">
+        第 {currentPage} / {totalPages} 页
+      </span>
+      {nextPage ? (
+        <Link
+          href={`/${basePath}/page/${currentPage + 1}`}
+          rel="next"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200"
+        >
+          下一页 <span aria-hidden="true">→</span>
+        </Link>
+      ) : (
+        <span className="border-wb-rule-soft text-wb-rule inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
+          下一页 <span aria-hidden="true">→</span>
+        </span>
+      )}
+    </nav>
   )
 }
 
