@@ -1,6 +1,7 @@
 package com.seal.blog.infra.article.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
@@ -72,6 +73,17 @@ public class ArticleGatewayImpl implements ArticleGateway {
     public void remove(Integer id) {
         ArticlePO articlePO = articleMapper.selectById(id);
         articleMapper.deleteById(id);
+    }
+
+    @Override
+    public void incrementViewCount(Integer articleId) {
+        if (articleId == null) {
+            return;
+        }
+        LambdaUpdateWrapper<ArticlePO> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(ArticlePO::getArticleId, articleId)
+               .setSql("view_count = COALESCE(view_count, 0) + 1");
+        articleMapper.update(null, wrapper);
     }
 
     @Override

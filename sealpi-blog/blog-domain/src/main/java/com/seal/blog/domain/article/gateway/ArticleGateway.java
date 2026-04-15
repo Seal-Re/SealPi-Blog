@@ -39,6 +39,10 @@ public interface ArticleGateway {
      */
     PageResponse<Article> PageQuery(ArticlePageQry articlePageQry);
 
-
+    /**
+     * 浏览量 +1（best-effort，不影响主流程）
+     * @param articleId
+     */
+    void incrementViewCount(Integer articleId);
 
 }

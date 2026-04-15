@@ -58,7 +58,8 @@ class ArticleInfraConverterTest {
                 "{\"type\":\"excalidraw\"}",
                 "{\"draft\":false}",
                 "https://cdn.example.com/covers/2.webp",
-                456
+                456,
+                null, null, null
         );
 
         ArticlePO po = converter.toPO(entity);

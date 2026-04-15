@@ -184,6 +184,12 @@ public class ArticleServiceImpl implements ArticleServiceI {
             return SingleResponse.buildSingleFailure("404", "文章不存在");
         }
 
+        try {
+            articleGateway.incrementViewCount(article.getArticleId());
+        } catch (Exception e) {
+            log.warn("浏览量更新失败 articleId={}: {}", article.getArticleId(), e.getMessage());
+        }
+
         return SingleResponse.of(articleAssembler.toVO(article));
     }
 
