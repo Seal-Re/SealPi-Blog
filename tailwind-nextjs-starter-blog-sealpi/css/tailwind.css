@@ -263,6 +263,72 @@ input:-webkit-autofill:focus {
   animation: wb-page-in var(--duration-page) cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* ===== Workbook code block styles (rehype-highlight / hljs) ===== */
+.wb-body pre {
+  background: var(--color-wb-canvas);
+  border: 1px solid var(--color-wb-rule-soft);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.wb-body pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  color: var(--color-wb-ink);
+}
+/* Inline code (non-pre) */
+.wb-body :not(pre) > code {
+  background: var(--color-wb-canvas);
+  border: 1px solid var(--color-wb-rule-soft);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.4em;
+  font-size: 0.875em;
+  color: var(--color-wb-accent);
+}
+/* hljs token colors — warm palette */
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-wb-meta);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-tag {
+  color: var(--color-wb-accent);
+}
+.hljs-string,
+.hljs-attr,
+.hljs-attribute {
+  color: #7c9a6e;
+}
+.hljs-number,
+.hljs-literal {
+  color: #6a8fbf;
+}
+.hljs-type,
+.hljs-class .hljs-title {
+  color: #8b6a9f;
+}
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--color-wb-ink-soft);
+}
+.hljs-title,
+.hljs-section {
+  color: var(--color-wb-ink);
+  font-weight: 600;
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: bold;
+}
+
 /* Workbook paper texture — very subtle dot-matrix overlay */
 .wb-frame::before {
   content: '';

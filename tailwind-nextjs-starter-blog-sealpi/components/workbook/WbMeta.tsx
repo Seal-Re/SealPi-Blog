@@ -15,7 +15,7 @@ export default function WbMeta({ date, readMinutes, viewCount, tags = [] }: WbMe
       {readMinutes != null ? (
         <>
           <span className="opacity-40">·</span>
-          <span>{readMinutes} min read</span>
+          <span>{readMinutes} 分钟阅读</span>
         </>
       ) : null}
       {viewCount != null && viewCount > 0 ? (
