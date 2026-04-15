@@ -36,7 +36,11 @@ export default function ExcalidrawHero({
         ) : coverImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverImageUrl} alt={title} className="h-[88%] w-[88%] object-contain" />
-        ) : null}
+        ) : (
+          <span className="text-wb-rule font-inter text-xs font-semibold tracking-[0.2em] uppercase">
+            暂无封面
+          </span>
+        )}
       </div>
       {coverCaption ? (
         <span
