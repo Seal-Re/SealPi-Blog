@@ -157,44 +157,44 @@ export default function ListLayoutWithTags({
             {displayPosts.length ? (
               <ul>
                 {displayPosts.map((post) => (
-                  <li key={post.path} className="py-5">
-                    <article className="flex flex-col space-y-2 xl:space-y-0">
-                      <dl>
-                        <dt className="sr-only">发布于</dt>
-                        <dd className="text-wb-meta text-base leading-6 font-medium">
-                          <time dateTime={post.date} suppressHydrationWarning>
-                            {formatDate(post.date, siteMetadata.locale)}
-                          </time>
-                        </dd>
-                      </dl>
-                      <div className="space-y-3">
-                        {post.coverImageUrl ? (
-                          <div className="border-wb-rule-soft relative h-48 overflow-hidden rounded-2xl border">
-                            <Image
-                              src={post.coverImageUrl}
-                              alt={`${post.title} cover`}
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 1280px) 100vw, 60vw"
-                            />
-                          </div>
-                        ) : null}
-                        <div>
-                          <h2 className="text-2xl leading-8 font-bold tracking-tight">
-                            <Link
-                              href={`/${post.path}`}
-                              className="text-wb-ink hover:text-wb-accent transition-colors duration-200"
-                            >
-                              {post.title}
-                            </Link>
-                          </h2>
-                          <div className="flex flex-wrap">
-                            {post.tags.map((tagName) => (
-                              <Tag key={tagName} text={tagName} />
-                            ))}
-                          </div>
+                  <li key={post.path} className="py-3">
+                    <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+                      {post.coverImageUrl ? (
+                        <div className="relative h-48 w-full overflow-hidden">
+                          <Image
+                            src={post.coverImageUrl}
+                            alt={`${post.title} cover`}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                            sizes="(max-width: 1280px) 100vw, 60vw"
+                          />
                         </div>
-                        <div className="prose text-wb-meta max-w-none">{post.summary}</div>
+                      ) : null}
+                      <div className="p-5">
+                        <dl>
+                          <dt className="sr-only">发布于</dt>
+                          <dd className="text-wb-meta mb-2 text-sm font-medium">
+                            <time dateTime={post.date} suppressHydrationWarning>
+                              {formatDate(post.date, siteMetadata.locale)}
+                            </time>
+                          </dd>
+                        </dl>
+                        <h2 className="text-wb-ink text-xl font-bold tracking-tight">
+                          <Link
+                            href={`/${post.path}`}
+                            className="hover:text-wb-accent transition-colors duration-200"
+                          >
+                            {post.title}
+                          </Link>
+                        </h2>
+                        <div className="mt-1 flex flex-wrap">
+                          {post.tags.map((tagName) => (
+                            <Tag key={tagName} text={tagName} />
+                          ))}
+                        </div>
+                        <p className="text-wb-meta mt-2 line-clamp-2 text-sm leading-6">
+                          {post.summary}
+                        </p>
                       </div>
                     </article>
                   </li>
