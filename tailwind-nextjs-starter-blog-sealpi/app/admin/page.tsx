@@ -16,7 +16,7 @@ function AdminQuickAction({
       className="border-wb-rule-soft bg-wb-canvas group rounded-[2rem] border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950"
     >
       <p className="text-wb-accent text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
-        Admin Action
+        快捷操作
       </p>
       <h3 className="text-wb-ink group-hover:text-wb-accent mt-3 text-xl font-black tracking-tight transition-colors dark:text-white dark:group-hover:text-gray-200">
         {title}
@@ -53,7 +53,7 @@ export default async function AdminPage() {
       <div className="space-y-10">
         <div className="max-w-3xl space-y-4">
           <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.28em] uppercase dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
-            Admin Console
+            管理控制台
           </span>
           <div className="space-y-4">
             <h1 className="text-wb-ink text-4xl font-black tracking-tight sm:text-5xl dark:text-white">
