@@ -19,7 +19,7 @@ export default function UserMenu() {
 
   return (
     <Menu as="div" className="relative hidden text-left sm:block">
-      <MenuButton className="focus:ring-primary-500 flex rounded-full ring-offset-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:ring-offset-gray-950">
+      <MenuButton className="focus:ring-wb-accent flex rounded-full ring-offset-white focus:ring-2 focus:ring-offset-2 focus:outline-hidden dark:ring-offset-gray-950">
         <span className="sr-only">打开用户菜单</span>
         {user.image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -52,7 +52,7 @@ export default function UserMenu() {
                 {display}
               </p>
               {isAdmin ? (
-                <span className="bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 rounded-md px-2 py-0.5 text-xs font-medium">
+                <span className="bg-wb-paper text-wb-accent rounded-md px-2 py-0.5 text-xs font-medium">
                   Admin
                 </span>
               ) : null}
@@ -73,7 +73,7 @@ export default function UserMenu() {
                 href={user.profileBlogUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 dark:text-primary-400 mt-2 block truncate text-xs hover:underline"
+                className="text-wb-accent mt-2 block truncate text-xs hover:underline"
               >
                 {user.profileBlogUrl}
               </a>
@@ -83,7 +83,7 @@ export default function UserMenu() {
                 href={user.githubProfileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary-600 dark:text-primary-400 mt-1 block truncate text-xs hover:underline"
+                className="text-wb-accent mt-1 block truncate text-xs hover:underline"
               >
                 GitHub 主页
               </a>

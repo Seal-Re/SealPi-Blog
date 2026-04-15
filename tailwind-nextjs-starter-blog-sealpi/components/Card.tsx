@@ -42,7 +42,7 @@ const Card = ({ title, description, imgSrc, href }) => (
         {href && (
           <Link
             href={href}
-            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 text-base leading-6 font-medium"
+            className="text-wb-accent hover:text-wb-ink text-base leading-6 font-medium transition-colors duration-200"
             aria-label={`Link to ${title}`}
           >
             Learn more &rarr;

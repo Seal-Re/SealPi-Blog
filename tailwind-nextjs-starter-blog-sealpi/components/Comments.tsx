@@ -28,7 +28,7 @@ export default function Comments({ slug }: { slug: string }) {
           <button
             type="button"
             onClick={() => setLoadComments(true)}
-            className="border-primary-600 text-primary-700 hover:bg-primary-50 dark:border-primary-500 dark:text-primary-300 dark:hover:bg-primary-950/40 rounded-lg border px-4 py-2 text-sm font-medium"
+            className="border-wb-accent text-wb-accent hover:bg-wb-paper dark:hover:bg-wb-paper/10 rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-200"
           >
             加载评论
           </button>

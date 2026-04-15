@@ -78,7 +78,7 @@ export default function Home({ posts }) {
         <div className="mt-6 flex justify-end text-base leading-6 font-medium">
           <Link
             href="/blog"
-            className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+            className="text-wb-accent hover:text-wb-ink transition-colors duration-200"
             aria-label="All posts"
           >
             查看全部文章 &rarr;
