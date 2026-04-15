@@ -65,7 +65,7 @@ const ThemeSwitch = () => {
     <div className="flex items-center">
       <Menu as="div" className="relative inline-block text-left">
         <div className="hover:text-wb-accent text-wb-ink flex items-center justify-center">
-          <MenuButton aria-label="Theme switcher">
+          <MenuButton aria-label="切换主题">
             {mounted ? resolvedTheme === 'dark' ? <Moon /> : <Sun /> : <Blank />}
           </MenuButton>
         </div>
@@ -85,12 +85,12 @@ const ThemeSwitch = () => {
                   <MenuItem>
                     {({ focus }) => (
                       <button
-                        className={`${focus ? 'bg-wb-accent text-white' : ''} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                        className={`${focus ? 'bg-wb-accent text-white' : 'text-wb-ink'} group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         <div className="mr-2">
                           <Sun />
                         </div>
-                        Light
+                        浅色
                       </button>
                     )}
                   </MenuItem>
@@ -106,7 +106,7 @@ const ThemeSwitch = () => {
                         <div className="mr-2">
                           <Moon />
                         </div>
-                        Dark
+                        深色
                       </button>
                     )}
                   </MenuItem>
@@ -122,7 +122,7 @@ const ThemeSwitch = () => {
                         <div className="mr-2">
                           <Monitor />
                         </div>
-                        System
+                        跟随系统
                       </button>
                     )}
                   </MenuItem>
