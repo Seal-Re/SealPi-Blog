@@ -3,6 +3,7 @@ import ExcalidrawHero from './ExcalidrawHero'
 import WbMeta from './WbMeta'
 import WbDivider from './WbDivider'
 import BodyMarkdown from './BodyMarkdown'
+import WorkbookRevealInit from './WorkbookRevealInit'
 
 type WorkbookArticleLayoutProps = {
   title: string
@@ -30,26 +31,37 @@ export default function WorkbookArticleLayout({
   children,
 }: WorkbookArticleLayoutProps) {
   return (
-    <article className="bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
+    <article className="wb-frame bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
+      <WorkbookRevealInit />
+
       <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
         {eyebrow}
       </p>
 
-      <ExcalidrawHero
-        contentJson={contentJson}
-        coverImageUrl={coverImageUrl}
-        coverCaption={coverCaption}
-        title={title}
-      />
+      <div data-reveal>
+        <ExcalidrawHero
+          contentJson={contentJson}
+          coverImageUrl={coverImageUrl}
+          coverCaption={coverCaption}
+          title={title}
+        />
+      </div>
 
-      <h1 className="font-fraunces text-wb-ink mt-12 mb-5 text-[48px] leading-[1.08] font-medium tracking-[-0.02em] italic">
+      <h1
+        data-reveal
+        className="font-fraunces text-wb-ink mt-12 mb-5 text-[48px] leading-[1.08] font-medium tracking-[-0.02em] italic"
+      >
         {title}
       </h1>
 
       <WbMeta date={date} readMinutes={readMinutes} tags={tags} />
       <WbDivider />
 
-      {bodyMd ? <BodyMarkdown markdown={bodyMd} /> : null}
+      {bodyMd ? (
+        <div data-reveal>
+          <BodyMarkdown markdown={bodyMd} />
+        </div>
+      ) : null}
 
       {children}
     </article>

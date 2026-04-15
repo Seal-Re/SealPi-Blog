@@ -231,3 +231,19 @@ input:-webkit-autofill:focus {
     transition: none;
   }
 }
+
+/* Workbook paper texture — very subtle dot-matrix overlay */
+.wb-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(166, 88, 43, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+.wb-frame > * {
+  position: relative;
+  z-index: 1;
+}
