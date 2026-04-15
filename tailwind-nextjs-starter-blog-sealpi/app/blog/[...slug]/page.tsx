@@ -143,9 +143,7 @@ export default async function Page(props: PageProps) {
           day: 'numeric',
         })}
         tags={
-          article.tags
-            ?.map((tag) => tag.name)
-            .filter((name): name is string => Boolean(name)) || []
+          article.tags?.map((tag) => tag.name).filter((name): name is string => Boolean(name)) || []
         }
         readMinutes={undefined}
         contentJson={article.contentJson || article.draftJson}

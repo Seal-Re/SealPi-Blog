@@ -16,7 +16,10 @@ import MarginNote from './MarginNote'
  */
 const remarkNoteDirective: Plugin<[], Root> = () => (tree) => {
   visit(tree, (node) => {
-    if (node.type === 'containerDirective' && (node as unknown as ContainerDirective).name === 'note') {
+    if (
+      node.type === 'containerDirective' &&
+      (node as unknown as ContainerDirective).name === 'note'
+    ) {
       const directive = node as unknown as ContainerDirective
       const data = (directive.data ?? (directive.data = {})) as Record<string, unknown>
       data.hName = 'margin-note'
@@ -31,13 +34,15 @@ type BodyMarkdownProps = {
 
 export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
   return (
-    <div className="wb-body max-w-[64ch] font-fraunces text-[18px] leading-[1.75] text-wb-ink-soft">
+    <div className="wb-body font-fraunces text-wb-ink-soft max-w-[64ch] text-[18px] leading-[1.75]">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkDirective, remarkNoteDirective]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
-        components={{
-          'margin-note': ({ children }) => <MarginNote>{children}</MarginNote>,
-        } as never}
+        components={
+          {
+            'margin-note': ({ children }) => <MarginNote>{children}</MarginNote>,
+          } as never
+        }
       >
         {markdown}
       </ReactMarkdown>

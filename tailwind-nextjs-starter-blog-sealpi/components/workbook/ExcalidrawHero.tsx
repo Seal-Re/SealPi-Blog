@@ -16,7 +16,7 @@ export default function ExcalidrawHero({
   return (
     <div className="relative mb-10">
       <div
-        className="relative flex aspect-video items-center justify-center overflow-hidden rounded-[10px] border border-wb-rule bg-wb-canvas"
+        className="border-wb-rule bg-wb-canvas relative flex aspect-video items-center justify-center overflow-hidden rounded-[10px] border"
         style={{ boxShadow: '3px 4px 0 var(--color-wb-card-shadow)' }}
       >
         {contentJson ? (
@@ -28,7 +28,7 @@ export default function ExcalidrawHero({
       </div>
       {coverCaption ? (
         <span
-          className="absolute -bottom-6 left-3 font-caveat text-[16px] text-wb-accent"
+          className="font-caveat text-wb-accent absolute -bottom-6 left-3 text-[16px]"
           style={{ transform: 'rotate(-1deg)' }}
         >
           {coverCaption}

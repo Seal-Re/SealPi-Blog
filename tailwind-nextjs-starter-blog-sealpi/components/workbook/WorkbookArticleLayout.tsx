@@ -30,8 +30,8 @@ export default function WorkbookArticleLayout({
   children,
 }: WorkbookArticleLayoutProps) {
   return (
-    <article className="relative mx-auto my-10 max-w-[820px] rounded-2xl bg-wb-paper px-8 py-12 text-wb-ink-soft md:px-16 md:py-14">
-      <p className="mb-5 font-inter text-[11px] font-medium tracking-[0.18em] text-wb-accent uppercase">
+    <article className="bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
+      <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
         {eyebrow}
       </p>
 
@@ -42,7 +42,7 @@ export default function WorkbookArticleLayout({
         title={title}
       />
 
-      <h1 className="mt-12 mb-5 font-fraunces text-[48px] leading-[1.08] font-medium text-wb-ink italic tracking-[-0.02em]">
+      <h1 className="font-fraunces text-wb-ink mt-12 mb-5 text-[48px] leading-[1.08] font-medium tracking-[-0.02em] italic">
         {title}
       </h1>
 
