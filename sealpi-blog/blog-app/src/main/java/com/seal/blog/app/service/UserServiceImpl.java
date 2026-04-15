@@ -2,9 +2,11 @@ package com.seal.blog.app.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.client.user.api.UserServiceI;
 import com.seal.blog.client.user.dto.cmd.OauthUserSyncCmd;
+import com.seal.blog.client.user.dto.qry.UserPageQry;
 import com.seal.blog.client.user.dto.vo.UserProfileVO;
 import com.seal.blog.domain.user.gateway.UserGateway;
 import com.seal.blog.domain.user.model.BlogUser;
@@ -16,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -51,6 +55,16 @@ public class UserServiceImpl implements UserServiceI {
         mergeOauth(existing, cmd);
         userGateway.save(existing);
         return SingleResponse.of(toVo(existing));
+    }
+
+    @Override
+    public PageResponse<UserProfileVO> getUsers(UserPageQry qry) {
+        int pageIndex = qry.getPageIndex() != null ? qry.getPageIndex() : 1;
+        int pageSize = qry.getPageSize() != null ? qry.getPageSize() : 20;
+        List<BlogUser> users = userGateway.findPage(pageIndex, pageSize);
+        long total = userGateway.countAll();
+        List<UserProfileVO> vos = users.stream().map(this::toVo).collect(Collectors.toList());
+        return PageResponse.of(vos, (int) total, pageSize, pageIndex);
     }
 
     private BlogUser newUserFromOauth(OauthUserSyncCmd cmd) {

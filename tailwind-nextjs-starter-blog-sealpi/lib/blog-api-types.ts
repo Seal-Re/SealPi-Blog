@@ -22,6 +22,22 @@ export type ArticleTag = {
   count?: number
 }
 
+export type AdminUser = {
+  userId: number
+  githubId: number
+  githubLogin: string
+  nickname?: string
+  email?: string
+  avatarUrl?: string
+  bio?: string
+  websiteUrl?: string
+  githubProfileUrl?: string
+  commentPermission?: string
+  banned?: boolean
+  createdAt?: string
+  lastLoginAt?: string
+}
+
 export type AdminArticle = {
   articleId: string
   title: string

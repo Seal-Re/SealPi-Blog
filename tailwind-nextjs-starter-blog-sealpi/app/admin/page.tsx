@@ -100,7 +100,7 @@ export default async function AdminPage() {
               </div>
             </dl>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
               <AdminQuickAction
                 href="/admin/articles"
                 title="文章列表"
@@ -110,6 +110,11 @@ export default async function AdminPage() {
                 href="/admin/editor"
                 title="新建文章"
                 description="直接进入编辑入口，使用 Excalidraw 进行创作、保存草稿与发布。"
+              />
+              <AdminQuickAction
+                href="/admin/users"
+                title="用户列表"
+                description="查看通过 GitHub OAuth 登录的注册用户及其权限状态。"
               />
             </div>
           </div>
