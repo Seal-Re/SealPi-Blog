@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     url: './',
     siteName: siteMetadata.title,
     images: [siteMetadata.socialBanner],
-    locale: 'en_US',
+    locale: 'zh_CN',
     type: 'website',
   },
   alternates: {
@@ -117,7 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       />
       <meta name="msapplication-TileColor" content="#000000" />
       <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5ece1" />
-      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0f" />
+      <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a130d" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
       <body className="bg-wb-paper text-wb-ink pl-[calc(100vw-100%)] antialiased">
         <ThemeProviders>
