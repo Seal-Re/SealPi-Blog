@@ -4,6 +4,7 @@ import '@excalidraw/excalidraw/index.css'
 
 import dynamic from 'next/dynamic'
 import { useMemo } from 'react'
+import { useTheme } from 'next-themes'
 import type { AppState, BinaryFiles, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types'
 
@@ -44,6 +45,8 @@ function parseScene(contentJson?: string | null): ExcalidrawScene | null {
 export default function ExcalidrawViewer({ contentJson, title, compact }: ExcalidrawViewerProps) {
   const scene = useMemo(() => parseScene(contentJson), [contentJson])
   const hasRenderableElements = Boolean(scene?.elements?.some((element) => !element.isDeleted))
+  const { resolvedTheme } = useTheme()
+  const excalidrawTheme = resolvedTheme === 'dark' ? 'dark' : 'light'
 
   if (!scene || !hasRenderableElements) {
     if (compact) return null
@@ -63,7 +66,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
   const initialData = {
     elements: scene.elements,
     appState: {
-      viewBackgroundColor: '#fbf5ec',
+      viewBackgroundColor: excalidrawTheme === 'dark' ? '#21180f' : '#fbf5ec',
       ...scene.appState,
     },
     files: scene.files,
@@ -92,7 +95,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
         <Excalidraw
           initialData={initialData}
           viewModeEnabled={true}
-          theme="light"
+          theme={excalidrawTheme}
           UIOptions={{
             canvasActions: {
               changeViewBackgroundColor: false,
