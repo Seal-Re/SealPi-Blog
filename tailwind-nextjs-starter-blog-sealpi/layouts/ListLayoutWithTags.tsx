@@ -174,14 +174,27 @@ export default function ListLayoutWithTags({
                         <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
                       )}
                       <div className="p-5">
-                        <dl>
-                          <dt className="sr-only">发布于</dt>
-                          <dd className="text-wb-meta mb-2 text-sm font-medium">
-                            <time dateTime={post.date} suppressHydrationWarning>
-                              {formatDate(post.date, siteMetadata.locale)}
-                            </time>
-                          </dd>
-                        </dl>
+                        <div className="mb-2 flex flex-wrap items-center gap-3">
+                          <time
+                            dateTime={post.date}
+                            className="text-wb-meta text-sm font-medium"
+                            suppressHydrationWarning
+                          >
+                            {formatDate(post.date, siteMetadata.locale)}
+                          </time>
+                          {post.viewCount != null && post.viewCount > 0 ? (
+                            <span className="text-wb-meta text-xs">
+                              {post.viewCount.toLocaleString('zh-CN')} 次阅读
+                            </span>
+                          ) : null}
+                          {post.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {post.tags.map((tagName) => (
+                                <Tag key={tagName} text={tagName} />
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <h2 className="text-wb-ink text-xl font-bold tracking-tight">
                           <Link
                             href={`/${post.path}`}
@@ -190,11 +203,6 @@ export default function ListLayoutWithTags({
                             {post.title}
                           </Link>
                         </h2>
-                        <div className="mt-1 flex flex-wrap">
-                          {post.tags.map((tagName) => (
-                            <Tag key={tagName} text={tagName} />
-                          ))}
-                        </div>
                         <p className="text-wb-meta mt-2 line-clamp-2 text-sm leading-6">
                           {post.summary}
                         </p>
