@@ -11,11 +11,10 @@ type AdminShellProps = {
 
 export default function AdminShell({ children, userName }: AdminShellProps) {
   const pathname = usePathname()
-  const isLogin = pathname === '/admin/login'
   const isForbidden = pathname === '/admin/forbidden'
   const isEditor = pathname.startsWith('/admin/editor')
 
-  if (isLogin || isForbidden) {
+  if (isForbidden) {
     return <>{children}</>
   }
 

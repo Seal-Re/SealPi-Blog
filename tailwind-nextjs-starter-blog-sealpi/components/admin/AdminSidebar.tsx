@@ -5,9 +5,10 @@ import { usePathname } from 'next/navigation'
 
 const navItems = [
   { href: '/admin', label: '仪表盘' },
+  { href: '/admin/ops', label: '运维' },
+  { href: '/admin/editor', label: '新建' },
   { href: '/admin/articles', label: '文章管理' },
-  { href: '/admin/drafts', label: '草稿库' },
-  { href: '/admin/editor', label: '新建文章' },
+  { href: '/admin/drafts', label: '草稿箱' },
 ]
 
 export default function AdminSidebar() {

@@ -101,12 +101,6 @@ export default async function AdminDraftsPage() {
         </div>
         <div className="flex flex-wrap gap-3">
           <Link
-            href="/admin"
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
-          >
-            返回后台首页
-          </Link>
-          <Link
             href="/admin/editor?mode=new"
             className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
