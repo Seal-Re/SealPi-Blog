@@ -9,6 +9,7 @@ const navItems = [
   { href: '/admin/editor', label: '新建' },
   { href: '/admin/articles', label: '文章管理' },
   { href: '/admin/drafts', label: '草稿箱' },
+  { href: '/admin/users', label: '用户列表' },
 ]
 
 export default function AdminSidebar() {

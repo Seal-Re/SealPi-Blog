@@ -199,6 +199,15 @@ export default async function OpsPage() {
               </span>
             </Link>
             <Link
+              href="/admin/users"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+            >
+              <span className="text-wb-ink dark:text-gray-100">用户列表</span>
+              <span className="text-wb-meta dark:text-gray-400" aria-hidden="true">
+                →
+              </span>
+            </Link>
+            <Link
               href="/feed.xml"
               target="_blank"
               rel="noopener noreferrer"

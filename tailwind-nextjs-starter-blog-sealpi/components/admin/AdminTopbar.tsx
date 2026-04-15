@@ -13,6 +13,8 @@ function getCrumb(pathname: string) {
   if (pathname.startsWith('/admin/drafts')) return '草稿库'
   if (pathname.startsWith('/admin/editor')) return '创作台'
   if (pathname.startsWith('/admin/ops')) return '运维'
+  if (pathname.startsWith('/admin/users')) return '用户列表'
+  if (pathname.startsWith('/admin/preview')) return '预览'
   return '仪表盘'
 }
 
