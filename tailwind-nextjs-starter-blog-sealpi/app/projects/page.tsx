@@ -7,12 +7,12 @@ export const metadata = genPageMetadata({ title: 'Projects' })
 export default function Projects() {
   return (
     <>
-      <div className="divide-wb-rule-soft divide-y dark:divide-gray-700">
+      <div className="divide-wb-rule-soft divide-y">
         <div className="space-y-2 pt-6 pb-8 md:space-y-5">
-          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl dark:text-gray-100">
-            Projects
+          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
+            项目
           </h1>
-          <p className="text-wb-meta text-lg leading-7 dark:text-gray-400">一些有趣的项目</p>
+          <p className="text-wb-meta text-lg leading-7">一些有趣的项目</p>
         </div>
         <div className="py-12">
           <div className="-m-4 flex flex-wrap">

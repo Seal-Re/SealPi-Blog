@@ -7,6 +7,7 @@ import BodyMarkdown from './BodyMarkdown'
 import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
+import CopyLinkButton from './CopyLinkButton'
 
 type AdjacentPost = {
   title: string
@@ -57,7 +58,7 @@ export default function WorkbookArticleLayout({
   const hasRelated = relatedPosts && relatedPosts.length > 0
 
   return (
-    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
+    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] md:px-16 md:py-14">
       <WorkbookRevealInit />
       <WorkbookReadingProgress />
       <CopyCodeInit />
@@ -158,7 +159,7 @@ export default function WorkbookArticleLayout({
         </div>
       )}
 
-      <div className="border-wb-rule-soft mt-8 border-t pt-8">
+      <div className="border-wb-rule-soft mt-8 flex items-center justify-between border-t pt-8">
         <Link
           href="/blog"
           className="text-wb-meta hover:text-wb-accent font-inter inline-flex items-center gap-2 text-sm transition-colors duration-200"
@@ -166,6 +167,7 @@ export default function WorkbookArticleLayout({
           <span aria-hidden="true">←</span>
           所有文章
         </Link>
+        <CopyLinkButton />
       </div>
     </article>
   )
