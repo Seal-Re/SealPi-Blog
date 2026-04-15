@@ -100,7 +100,7 @@ const ThemeSwitch = () => {
                     {({ focus }) => (
                       <button
                         className={`${
-                          focus ? 'bg-wb-accent text-white' : ''
+                          focus ? 'bg-wb-accent text-white' : 'text-wb-ink'
                         } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         <div className="mr-2">
@@ -116,7 +116,7 @@ const ThemeSwitch = () => {
                     {({ focus }) => (
                       <button
                         className={`${
-                          focus ? 'bg-wb-accent text-white' : ''
+                          focus ? 'bg-wb-accent text-white' : 'text-wb-ink'
                         } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         <div className="mr-2">
