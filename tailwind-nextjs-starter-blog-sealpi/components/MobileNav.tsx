@@ -105,7 +105,7 @@ const MobileNav = () => {
                           onToggleNav()
                           signOut({ callbackUrl: '/' })
                         }}
-                        className="text-lg font-bold text-red-600 dark:text-red-400"
+                        className="text-lg font-bold text-red-600"
                       >
                         退出登录
                       </button>

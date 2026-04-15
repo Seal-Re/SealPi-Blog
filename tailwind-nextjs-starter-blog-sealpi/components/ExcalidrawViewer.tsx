@@ -80,7 +80,7 @@ export default function ExcalidrawViewer({ contentJson, title }: ExcalidrawViewe
         </div>
         <div className="border-wb-rule bg-wb-canvas/85 text-wb-accent inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm">
           <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          Read only
+          只读模式
         </div>
       </div>
       <div className="h-[72vh] min-h-[620px] bg-[linear-gradient(180deg,rgba(251,245,236,0.95),rgba(245,236,225,0.98))] dark:bg-[linear-gradient(180deg,rgba(26,19,13,0.90),rgba(33,24,15,0.95))]">
