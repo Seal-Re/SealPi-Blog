@@ -14,9 +14,11 @@ public class AdminAuthConfig {
     public AdminJwtVerifier adminJwtVerifier(
             @Value("${admin.jwt.secret:}") String secret,
             @Value("${admin.github.userIds:}") String userIds,
-            @Value("${admin.jwt.githubUserIdClaim:githubUserId}") String claim
+            @Value("${admin.jwt.githubUserIdClaim:githubUserId}") String claim,
+            @Value("${admin.github.userApi:https://api.github.com/user}") String githubUserApi,
+            @Value("${admin.auth.allowLegacyJwt:false}") boolean allowLegacyJwt
     ) {
-        return new AdminJwtVerifier(secret, userIds, claim);
+        return new AdminJwtVerifier(secret, userIds, claim, githubUserApi, allowLegacyJwt);
     }
 
     @Bean

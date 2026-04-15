@@ -1,35 +1,36 @@
 import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
 import GitHub from 'next-auth/providers/github'
-import { SignJWT } from 'jose'
 import { syncGithubUserToBackend } from '@/lib/backend-user-sync'
+import { buildApiUrl } from '@/lib/api-config'
 
-const DEFAULT_ADMIN_ID = '190578785'
-const adminIds = Array.from(
-  new Set(
-    [DEFAULT_ADMIN_ID, ...(process.env.ADMIN_GITHUB_IDS || '').split(',')]
-      .map((item) => item.trim())
-      .filter(Boolean)
-  )
-)
-
-function isAdminUserId(value?: string | null) {
-  return Boolean(value) && adminIds.includes(String(value))
+function isInAdminWhitelist(githubUserId?: string) {
+  if (!githubUserId) return false
+  const ids = (process.env.ADMIN_GITHUB_USERIDS || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+  return ids.includes(githubUserId)
 }
 
-const ADMIN_JWT_CLAIM = process.env.ADMIN_JWT_GITHUBUSERIDCLAIM || 'githubUserId'
-
-async function signAdminBearerToken(githubUserId?: string) {
-  const secret = process.env.ADMIN_JWT_SECRET
-  if (!secret || !githubUserId) {
-    return undefined
+async function checkAdminPermission(githubUserId?: string, githubAccessToken?: string) {
+  // Prefer deterministic local whitelist in Next server runtime.
+  if (isInAdminWhitelist(githubUserId)) {
+    return true
   }
-
-  return new SignJWT({ [ADMIN_JWT_CLAIM]: githubUserId })
-    .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
-    .setIssuedAt()
-    .setExpirationTime('2h')
-    .sign(new TextEncoder().encode(secret))
+  if (!githubAccessToken) return false
+  try {
+    const res = await fetch(buildApiUrl('/api/v1/admin/auth/check'), {
+      headers: {
+        Authorization: `Bearer ${githubAccessToken}`,
+      },
+      cache: 'no-store',
+      signal: AbortSignal.timeout(2500),
+    })
+    return res.ok
+  } catch {
+    return false
+  }
 }
 
 type GhProfile = {
@@ -122,8 +123,14 @@ export const authConfig: NextAuthConfig = {
         }
       }
 
-      token.isAdmin = isAdminUserId(token.githubUserId as string | undefined)
-      token.adminAccessToken = await signAdminBearerToken(token.githubUserId as string | undefined)
+      // Avoid blocking every request on remote admin-check.
+      // Refresh only when we just received a new OAuth token, or when isAdmin is missing.
+      if (account?.access_token || typeof token.isAdmin !== 'boolean') {
+        token.isAdmin = await checkAdminPermission(
+          token.githubUserId as string | undefined,
+          token.githubAccessToken as string | undefined
+        )
+      }
       return token
     },
     async session({ session, token }) {
@@ -136,7 +143,7 @@ export const authConfig: NextAuthConfig = {
       session.user.githubProfileUrl = token.githubProfileUrl as string | undefined
       session.user.displayName =
         (token.displayName as string | undefined) ?? session.user.name ?? undefined
-      session.accessToken = token.adminAccessToken as string | undefined
+      // GitHub access token 仅保留在加密 JWT 内，由服务端 BFF（getToken）读取，不向浏览器 session 暴露
       return session
     },
   },

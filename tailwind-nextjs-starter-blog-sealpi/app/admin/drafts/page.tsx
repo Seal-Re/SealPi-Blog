@@ -53,7 +53,7 @@ function DraftCard({ article }: { article: AdminArticle }) {
             {article.summary}
           </p>
         ) : (
-          <p className="mt-2 flex-1 text-sm italic text-gray-400 dark:text-gray-600">暂无摘要</p>
+          <p className="mt-2 flex-1 text-sm text-gray-400 italic dark:text-gray-600">暂无摘要</p>
         )}
         <Link
           href={`/admin/editor?articleId=${article.articleId}`}

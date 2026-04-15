@@ -116,7 +116,7 @@ export default function ListLayout({
           </div>
         </div>
         <ul>
-          {!filteredBlogPosts.length && 'No posts found.'}
+          {!filteredBlogPosts.length && '暂无文章。'}
           {displayPosts.map((post) => {
             const { path, date, title, summary, tags } = post
             return (
