@@ -282,6 +282,86 @@ input:-webkit-autofill:focus {
   animation: wb-page-in var(--duration-page) cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+/* ===== Workbook body typography ===== */
+.wb-body h1,
+.wb-body h2,
+.wb-body h3,
+.wb-body h4,
+.wb-body h5,
+.wb-body h6 {
+  font-family: var(--font-fraunces);
+  color: var(--color-wb-ink);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.2;
+  margin-top: 2.2em;
+  margin-bottom: 0.6em;
+}
+.wb-body h1 { font-size: 2rem; }
+.wb-body h2 { font-size: 1.6rem; }
+.wb-body h3 { font-size: 1.3rem; }
+.wb-body h4 { font-size: 1.1rem; }
+
+.wb-body p {
+  margin-top: 0;
+  margin-bottom: 1.5em;
+}
+.wb-body a {
+  color: var(--color-wb-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 150ms ease;
+}
+.wb-body a:hover {
+  color: var(--color-wb-ink);
+}
+.wb-body ul,
+.wb-body ol {
+  padding-left: 1.6em;
+  margin-bottom: 1.5em;
+}
+.wb-body li {
+  margin-bottom: 0.4em;
+}
+.wb-body blockquote {
+  border-left: 3px solid var(--color-wb-accent);
+  margin: 1.8em 0;
+  padding: 0.3em 0 0.3em 1.2em;
+  color: var(--color-wb-meta);
+  font-style: italic;
+}
+.wb-body hr {
+  border: none;
+  border-top: 1px solid var(--color-wb-rule-soft);
+  margin: 2.5em 0;
+}
+.wb-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+  margin-bottom: 1.5em;
+}
+.wb-body th,
+.wb-body td {
+  border: 1px solid var(--color-wb-rule-soft);
+  padding: 0.5em 0.9em;
+  text-align: left;
+}
+.wb-body th {
+  background: var(--color-wb-canvas);
+  font-weight: 600;
+  color: var(--color-wb-ink);
+}
+.wb-body img {
+  max-width: 100%;
+  border-radius: 0.5rem;
+  margin: 1.5em 0;
+  border: 1px solid var(--color-wb-rule-soft);
+}
+.wb-body strong { color: var(--color-wb-ink); font-weight: 700; }
+.wb-body em { font-style: italic; }
+
 /* ===== Workbook code block styles (rehype-highlight / hljs) ===== */
 .wb-body pre {
   position: relative;
