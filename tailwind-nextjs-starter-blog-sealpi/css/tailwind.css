@@ -232,6 +232,21 @@ input:-webkit-autofill:focus {
   }
 }
 
+/* Workbook page-enter animation (spec §4.3, no framer-motion needed) */
+@keyframes wb-page-in {
+  from {
+    opacity: 0.35;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+.wb-page-enter {
+  animation: wb-page-in var(--duration-page) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
 /* Workbook paper texture — very subtle dot-matrix overlay */
 .wb-frame::before {
   content: '';

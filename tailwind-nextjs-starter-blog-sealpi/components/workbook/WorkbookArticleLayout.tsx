@@ -31,7 +31,7 @@ export default function WorkbookArticleLayout({
   children,
 }: WorkbookArticleLayoutProps) {
   return (
-    <article className="wb-frame bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
+    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
       <WorkbookRevealInit />
 
       <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
