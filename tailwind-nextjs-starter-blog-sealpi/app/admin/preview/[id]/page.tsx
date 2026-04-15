@@ -24,7 +24,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
   return (
     <WorkbookArticleLayout
       title={article.title || '（无标题草稿）'}
-      date={new Date(article.date || Date.now()).toLocaleDateString('en-US', {
+      date={new Date(article.date || Date.now()).toLocaleDateString('zh-CN', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
