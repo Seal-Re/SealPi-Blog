@@ -73,7 +73,9 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
   }
 
   return (
-    <section className="border-wb-rule-soft bg-wb-canvas/90 overflow-hidden rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)] backdrop-blur">
+    <section
+      className={`bg-wb-canvas/90 overflow-hidden backdrop-blur ${compact ? 'h-full w-full rounded-none border-0 shadow-none' : 'border-wb-rule-soft rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)]'}`}
+    >
       {!compact && (
         <div className="border-wb-rule-soft/60 flex flex-wrap items-start justify-between gap-4 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-6 py-5 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.12),rgba(26,19,13,0.95))]">
           <div>
@@ -91,7 +93,9 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
           </div>
         </div>
       )}
-      <div className="h-[72vh] min-h-[620px] bg-[linear-gradient(180deg,rgba(251,245,236,0.95),rgba(245,236,225,0.98))] dark:bg-[linear-gradient(180deg,rgba(26,19,13,0.90),rgba(33,24,15,0.95))]">
+      <div
+        className={`bg-[linear-gradient(180deg,rgba(251,245,236,0.95),rgba(245,236,225,0.98))] dark:bg-[linear-gradient(180deg,rgba(26,19,13,0.90),rgba(33,24,15,0.95))] ${compact ? 'h-full' : 'h-[72vh] min-h-[620px]'}`}
+      >
         <Excalidraw
           initialData={initialData}
           viewModeEnabled={true}
