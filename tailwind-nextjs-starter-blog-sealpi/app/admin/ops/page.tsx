@@ -5,7 +5,7 @@ import type { PageResult, AdminArticle } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
-  title: 'Admin Ops',
+  title: '运维控制台',
   description: '运维控制台 — 系统状态与文章统计',
 })
 
@@ -106,7 +106,7 @@ export default async function OpsPage() {
       <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-            Ops Console
+            运维面板
           </span>
           <h1 className="text-wb-ink text-3xl font-black tracking-tight dark:text-white">
             运维控制台
