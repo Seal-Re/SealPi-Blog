@@ -40,6 +40,11 @@ function Test-PortInUse([int]$port) {
 }
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$backendEnvLocal = Join-Path $root ".env.backend.local"
+$composeEnvFlag = ""
+if (Test-Path $backendEnvLocal) {
+  $composeEnvFlag = "--env-file .env.backend.local"
+}
 Push-Location $root
 
 try {
@@ -51,10 +56,10 @@ try {
 
   Write-Step "Stop docker compose services"
   if ($KeepInfra) {
-    cmd /c "docker compose stop blog-start minio-init" | Out-Host
+    cmd /c "docker compose $composeEnvFlag stop blog-start minio-init" | Out-Host
     Write-Host "KeepInfra enabled: mysql/minio kept running." -ForegroundColor Gray
   } else {
-    cmd /c "docker compose down" | Out-Host
+    cmd /c "docker compose $composeEnvFlag down" | Out-Host
   }
 
   Write-Step "Stop leftover sealpi containers"

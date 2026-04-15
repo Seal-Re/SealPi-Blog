@@ -164,4 +164,9 @@ public class ArticleAdminController {
     public Response delete(@PathVariable("id") Integer id) {
         return articleService.delete(id);
     }
+
+    @PostMapping("/articles/{id}/offline")
+    public Response offline(@PathVariable("id") Integer id) {
+        return articleService.adminOffline(id);
+    }
 }

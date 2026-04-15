@@ -2,7 +2,12 @@ package com.seal.blog.adapter.security;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,14 +22,26 @@ public class AdminJwtVerifier {
     private final byte[] secret;
     private final Set<String> adminGithubUserIds;
     private final String githubUserIdClaim;
+    private final String githubUserApi;
+    private final boolean allowLegacyJwt;
+    private final HttpClient httpClient;
 
-    public AdminJwtVerifier(String secret, String adminGithubUserIdsCsv, String githubUserIdClaim) {
+    public AdminJwtVerifier(
+            String secret,
+            String adminGithubUserIdsCsv,
+            String githubUserIdClaim,
+            String githubUserApi,
+            boolean allowLegacyJwt
+    ) {
         if (secret == null || secret.isBlank()) {
             throw new IllegalArgumentException("admin.jwt.secret must not be blank");
         }
         this.secret = secret.getBytes(StandardCharsets.UTF_8);
         this.adminGithubUserIds = parseCsv(adminGithubUserIdsCsv);
         this.githubUserIdClaim = (githubUserIdClaim == null || githubUserIdClaim.isBlank()) ? "githubUserId" : githubUserIdClaim;
+        this.githubUserApi = (githubUserApi == null || githubUserApi.isBlank()) ? "https://api.github.com/user" : githubUserApi;
+        this.allowLegacyJwt = allowLegacyJwt;
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
 
         if (this.adminGithubUserIds.isEmpty()) {
             throw new IllegalArgumentException("admin.github.userIds must not be empty");
@@ -44,11 +61,63 @@ public class AdminJwtVerifier {
             throw new AdminAuthException(401, "401", "缺少token");
         }
 
+        // Token shape routing:
+        // - If it looks like a JWT (3 parts), verify signature with admin.jwt.secret.
+        // - Otherwise, treat it as GitHub OAuth access token and validate via GitHub API.
+        if (looksLikeJwt(token)) {
+            verifyLegacyJwt(token);
+            return;
+        }
+        if (verifyGithubAccessToken(token)) {
+            return;
+        }
+        throw new AdminAuthException(401, "401", "token无效或已过期");
+    }
+
+    private static boolean looksLikeJwt(String token) {
+        if (token == null) return false;
+        int dots = 0;
+        for (int i = 0; i < token.length(); i++) {
+            if (token.charAt(i) == '.') dots++;
+        }
+        return dots == 2;
+    }
+
+    private boolean verifyGithubAccessToken(String token) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(githubUserApi))
+                    .timeout(Duration.ofSeconds(5))
+                    .header("Authorization", "Bearer " + token)
+                    .header("Accept", "application/vnd.github+json")
+                    .header("X-GitHub-Api-Version", "2022-11-28")
+                    .GET()
+                    .build();
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                return false;
+            }
+
+            String githubUserId = extractJsonStringOrNumber(response.body(), "id");
+            if (githubUserId == null || githubUserId.isBlank()) {
+                return false;
+            }
+            if (!adminGithubUserIds.contains(githubUserId)) {
+                throw new AdminAuthException(403, "403", "无权限");
+            }
+            return true;
+        } catch (AdminAuthException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private void verifyLegacyJwt(String token) {
         String[] parts = token.split("\\.");
         if (parts.length != 3) {
             throw new AdminAuthException(401, "401", "token格式错误");
         }
-
         String headerB64 = parts[0];
         String payloadB64 = parts[1];
         String sigB64 = parts[2];

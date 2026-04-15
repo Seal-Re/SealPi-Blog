@@ -25,6 +25,8 @@ public interface ArticleServiceI {
 
     Response adminUpdate(ArticleDraftUpdateCmd cmd, String action, String coverImageUrl);
 
+    Response adminOffline(Integer id);
+
     SingleResponse<ArticleVO> getSingleById(ArticleByIdQry articleByIdQry);
 
     SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry articleBySlugQry);

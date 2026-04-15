@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +34,8 @@ import org.springframework.test.web.servlet.MockMvc;
                 "admin.jwt.secret=test-secret",
                 "admin.github.userIds=123",
                 "admin.jwt.githubUserIdClaim=githubUserId",
+                // Tests still assert legacy self-signed JWT behavior.
+                "admin.auth.allowLegacyJwt=true",
                 "blog.internal.sync.secret=test-internal"
         }
 )
@@ -155,6 +158,18 @@ class BlogAdapterApplicationTests {
         ArticleDraftSaveCmd captured = cmdCaptor.getValue();
         org.assertj.core.api.Assertions.assertThat(captured.getDraftBodyMd()).isEqualTo("# Hello\n\n:::note\nsidenote\n:::");
         org.assertj.core.api.Assertions.assertThat(captured.getCoverCaption()).isEqualTo("图示：架构");
+    }
+
+    @Test
+    void adminOffline_withWhitelistedUser_callsService() throws Exception {
+        when(articleService.adminOffline(7)).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                post("/api/v1/admin/articles/7/offline")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk());
+
+        verify(articleService).adminOffline(7);
     }
 
     private static String bearerToken(String githubUserId) throws Exception {

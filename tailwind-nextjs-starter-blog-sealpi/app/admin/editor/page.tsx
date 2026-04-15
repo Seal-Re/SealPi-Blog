@@ -20,21 +20,32 @@ async function fetchArticleDetail(articleId: string) {
   return response?.data || null
 }
 
-async function fetchLatestDraftArticle() {
+async function fetchDraftStats() {
   const response = await adminFetch<PageResult<AdminArticle>>(
     '/api/v1/articles?pageIndex=1&pageSize=1&status=draft'
   )
-  return response?.data?.[0] || null
+  return {
+    draftCount: response?.totalCount || 0,
+    latestDraftId: response?.data?.[0]?.articleId ? String(response.data[0].articleId) : undefined,
+  }
 }
 
 export default async function AdminEditorPage(props: {
-  searchParams?: Promise<{ articleId?: string }>
+  searchParams?: Promise<{ articleId?: string; mode?: string }>
 }) {
   await auth()
   const searchParams = await props.searchParams
   const articleId = searchParams?.articleId
-  const article = articleId ? await fetchArticleDetail(articleId) : await fetchLatestDraftArticle()
+  const forceNew = searchParams?.mode === 'new'
+  const article = articleId ? await fetchArticleDetail(articleId) : null
   const resolvedArticleId = articleId || article?.articleId
+  const draftStats = forceNew && !articleId ? await fetchDraftStats() : { draftCount: 0 }
 
-  return <AdminEditorWorkspace article={article} articleId={resolvedArticleId} />
+  return (
+    <AdminEditorWorkspace
+      article={article}
+      articleId={resolvedArticleId}
+      draftHint={forceNew ? draftStats : undefined}
+    />
+  )
 }
