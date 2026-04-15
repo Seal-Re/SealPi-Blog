@@ -49,7 +49,7 @@ export default function WorkbookArticleLayout({
   coverImageUrl,
   coverCaption,
   bodyMd,
-  eyebrow = 'Essay',
+  eyebrow = '随笔',
   prevPost,
   nextPost,
   relatedPosts,

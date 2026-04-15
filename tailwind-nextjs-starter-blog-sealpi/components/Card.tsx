@@ -43,7 +43,7 @@ const Card = ({ title, description, imgSrc, href }) => (
             className="text-wb-accent hover:text-wb-ink text-base leading-6 font-medium transition-colors duration-200"
             aria-label={`Link to ${title}`}
           >
-            Learn more &rarr;
+            了解更多 &rarr;
           </Link>
         )}
       </div>
