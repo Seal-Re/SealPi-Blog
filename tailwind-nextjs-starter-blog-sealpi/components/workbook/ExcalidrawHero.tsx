@@ -20,7 +20,7 @@ export default function ExcalidrawHero({
         style={{ boxShadow: '3px 4px 0 var(--color-wb-card-shadow)' }}
       >
         {contentJson ? (
-          <ExcalidrawViewer contentJson={contentJson} title={title} />
+          <ExcalidrawViewer contentJson={contentJson} title={title} compact />
         ) : coverImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={coverImageUrl} alt={title} className="h-[88%] w-[88%] object-contain" />

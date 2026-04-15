@@ -25,6 +25,8 @@ type ExcalidrawScene = {
 type ExcalidrawViewerProps = {
   contentJson?: string | null
   title: string
+  /** Hides the header bar; use when the viewer is embedded as a hero image. */
+  compact?: boolean
 }
 
 function parseScene(contentJson?: string | null): ExcalidrawScene | null {
@@ -39,11 +41,12 @@ function parseScene(contentJson?: string | null): ExcalidrawScene | null {
   }
 }
 
-export default function ExcalidrawViewer({ contentJson, title }: ExcalidrawViewerProps) {
+export default function ExcalidrawViewer({ contentJson, title, compact }: ExcalidrawViewerProps) {
   const scene = useMemo(() => parseScene(contentJson), [contentJson])
   const hasRenderableElements = Boolean(scene?.elements?.some((element) => !element.isDeleted))
 
   if (!scene || !hasRenderableElements) {
+    if (compact) return null
     return (
       <section className="border-wb-rule-soft bg-wb-canvas/90 overflow-hidden rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)] backdrop-blur">
         <div className="border-wb-rule-soft/60 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-6 py-5 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.12),rgba(26,19,13,0.95))]">
@@ -68,21 +71,23 @@ export default function ExcalidrawViewer({ contentJson, title }: ExcalidrawViewe
 
   return (
     <section className="border-wb-rule-soft bg-wb-canvas/90 overflow-hidden rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)] backdrop-blur">
-      <div className="border-wb-rule-soft/60 flex flex-wrap items-start justify-between gap-4 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-6 py-5 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.12),rgba(26,19,13,0.95))]">
-        <div>
-          <p className="text-wb-accent dark:text-wb-rule text-xs font-semibold tracking-[0.24em] uppercase">
-            Excalidraw 画板
-          </p>
-          <h2 className="text-wb-ink mt-2 text-xl font-semibold">{title}</h2>
-          <p className="text-wb-meta mt-2 text-sm leading-6">
-            只读渲染已启用，保留原始画板视觉并支持本地导出查看。
-          </p>
+      {!compact && (
+        <div className="border-wb-rule-soft/60 flex flex-wrap items-start justify-between gap-4 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-6 py-5 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.12),rgba(26,19,13,0.95))]">
+          <div>
+            <p className="text-wb-accent dark:text-wb-rule text-xs font-semibold tracking-[0.24em] uppercase">
+              Excalidraw 画板
+            </p>
+            <h2 className="text-wb-ink mt-2 text-xl font-semibold">{title}</h2>
+            <p className="text-wb-meta mt-2 text-sm leading-6">
+              只读渲染已启用，保留原始画板视觉并支持本地导出查看。
+            </p>
+          </div>
+          <div className="border-wb-rule bg-wb-canvas/85 text-wb-accent inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            只读模式
+          </div>
         </div>
-        <div className="border-wb-rule bg-wb-canvas/85 text-wb-accent inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
-          只读模式
-        </div>
-      </div>
+      )}
       <div className="h-[72vh] min-h-[620px] bg-[linear-gradient(180deg,rgba(251,245,236,0.95),rgba(245,236,225,0.98))] dark:bg-[linear-gradient(180deg,rgba(26,19,13,0.90),rgba(33,24,15,0.95))]">
         <Excalidraw
           initialData={initialData}
