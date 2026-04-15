@@ -45,7 +45,7 @@ export default function UserMenu() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <MenuItems className="ring-opacity-5 bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-xl shadow-lg ring-1 focus:outline-hidden">
+        <MenuItems className="ring-opacity-5 bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-xl shadow-[0_8px_24px_-8px_rgba(31,26,21,0.18)] ring-1 focus:outline-hidden dark:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]">
           <div className="px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-wb-ink truncate text-sm font-semibold">{display}</p>
@@ -105,7 +105,7 @@ export default function UserMenu() {
               {({ focus }) => (
                 <Link
                   href="/login"
-                  className={`${focus ? 'bg-wb-paper' : ''} text-wb-ink block px-4 py-2.5 text-sm`}
+                  className={`${focus ? 'bg-wb-canvas' : ''} text-wb-ink block px-4 py-2.5 text-sm`}
                 >
                   账号与登录
                 </Link>

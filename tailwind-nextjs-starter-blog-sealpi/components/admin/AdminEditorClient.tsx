@@ -795,7 +795,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       {isEditMode ? '编辑既有文章' : '创建新文章'}
                     </h2>
                     <p className="text-wb-meta text-sm leading-7 dark:text-gray-300">
-                      保留现有后台设计语言，强化卡片层级、焦点状态和异步反馈，使编辑过程更稳定也更有掌控感。
+                      填写标题与 Slug 后保存草稿，满意时直接发布；画布变更将在约 30 秒后自动同步。
                     </p>
                   </div>
                 </div>
@@ -980,9 +980,9 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   viewModeEnabled={false}
                 />
               </div>
-              <div className="border-wb-rule-soft bg-wb-canvas mt-4 space-y-3 rounded-xl border p-4 dark:border-gray-800 dark:bg-gray-950">
-                <label className="block">
-                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase">
+              <div className="border-wb-rule-soft/60 bg-wb-canvas/90 mt-4 space-y-4 rounded-xl border p-5 dark:border-gray-800/60 dark:bg-gray-950/80">
+                <label className="block space-y-2.5">
+                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                     画布注释（Caveat 手写体显示）
                   </span>
                   <input
@@ -993,11 +993,11 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     }
                     maxLength={200}
                     placeholder="例：DDD 分层一张图就够了"
-                    className="border-wb-rule mt-1 w-full rounded border px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                    className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                   />
                 </label>
-                <label className="block">
-                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase">
+                <label className="block space-y-2.5">
+                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                     Markdown 正文
                   </span>
                   <textarea
@@ -1006,7 +1006,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
                     }
                     placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
-                    className="border-wb-rule mt-1 min-h-[200px] w-full resize-y rounded border px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-900"
+                    className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y rounded-2xl border px-4 py-3 font-mono text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                   />
                 </label>
               </div>
