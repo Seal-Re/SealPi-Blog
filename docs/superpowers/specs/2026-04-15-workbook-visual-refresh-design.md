@@ -69,41 +69,44 @@ Caveat 严格限制在四个区域，不用于标题或正文，避免与 Excali
 
 ### 2.1 DB 迁移
 
+迁移文件：`sealpi-blog/blog-infra/src/main/resources/db/migration/V3__alter_t_article_add_workbook_fields.sql`
+
 ```sql
-ALTER TABLE sealpi_blog.articles
-  ADD COLUMN body_md           LONGTEXT     NULL AFTER content_json,
-  ADD COLUMN draft_body_md     LONGTEXT     NULL AFTER draft_json,
-  ADD COLUMN cover_caption     VARCHAR(200) NULL AFTER preview_image_url,
-  ADD COLUMN draft_cover_caption VARCHAR(200) NULL AFTER draft_preview_image_url;
+ALTER TABLE t_article
+    ADD COLUMN IF NOT EXISTS body_md       LONGTEXT     NULL COMMENT 'Markdown 正文（已发布）' AFTER draft_json,
+    ADD COLUMN IF NOT EXISTS draft_body_md LONGTEXT     NULL COMMENT 'Markdown 正文（草稿）' AFTER body_md,
+    ADD COLUMN IF NOT EXISTS cover_caption VARCHAR(200) NULL COMMENT 'Excalidraw 封面手写注释' AFTER cover_image_url;
 ```
 
-- 全部可空，无新索引，无默认值
-- 上线零停机；旧文章四字段均为 NULL，前端渲染时优雅降级（不渲染 body 区域）
+- 三个可空字段，无新索引，无默认值
+- 上线零停机；旧文章三字段均为 NULL，前端渲染时优雅降级（不渲染 body 区域）
+- **`cover_caption` 单字段（非 draft/published 分离）**：与现有 `cover_image_url` 模式一致，domain 层 `saveDraft()` 时写入，无需区分草稿/发布态
+- **`body_md` + `draft_body_md` 双字段**：与 `content_json` + `draft_json` 模式一致，`publishFromDraft()` 时 draft → published 复制
 
 ### 2.2 后端变更
 
 **DTOs（`blog-client`）**
 
-`AdminArticleVO` / `AdminArticleCmd` 追加四字段：
-
-```java
-private String bodyMd;
-private String draftBodyMd;
-private String coverCaption;
-private String draftCoverCaption;
-```
+- `ArticleVO`：追加 `bodyMd`、`draftBodyMd`、`coverCaption`
+- `ArticleDraftSaveCmd` / `ArticleDraftUpdateCmd`：追加 `draftBodyMd`、`coverCaption`（草稿保存时带入）
 
 **Domain（`blog-domain`）**
 
-`Article` 聚合追加四个字段；`publishFromDraft()` 在 domain 层 copy 五组 draft 字段（含新增的 `draftBodyMd`→`bodyMd`、`draftCoverCaption`→`coverCaption`），保持 DDD 合规。
+`Article` 聚合追加 `bodyMd`、`draftBodyMd`、`coverCaption` 三个字段：
+- `saveDraft()` 签名扩展：新增 `draftBodyMd`、`coverCaption` 参数
+- `publishFromDraft()`：增加 `this.bodyMd = this.draftBodyMd;` 复制逻辑
+- `offlineToDraft()`：保持不变（driver 字段照旧）
+- `reconstruct()` 签名扩展三个新参数
 
-**Infra / Mapper**
+**Infra**
 
-`ArticlePO` 追加对应列；`ArticleInfraConverter`（MapStruct）自动映射；`ArticleGatewayImpl` 无需额外改动。
+- `ArticlePO` 追加 `bodyMd`、`draftBodyMd`、`coverCaption` 三个 MyBatis-Plus 字段
+- `ArticleInfraConverter`（手写，非 MapStruct）：`toPO()` / `toEntity()` 显式映射三个新字段
+- `ArticleGatewayImpl`：无需额外改动（透过 converter）
 
 **Adapter**
 
-`ArticleAdminController` multipart 接收 `draftBodyMd`、`draftCoverCaption` 两个新字段（`@RequestParam(required = false)`）。
+`ArticleAdminController` 的 `adminCreateMultipart` / `adminUpdateMultipart` 接收 `draftBodyMd`、`coverCaption` 两个新字段（`@RequestParam(required = false)`），构造扩展后的 `ArticleDraftSaveCmd` / `ArticleDraftUpdateCmd`。
 
 ### 2.3 Markdown 渲染位置
 
@@ -120,23 +123,26 @@ private String draftCoverCaption;
 
 ```typescript
 // AdminArticle
-coverCaption?:       string;
-bodyMd?:             string;
-draftCoverCaption?:  string;
-draftBodyMd?:        string;
+coverCaption?:  string;
+bodyMd?:        string;
+draftBodyMd?:   string;
 
-// AdminArticleFormPayload
-draftBodyMd?:        string;
-draftCoverCaption?:  string;
+// AdminArticleFormPayload (lib/admin-api.ts)
+draftBodyMd?:   string;
+coverCaption?:  string;
 ```
 
-### 2.4 测试补强（`blog-adapter`）
+### 2.4 测试补强
 
-新增 4 个测试 case：
-1. 创建草稿时带 `draftBodyMd` → 保存成功，`draft_body_md` 持久化
-2. 发布时 `draftBodyMd` 复制到 `bodyMd`，`body_md` 存在于 VO
-3. 离线回草稿后 `bodyMd` 清空，`draftBodyMd` 保留
-4. `draftBodyMd` 超过 100KB 不被截断（边界）
+**blog-adapter**（`BlogAdapterApplicationTests`）：新增 1 个集成 case：
+1. `adminCreateMultipart` 接收 `draftBodyMd` + `coverCaption` 参数 → 200 OK（通过 ArgumentCaptor 验证 service 收到带新字段的 cmd）
+
+**blog-app**（`ArticleServiceImplTest`）：新增 3 个单元 case：
+2. `adminCreate(action=draft)` 带 `draftBodyMd` → 持久化前 Article 的 `draftBodyMd` 字段存在（`bodyMd` 为 null）
+3. `adminCreate(action=publish)` 带 `draftBodyMd` → `publishFromDraft()` 后 `bodyMd == draftBodyMd`
+4. `draftBodyMd` 长度为 120_000 字符 → 完整持久化到 Article，无截断（边界）
+
+**规则明确**：`bodyMd` 仅在 `publishFromDraft()` 时从 `draftBodyMd` 复制；`offlineToDraft()` 不清空 `bodyMd`（与现有 `contentJson` 行为一致——已发布的正文在离线后保留，待下次 publish 覆盖）。
 
 ---
 
@@ -220,34 +226,57 @@ V1 无实时预览，通过"保存草稿 → 预览"流程确认效果。
 
 ### 4.1 Token 文件结构
 
+`lib/workbook/tokens.ts` 导出 TypeScript 常量供 JS 侧引用（Framer Motion 配置、shadow DOM 等场景）。**真正的样式来源是 `css/tailwind.css` 的 `@theme` 块**，由 Tailwind v4 生成 utility 类。
+
 ```typescript
 // lib/workbook/tokens.ts
-export const wbTokens = {
-  color: { /* 9 tokens, 见 §1 */ },
-  motion: {
-    micro: '150ms', ui: '250ms', reveal: '400ms', page: '600ms',
-    ease: 'cubic-bezier(.2,.8,.2,1)',
-  },
+export const wbMotion = {
+  micro: 150,
+  ui: 250,
+  reveal: 400,
+  page: 600,
+  ease: [0.2, 0.8, 0.2, 1] as const,
 } as const;
+
+export const wbEase = 'cubic-bezier(.2,.8,.2,1)';
 ```
 
-字体通过 `next/font/google` 实例（`app/layout.tsx`）注入为 CSS 变量，不放入 token 对象。
+色板不导出到 TS——组件直接用 Tailwind `bg-wb-*` / `text-wb-*` utility。字体通过 `next/font/google` 在 `app/layout.tsx` 注入为 CSS 变量（`--font-fraunces-loaded` 等），再由 `@theme` 的 `--font-fraunces` 消费。
 
-### 4.2 Tailwind 集成
+### 4.2 Tailwind v4 集成
 
-```typescript
-// tailwind.config.ts → theme.extend
-colors: { wb: wbTokens.color },
-fontFamily: {
-  fraunces: ['var(--font-fraunces)', 'serif'],
-  caveat:   ['var(--font-caveat)', 'cursive'],
-},
-transitionDuration: {
-  micro: '150ms', ui: '250ms', reveal: '400ms', page: '600ms',
-},
+项目使用 **Tailwind v4**，通过 `css/tailwind.css` 里的 `@theme` 块注册 token，不存在 `tailwind.config.ts`。在现有 `@theme { ... }` 内追加：
+
+```css
+@theme {
+  /* 已有：--color-primary-*, --color-gray-*, --font-sans … */
+
+  /* Workbook 色板 */
+  --color-wb-paper: #f5ece1;
+  --color-wb-canvas: #fbf5ec;
+  --color-wb-ink: #1f1a15;
+  --color-wb-ink-soft: #2a241e;
+  --color-wb-meta: #7d6955;
+  --color-wb-accent: #a6582b;
+  --color-wb-rule: #c9b597;
+  --color-wb-rule-soft: #ded7cc;
+  --color-wb-card-shadow: #e6d6bd;
+
+  /* Workbook 字体变量（实际字体在 layout.tsx 通过 next/font 注入） */
+  --font-fraunces: var(--font-fraunces-loaded), 'Times New Roman', serif;
+  --font-caveat:   var(--font-caveat-loaded), cursive;
+  --font-geist-mono: var(--font-geist-mono-loaded), ui-monospace, monospace;
+  --font-inter:    var(--font-inter-loaded), system-ui, sans-serif;
+
+  /* Workbook 动效时长 */
+  --duration-micro: 150ms;
+  --duration-ui: 250ms;
+  --duration-reveal: 400ms;
+  --duration-page: 600ms;
+}
 ```
 
-Workbook 组件全部用 Tailwind utility 类（`bg-wb-paper`、`text-wb-accent`、`font-fraunces`、`duration-reveal`），不引入额外 CSS Module。
+Tailwind v4 自动基于 `@theme` 生成 utility 类：`bg-wb-paper`、`text-wb-accent`、`font-fraunces`、`duration-reveal` 等。Workbook 组件全部用 utility 类，不引入 CSS Module。
 
 ### 4.3 Reveal Hook
 
