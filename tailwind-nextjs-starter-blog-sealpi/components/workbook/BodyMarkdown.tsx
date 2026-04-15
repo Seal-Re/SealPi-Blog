@@ -29,6 +29,23 @@ const remarkNoteDirective: Plugin<[], Root> = () => (tree) => {
   })
 }
 
+/** External links open in a new tab; internal links navigate normally. */
+function BodyLink({ href, children, ...rest }: ComponentPropsWithoutRef<'a'>) {
+  const isExternal = href?.startsWith('http') || href?.startsWith('//')
+  if (isExternal) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" {...rest}>
+        {children}
+      </a>
+    )
+  }
+  return (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  )
+}
+
 /** Heading with hover anchor link. rehype-slug already adds the `id`. */
 function HeadingAnchor({
   id,
@@ -64,6 +81,11 @@ export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
         components={
           {
             'margin-note': ({ children }) => <MarginNote>{children}</MarginNote>,
+            a: ({ href, children, ...rest }: ComponentPropsWithoutRef<'a'>) => (
+              <BodyLink href={href} {...rest}>
+                {children}
+              </BodyLink>
+            ),
             h1: ({ id, children }: ComponentPropsWithoutRef<'h1'>) => (
               <HeadingAnchor id={id} as="h1">
                 {children}
