@@ -186,7 +186,7 @@ export default async function Page(props: PageProps) {
       />
       <WorkbookArticleLayout
         title={article.title}
-        date={new Date(date).toLocaleDateString('en-US', {
+        date={new Date(date).toLocaleDateString('zh-CN', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
