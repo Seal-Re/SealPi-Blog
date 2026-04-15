@@ -33,7 +33,7 @@ export async function generateMetadata(props: {
 
   return genPageMetadata({
     title: tag,
-    description: `${siteMetadata.title} ${tag} tagged content`,
+    description: `${siteMetadata.title} — 标签「${tag}」相关文章`,
     alternates: {
       canonical: './',
       types: {
