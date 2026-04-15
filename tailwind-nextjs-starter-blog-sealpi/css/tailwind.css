@@ -53,6 +53,27 @@
     0% { transform: translateX(-100%); }
     100% { transform: translateX(250%); }
   }
+
+  /* === Workbook tokens === */
+  --color-wb-paper: #f5ece1;
+  --color-wb-canvas: #fbf5ec;
+  --color-wb-ink: #1f1a15;
+  --color-wb-ink-soft: #2a241e;
+  --color-wb-meta: #7d6955;
+  --color-wb-accent: #a6582b;
+  --color-wb-rule: #c9b597;
+  --color-wb-rule-soft: #ded7cc;
+  --color-wb-card-shadow: #e6d6bd;
+
+  --font-fraunces: var(--font-fraunces-loaded), 'Times New Roman', serif;
+  --font-caveat: var(--font-caveat-loaded), cursive;
+  --font-geist-mono: var(--font-geist-mono-loaded), ui-monospace, monospace;
+  --font-inter: var(--font-inter-loaded), system-ui, sans-serif;
+
+  --duration-micro: 150ms;
+  --duration-ui: 250ms;
+  --duration-reveal: 400ms;
+  --duration-page: 600ms;
 }
 
 /*
