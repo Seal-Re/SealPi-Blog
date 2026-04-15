@@ -6,6 +6,7 @@ import WbDivider from './WbDivider'
 import BodyMarkdown from './BodyMarkdown'
 import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
+import CopyCodeInit from './CopyCodeInit'
 
 type AdjacentPost = {
   title: string
@@ -59,6 +60,7 @@ export default function WorkbookArticleLayout({
     <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
       <WorkbookRevealInit />
       <WorkbookReadingProgress />
+      <CopyCodeInit />
 
       <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
         {eyebrow}
