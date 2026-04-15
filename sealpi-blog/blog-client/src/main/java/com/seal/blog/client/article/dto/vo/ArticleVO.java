@@ -32,6 +32,11 @@ public class ArticleVO {
     // Read count (explicit v1 field; may later replace/alias the existing count).
     private Integer viewCount;
 
+    // v2: Markdown body + cover caption.
+    private String bodyMd;
+    private String draftBodyMd;
+    private String coverCaption;
+
     private Integer draft;
     private Integer count;
     private List<TagVO> tags;
