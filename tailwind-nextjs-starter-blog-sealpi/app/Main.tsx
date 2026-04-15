@@ -48,7 +48,12 @@ export default function Home({ posts }) {
                     )}
                   </div>
                   <h2 className="mt-3 text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-                    <Link href={`/blog/${slug}`}>{title}</Link>
+                    <Link
+                      href={`/blog/${slug}`}
+                      className="hover:text-wb-accent transition-colors duration-200"
+                    >
+                      {title}
+                    </Link>
                   </h2>
                   <p className="mt-3 line-clamp-3 text-sm leading-7 text-gray-500 dark:text-gray-400">
                     {summary}
@@ -56,7 +61,7 @@ export default function Home({ posts }) {
                   <div className="mt-4">
                     <Link
                       href={`/blog/${slug}`}
-                      className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 text-sm font-medium"
+                      className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
                       aria-label={`Read more: "${title}"`}
                     >
                       阅读全文 &rarr;

@@ -82,7 +82,7 @@ export default function ListLayoutWithTags({
     <>
       <div>
         <div className="pt-6 pb-6">
-          <h1 className="text-3xl leading-9 font-extrabold tracking-tight text-gray-900 sm:hidden sm:text-4xl sm:leading-10 md:text-6xl md:leading-14 dark:text-gray-100">
+          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden sm:text-4xl md:text-6xl dark:text-gray-100">
             {title}
           </h1>
         </div>
@@ -151,7 +151,7 @@ export default function ListLayoutWithTags({
                           <h2 className="text-2xl leading-8 font-bold tracking-tight">
                             <Link
                               href={`/${post.path}`}
-                              className="text-gray-900 dark:text-gray-100"
+                              className="hover:text-wb-accent text-gray-900 transition-colors duration-200 dark:text-gray-100"
                             >
                               {post.title}
                             </Link>
