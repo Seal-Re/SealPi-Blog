@@ -20,6 +20,11 @@ public class Article {
     private String coverImageUrl;
     private Integer viewCount;
 
+    // v2: Markdown body + Excalidraw hero caption.
+    private String bodyMd;
+    private String draftBodyMd;
+    private String coverCaption;
+
     private ArticleStatus draft;
     private Integer count;
 
@@ -49,17 +54,21 @@ public class Article {
         this.initValidation();
     }
 
-    public void saveDraft(String draftJson, String coverImageUrl) {
+    public void saveDraft(String draftJson, String coverImageUrl, String draftBodyMd, String coverCaption) {
         this.draftJson = draftJson;
         if (coverImageUrl != null && !coverImageUrl.isBlank()) {
             this.coverImageUrl = coverImageUrl;
+        }
+        this.draftBodyMd = draftBodyMd;
+        if (coverCaption != null) {
+            this.coverCaption = coverCaption;
         }
         this.lastmod = LocalDate.now().toString();
     }
 
     public void publishFromDraft(String coverImageUrl) {
-        // Copy draft -> content for published view.
         this.contentJson = this.draftJson;
+        this.bodyMd = this.draftBodyMd;
         if (coverImageUrl != null && !coverImageUrl.isBlank()) {
             this.coverImageUrl = coverImageUrl;
         }
@@ -99,23 +108,30 @@ public class Article {
             String contentJson,
             String draftJson,
             String coverImageUrl,
-            Integer viewCount
+            Integer viewCount,
+            String bodyMd,
+            String draftBodyMd,
+            String coverCaption
     ) {
         Article article = new Article(title, summary, url);
-
         article.articleId = id;
         article.date = date;
         article.lastmod = lastmod;
         article.draft = draft;
         article.count = count;
-
         article.contentJson = contentJson;
         article.draftJson = draftJson;
         article.coverImageUrl = coverImageUrl;
         article.viewCount = viewCount;
-
+        article.bodyMd = bodyMd;
+        article.draftBodyMd = draftBodyMd;
+        article.coverCaption = coverCaption;
         return article;
     }
+
+    public String getBodyMd() { return bodyMd; }
+    public String getDraftBodyMd() { return draftBodyMd; }
+    public String getCoverCaption() { return coverCaption; }
 
     private void initValidation() {
         if (title == null || title.length() < 2) {
