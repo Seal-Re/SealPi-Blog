@@ -55,12 +55,22 @@ function DraftCard({ article }: { article: AdminArticle }) {
         ) : (
           <p className="text-wb-meta mt-2 flex-1 text-sm italic dark:text-gray-600">暂无摘要</p>
         )}
-        <Link
-          href={`/admin/editor?articleId=${article.articleId}`}
-          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft mt-4 inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
-        >
-          继续编辑
-        </Link>
+        <div className="mt-4 flex gap-2">
+          <Link
+            href={`/admin/editor?articleId=${article.articleId}`}
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex flex-1 items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+          >
+            继续编辑
+          </Link>
+          <Link
+            href={`/admin/preview/${article.articleId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-wb-rule text-wb-meta hover:text-wb-ink inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-100"
+          >
+            预览 ↗
+          </Link>
+        </div>
       </div>
     </div>
   )
