@@ -13,11 +13,9 @@ import UserMenu from '@/components/UserMenu'
 const Header = () => {
   const { data: session } = useSession()
 
-  let headerClass =
-    'flex items-center w-full bg-wb-paper justify-between py-10 border-b border-wb-rule-soft'
-  if (siteMetadata.stickyNav) {
-    headerClass += ' sticky top-0 z-50'
-  }
+  const headerClass = siteMetadata.stickyNav
+    ? 'flex items-center w-full justify-between py-5 border-b border-wb-rule-soft sticky top-0 z-50 bg-wb-paper/90 backdrop-blur-md'
+    : 'flex items-center w-full bg-wb-paper justify-between py-10 border-b border-wb-rule-soft'
 
   return (
     <header className={headerClass}>

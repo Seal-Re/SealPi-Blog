@@ -170,7 +170,9 @@ export default function ListLayoutWithTags({
                             sizes="(max-width: 1280px) 100vw, 60vw"
                           />
                         </div>
-                      ) : null}
+                      ) : (
+                        <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
+                      )}
                       <div className="p-5">
                         <dl>
                           <dt className="sr-only">发布于</dt>

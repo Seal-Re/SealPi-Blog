@@ -30,7 +30,9 @@ export default function Home({ posts }) {
                       sizes="(max-width: 1280px) 100vw, 60vw"
                     />
                   </div>
-                ) : null}
+                ) : (
+                  <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
+                )}
                 <div className="p-6">
                   <div className="flex flex-wrap items-center gap-3">
                     <time dateTime={date} className="text-wb-meta text-sm font-medium">
