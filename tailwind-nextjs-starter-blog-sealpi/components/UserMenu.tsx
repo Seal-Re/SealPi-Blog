@@ -51,7 +51,7 @@ export default function UserMenu() {
               <p className="text-wb-ink truncate text-sm font-semibold">{display}</p>
               {isAdmin ? (
                 <span className="bg-wb-paper text-wb-accent rounded-md px-2 py-0.5 text-xs font-medium">
-                  Admin
+                  管理员
                 </span>
               ) : null}
             </div>
