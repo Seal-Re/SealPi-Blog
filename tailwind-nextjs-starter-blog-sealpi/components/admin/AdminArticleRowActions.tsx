@@ -74,6 +74,14 @@ export default function AdminArticleRowActions({ articleId, articleUrl, isPublis
         编辑文章
       </Link>
       <Link
+        href={`/admin/preview/${articleId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-medium transition dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+      >
+        草稿预览 ↗
+      </Link>
+      <Link
         href={`/blog/${articleUrl}`}
         className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
       >
