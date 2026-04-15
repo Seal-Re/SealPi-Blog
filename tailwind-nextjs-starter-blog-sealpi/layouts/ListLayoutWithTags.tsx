@@ -137,7 +137,7 @@ export default function ListLayoutWithTags({
                       </dl>
                       <div className="space-y-3">
                         {post.coverImageUrl ? (
-                          <div className="relative h-48 overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700">
+                          <div className="border-wb-rule-soft relative h-48 overflow-hidden rounded-2xl border dark:border-gray-700">
                             <Image
                               src={post.coverImageUrl}
                               alt={`${post.title} cover`}
@@ -151,7 +151,7 @@ export default function ListLayoutWithTags({
                           <h2 className="text-2xl leading-8 font-bold tracking-tight">
                             <Link
                               href={`/${post.path}`}
-                              className="hover:text-wb-accent text-gray-900 transition-colors duration-200 dark:text-gray-100"
+                              className="text-wb-ink hover:text-wb-accent transition-colors duration-200 dark:text-gray-100"
                             >
                               {post.title}
                             </Link>

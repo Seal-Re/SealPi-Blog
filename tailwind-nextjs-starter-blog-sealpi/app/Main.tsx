@@ -11,7 +11,7 @@ export default function Home({ posts }) {
     <>
       <ul className="space-y-6">
         {!posts.length && (
-          <li className="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-gray-950">
+          <li className="bg-wb-canvas border-wb-rule-soft rounded-2xl border p-10 text-center dark:border-gray-800 dark:bg-gray-950">
             <p className="text-sm text-gray-500 dark:text-gray-400">暂无已发布文章</p>
           </li>
         )}
@@ -19,7 +19,7 @@ export default function Home({ posts }) {
           const { slug, date, title, summary, tags, coverImageUrl } = post
           return (
             <li key={slug}>
-              <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-gray-800 dark:bg-gray-950">
+              <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-gray-800 dark:bg-gray-950">
                 {coverImageUrl ? (
                   <div className="relative h-52 w-full overflow-hidden">
                     <Image
@@ -47,7 +47,7 @@ export default function Home({ posts }) {
                       </div>
                     )}
                   </div>
-                  <h2 className="mt-3 text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                  <h2 className="text-wb-ink mt-3 text-xl font-bold tracking-tight dark:text-gray-100">
                     <Link
                       href={`/blog/${slug}`}
                       className="hover:text-wb-accent transition-colors duration-200"
