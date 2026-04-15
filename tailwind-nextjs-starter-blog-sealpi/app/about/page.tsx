@@ -77,7 +77,10 @@ export default function Page() {
           <li>· Excalidraw JSON 作为文章内容格式，支持手绘图表渲染</li>
           <li>
             · Markdown 正文，支持代码高亮、表格、脚注与手写批注（
-            <code className="text-wb-accent">:::note</code> 指令）
+            <code className="border-wb-rule-soft bg-wb-canvas font-geist-mono text-wb-accent rounded border px-1.5 py-0.5 text-[0.85em]">
+              :::note
+            </code>{' '}
+            指令）
           </li>
           <li>· Spring Boot 3.2 + Next.js 15 全栈，Draft/Publish 工作流</li>
           <li>· MinIO 图片托管，Excalidraw 内联图片自动上传外置</li>

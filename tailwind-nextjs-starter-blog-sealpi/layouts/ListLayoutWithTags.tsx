@@ -120,30 +120,32 @@ export default function ListLayoutWithTags({
           </div>
         )}
         <div className="flex sm:space-x-24">
-          <div className="bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-sm pt-5 shadow-md sm:flex">
-            <div className="px-6 py-4">
+          <div className="border-wb-rule-soft bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-2xl border pt-5 shadow-[0_4px_20px_-6px_rgba(31,26,21,0.10)] sm:flex dark:border-gray-800 dark:bg-gray-950 dark:shadow-[0_4px_20px_-6px_rgba(0,0,0,0.4)]">
+            <div className="px-4 py-4">
               {pathname.startsWith('/blog') ? (
-                <h3 className="text-wb-accent font-bold uppercase">全部文章</h3>
+                <span className="bg-wb-accent/10 text-wb-accent inline-block w-full rounded-lg px-3 py-2 text-sm font-bold uppercase">
+                  全部文章
+                </span>
               ) : (
                 <Link
                   href="/blog"
-                  className="hover:text-wb-accent text-wb-meta font-bold uppercase transition-colors duration-200"
+                  className="hover:text-wb-accent hover:bg-wb-accent/5 text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
                 >
                   全部文章
                 </Link>
               )}
               <ul>
                 {availableTags.map((tag) => (
-                  <li key={tag.slug} className="my-3">
+                  <li key={tag.slug} className="mt-1">
                     {decodeURI(pathname.split('/tags/')[1] || '').split('/page/')[0] ===
                     tag.slug ? (
-                      <h3 className="text-wb-accent inline px-3 py-2 text-sm font-bold uppercase">
+                      <span className="bg-wb-accent/10 text-wb-accent inline-block w-full rounded-lg px-3 py-2 text-sm font-bold uppercase">
                         {`${tag.name} (${tag.count})`}
-                      </h3>
+                      </span>
                     ) : (
                       <Link
                         href={`/tags/${tag.slug}`}
-                        className="hover:text-wb-accent text-wb-meta px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
+                        className="hover:text-wb-accent hover:bg-wb-accent/5 text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
                         aria-label={`查看标签：${tag.name}`}
                       >
                         {`${tag.name} (${tag.count})`}

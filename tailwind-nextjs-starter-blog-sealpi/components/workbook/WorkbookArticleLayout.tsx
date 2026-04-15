@@ -8,6 +8,7 @@ import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
+import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import Comments from '@/components/Comments'
 import siteMetadata from '@/data/siteMetadata'
 
@@ -65,6 +66,7 @@ export default function WorkbookArticleLayout({
     <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] md:px-16 md:py-14 dark:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.55)]">
       <WorkbookRevealInit />
       <WorkbookReadingProgress />
+      <ScrollTopAndComment />
       <CopyCodeInit />
 
       <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
