@@ -935,6 +935,16 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       {fieldErrors.content}
                     </p>
                   ) : null}
+                  {currentArticleId ? (
+                    <a
+                      href={`/admin/preview/${currentArticleId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+                    >
+                      预览草稿 ↗
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </aside>
