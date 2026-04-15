@@ -43,19 +43,40 @@ function estimateReadMinutes(markdown?: string | null): number | undefined {
   return minutes
 }
 
-async function fetchAdjacentArticles(currentUrl: string) {
+type RelatedPost = {
+  title: string
+  path: string
+  summary: string
+  coverImageUrl?: string
+  tags: string[]
+}
+
+async function fetchAdjacentAndRelated(currentUrl: string, currentTags: string[]) {
   const allArticles = await fetchAllPublishedArticles()
   const idx = allArticles.findIndex((a) => a.url === currentUrl)
-  if (idx === -1) return { prev: null, next: null }
 
-  // API returns newest-first; idx-1 = newer, idx+1 = older
-  // Blog convention: "上一篇" = newer (left), "下一篇" = older (right)
   const prevRaw = idx > 0 ? allArticles[idx - 1] : null
   const nextRaw = idx < allArticles.length - 1 ? allArticles[idx + 1] : null
+
+  const excludeUrls = new Set([currentUrl, prevRaw?.url, nextRaw?.url].filter(Boolean) as string[])
+  const related: RelatedPost[] =
+    currentTags.length > 0
+      ? allArticles
+          .filter((a) => !excludeUrls.has(a.url) && a.tags.some((t) => currentTags.includes(t)))
+          .slice(0, 3)
+          .map((a) => ({
+            title: a.title,
+            path: a.path,
+            summary: a.summary,
+            coverImageUrl: a.coverImageUrl,
+            tags: a.tags,
+          }))
+      : []
 
   return {
     prev: prevRaw ? { title: prevRaw.title, path: prevRaw.path } : null,
     next: nextRaw ? { title: nextRaw.title, path: nextRaw.path } : null,
+    related,
   }
 }
 
@@ -135,7 +156,8 @@ export default async function Page(props: PageProps) {
   const authorDetails = getAuthorDetails()
   const date = normalizeDate(article.date)
   const summary = article.summary?.trim()
-  const { prev, next } = await fetchAdjacentArticles(article.url)
+  const currentTags = article.tags?.map((t) => t.name).filter((n): n is string => Boolean(n)) ?? []
+  const { prev, next, related } = await fetchAdjacentAndRelated(article.url, currentTags)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -169,9 +191,7 @@ export default async function Page(props: PageProps) {
           month: 'long',
           day: 'numeric',
         })}
-        tags={
-          article.tags?.map((tag) => tag.name).filter((name): name is string => Boolean(name)) || []
-        }
+        tags={currentTags}
         readMinutes={estimateReadMinutes(article.bodyMd)}
         contentJson={article.contentJson || article.draftJson}
         coverImageUrl={article.coverImageUrl}
@@ -179,6 +199,7 @@ export default async function Page(props: PageProps) {
         bodyMd={article.bodyMd}
         prevPost={prev}
         nextPost={next}
+        relatedPosts={related}
       />
     </>
   )

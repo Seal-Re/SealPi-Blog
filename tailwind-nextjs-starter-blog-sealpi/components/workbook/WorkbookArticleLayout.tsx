@@ -11,6 +11,14 @@ type AdjacentPost = {
   path: string
 }
 
+type RelatedPost = {
+  title: string
+  path: string
+  summary: string
+  coverImageUrl?: string
+  tags: string[]
+}
+
 type WorkbookArticleLayoutProps = {
   title: string
   date: string
@@ -23,6 +31,7 @@ type WorkbookArticleLayoutProps = {
   eyebrow?: string
   prevPost?: AdjacentPost | null
   nextPost?: AdjacentPost | null
+  relatedPosts?: RelatedPost[]
   children?: ReactNode
 }
 
@@ -38,8 +47,11 @@ export default function WorkbookArticleLayout({
   eyebrow = 'Essay',
   prevPost,
   nextPost,
+  relatedPosts,
   children,
 }: WorkbookArticleLayoutProps) {
+  const hasRelated = relatedPosts && relatedPosts.length > 0
+
   return (
     <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 md:px-16 md:py-14">
       <WorkbookRevealInit />
@@ -75,8 +87,40 @@ export default function WorkbookArticleLayout({
 
       {children}
 
+      {hasRelated ? (
+        <div className="border-wb-rule-soft mt-16 border-t pt-10">
+          <p className="font-inter text-wb-meta mb-6 text-[11px] font-semibold tracking-[0.22em] uppercase">
+            相关文章
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {relatedPosts!.map((post) => (
+              <Link
+                key={post.path}
+                href={`/${post.path}`}
+                className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-2 rounded-xl border p-4 transition-colors"
+              >
+                {post.coverImageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={post.coverImageUrl}
+                    alt=""
+                    className="border-wb-rule-soft h-28 w-full rounded-lg border object-cover"
+                  />
+                ) : null}
+                <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-semibold transition-colors">
+                  {post.title}
+                </span>
+                <span className="text-wb-meta line-clamp-2 text-xs leading-relaxed">
+                  {post.summary}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {(prevPost || nextPost) && (
-        <div className="border-wb-rule-soft mt-16 grid grid-cols-1 gap-4 border-t pt-8 sm:grid-cols-2">
+        <div className="border-wb-rule-soft mt-12 grid grid-cols-1 gap-4 border-t pt-8 sm:grid-cols-2">
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
