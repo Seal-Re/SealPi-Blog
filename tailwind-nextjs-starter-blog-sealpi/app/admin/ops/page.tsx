@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
 import { AdminApiError, adminFetch } from '@/lib/admin-api'
-import type { PageResult, AdminArticle } from '@/lib/blog-api-types'
+import type { AdminUser, PageResult, AdminArticle } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
@@ -13,21 +13,24 @@ type ArticleStats = {
   total: number
   published: number
   draft: number
+  users: number
 }
 
 async function fetchArticleStats(): Promise<ArticleStats> {
-  const [totalRes, publishedRes, draftRes] = await Promise.allSettled([
+  const [totalRes, publishedRes, draftRes, usersRes] = await Promise.allSettled([
     adminFetch<PageResult<AdminArticle>>('/api/v1/articles?pageIndex=1&pageSize=1'),
     adminFetch<PageResult<AdminArticle>>(
       '/api/v1/articles?pageIndex=1&pageSize=1&status=published'
     ),
     adminFetch<PageResult<AdminArticle>>('/api/v1/articles?pageIndex=1&pageSize=1&status=draft'),
+    adminFetch<PageResult<AdminUser>>('/api/admin/users?pageIndex=1&pageSize=1'),
   ])
 
   return {
     total: totalRes.status === 'fulfilled' ? (totalRes.value?.totalCount ?? 0) : 0,
     published: publishedRes.status === 'fulfilled' ? (publishedRes.value?.totalCount ?? 0) : 0,
     draft: draftRes.status === 'fulfilled' ? (draftRes.value?.totalCount ?? 0) : 0,
+    users: usersRes.status === 'fulfilled' ? (usersRes.value?.totalCount ?? 0) : 0,
   }
 }
 
@@ -132,10 +135,11 @@ export default async function OpsPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-5">
         <StatCard label="文章总数" value={stats.total} />
         <StatCard label="已发布" value={stats.published} accent />
         <StatCard label="草稿中" value={stats.draft} />
+        <StatCard label="注册用户" value={stats.users} />
         <StatCard label="页面生成" value={buildTime} />
       </div>
 
