@@ -21,6 +21,9 @@ public/sitemap.xml
 # production
 /build
 *.xml
+# allow Next.js route handler directories that look like static files
+!app/feed.xml/
+!app/search.json/
 
 # rss feed
 /public/feed.xml
