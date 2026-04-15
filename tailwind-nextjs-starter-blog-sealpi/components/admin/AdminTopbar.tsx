@@ -12,6 +12,7 @@ function getCrumb(pathname: string) {
   if (pathname.startsWith('/admin/articles')) return '文章管理'
   if (pathname.startsWith('/admin/drafts')) return '草稿库'
   if (pathname.startsWith('/admin/editor')) return '创作台'
+  if (pathname.startsWith('/admin/ops')) return '运维'
   return '仪表盘'
 }
 
@@ -36,7 +37,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
             {pathname !== '/admin/editor' ? (
               <Link
                 href="/admin/editor"
-                className="inline-flex items-center rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-black active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
               >
                 快速发布
               </Link>
