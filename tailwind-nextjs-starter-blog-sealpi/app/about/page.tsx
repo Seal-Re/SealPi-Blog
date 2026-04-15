@@ -6,7 +6,7 @@ export const metadata = genPageMetadata({ title: '关于' })
 export default function Page() {
   return (
     <section className="space-y-6 pt-6 pb-8">
-      <h1 className="text-3xl font-black tracking-tight text-gray-950 sm:text-4xl dark:text-gray-50">
+      <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl dark:text-gray-100">
         关于
       </h1>
       <p className="max-w-3xl text-base leading-8 text-gray-700 dark:text-gray-200">
