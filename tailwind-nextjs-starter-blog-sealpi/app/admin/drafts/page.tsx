@@ -6,7 +6,7 @@ import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
-  title: 'Admin Drafts',
+  title: '草稿箱',
   description: '管理后台草稿库。',
 })
 

@@ -6,7 +6,7 @@ import { adminFetch } from '@/lib/admin-api'
 import type { AdminArticle, ApiResult, PageResult } from '@/lib/blog-api-types'
 
 export const metadata = genPageMetadata({
-  title: 'Admin Editor',
+  title: '文章编辑器',
   description: '管理后台文章编辑入口。',
 })
 

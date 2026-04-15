@@ -10,7 +10,7 @@ import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
-  title: 'Admin Articles',
+  title: '文章列表',
   description: '管理后台文章列表与编辑入口。',
 })
 
@@ -155,7 +155,7 @@ export default async function AdminArticlesPage(props: {
       <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
-            Admin Articles
+            文章管理
           </span>
           <PageTitle>文章列表</PageTitle>
           <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
