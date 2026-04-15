@@ -13,7 +13,8 @@ import UserMenu from '@/components/UserMenu'
 const Header = () => {
   const { data: session } = useSession()
 
-  let headerClass = 'flex items-center w-full bg-white dark:bg-gray-950 justify-between py-10'
+  let headerClass =
+    'flex items-center w-full bg-wb-paper dark:bg-gray-950 justify-between py-10 border-b border-wb-rule-soft dark:border-gray-800'
   if (siteMetadata.stickyNav) {
     headerClass += ' sticky top-0 z-50'
   }
@@ -26,7 +27,7 @@ const Header = () => {
             <Logo />
           </div>
           {typeof siteMetadata.headerTitle === 'string' ? (
-            <div className="hidden h-6 text-2xl font-semibold sm:block">
+            <div className="font-fraunces text-wb-ink hidden h-6 text-2xl font-medium italic sm:block">
               {siteMetadata.headerTitle}
             </div>
           ) : (
@@ -42,7 +43,7 @@ const Header = () => {
               <Link
                 key={link.title}
                 href={link.href}
-                className="hover:text-primary-500 dark:hover:text-primary-400 m-1 font-medium text-gray-900 dark:text-gray-100"
+                className="text-wb-ink hover:text-wb-accent dark:hover:text-wb-accent m-1 font-medium transition-colors duration-200 dark:text-gray-100"
               >
                 {link.title}
               </Link>
