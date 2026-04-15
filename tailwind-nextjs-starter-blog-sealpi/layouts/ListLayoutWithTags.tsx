@@ -81,11 +81,43 @@ export default function ListLayoutWithTags({
   return (
     <>
       <div>
-        <div className="pt-6 pb-6">
+        <div className="pt-6 pb-4">
           <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden sm:text-4xl md:text-6xl">
             {title}
           </h1>
         </div>
+        {availableTags.length > 0 && (
+          <div className="no-scrollbar -mx-1 mb-4 flex gap-2 overflow-x-auto px-1 sm:hidden">
+            <Link
+              href="/blog"
+              className={`rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors ${
+                pathname.startsWith('/blog') && !pathname.includes('/tags/')
+                  ? 'border-wb-accent bg-wb-accent/10 text-wb-accent'
+                  : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent'
+              }`}
+            >
+              全部
+            </Link>
+            {availableTags.map((tag) => {
+              const isActive =
+                decodeURI(pathname.split('/tags/')[1] || '').split('/page/')[0] === tag.slug
+              return (
+                <Link
+                  key={tag.slug}
+                  href={`/tags/${tag.slug}`}
+                  aria-label={`查看标签：${tag.name}`}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors ${
+                    isActive
+                      ? 'border-wb-accent bg-wb-accent/10 text-wb-accent'
+                      : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent'
+                  }`}
+                >
+                  {tag.name}
+                </Link>
+              )
+            })}
+          </div>
+        )}
         <div className="flex sm:space-x-24">
           <div className="bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-sm pt-5 shadow-md sm:flex">
             <div className="px-6 py-4">
