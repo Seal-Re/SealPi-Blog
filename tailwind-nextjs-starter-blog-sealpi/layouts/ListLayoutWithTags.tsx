@@ -82,19 +82,19 @@ export default function ListLayoutWithTags({
     <>
       <div>
         <div className="pt-6 pb-6">
-          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden sm:text-4xl md:text-6xl dark:text-gray-100">
+          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden sm:text-4xl md:text-6xl">
             {title}
           </h1>
         </div>
         <div className="flex sm:space-x-24">
-          <div className="bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-sm pt-5 shadow-md sm:flex dark:bg-gray-900/70 dark:shadow-gray-800/40">
+          <div className="bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-sm pt-5 shadow-md sm:flex">
             <div className="px-6 py-4">
               {pathname.startsWith('/blog') ? (
                 <h3 className="text-wb-accent font-bold uppercase">All Posts</h3>
               ) : (
                 <Link
                   href="/blog"
-                  className="hover:text-wb-accent text-wb-meta font-bold uppercase transition-colors duration-200 dark:text-gray-300"
+                  className="hover:text-wb-accent text-wb-meta font-bold uppercase transition-colors duration-200"
                 >
                   All Posts
                 </Link>
@@ -110,7 +110,7 @@ export default function ListLayoutWithTags({
                     ) : (
                       <Link
                         href={`/tags/${tag.slug}`}
-                        className="hover:text-wb-accent text-wb-meta px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 dark:text-gray-300"
+                        className="hover:text-wb-accent text-wb-meta px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
                         aria-label={`View posts tagged ${tag.name}`}
                       >
                         {`${tag.name} (${tag.count})`}
@@ -129,7 +129,7 @@ export default function ListLayoutWithTags({
                     <article className="flex flex-col space-y-2 xl:space-y-0">
                       <dl>
                         <dt className="sr-only">Published on</dt>
-                        <dd className="text-wb-meta text-base leading-6 font-medium dark:text-gray-400">
+                        <dd className="text-wb-meta text-base leading-6 font-medium">
                           <time dateTime={post.date} suppressHydrationWarning>
                             {formatDate(post.date, siteMetadata.locale)}
                           </time>
@@ -137,7 +137,7 @@ export default function ListLayoutWithTags({
                       </dl>
                       <div className="space-y-3">
                         {post.coverImageUrl ? (
-                          <div className="border-wb-rule-soft relative h-48 overflow-hidden rounded-2xl border dark:border-gray-700">
+                          <div className="border-wb-rule-soft relative h-48 overflow-hidden rounded-2xl border">
                             <Image
                               src={post.coverImageUrl}
                               alt={`${post.title} cover`}
@@ -151,7 +151,7 @@ export default function ListLayoutWithTags({
                           <h2 className="text-2xl leading-8 font-bold tracking-tight">
                             <Link
                               href={`/${post.path}`}
-                              className="text-wb-ink hover:text-wb-accent transition-colors duration-200 dark:text-gray-100"
+                              className="text-wb-ink hover:text-wb-accent transition-colors duration-200"
                             >
                               {post.title}
                             </Link>
@@ -162,21 +162,17 @@ export default function ListLayoutWithTags({
                             ))}
                           </div>
                         </div>
-                        <div className="prose text-wb-meta max-w-none dark:text-gray-400">
-                          {post.summary}
-                        </div>
+                        <div className="prose text-wb-meta max-w-none">{post.summary}</div>
                       </div>
                     </article>
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="border-wb-rule bg-wb-paper/80 rounded-[2rem] border border-dashed px-6 py-12 text-center dark:border-gray-700 dark:bg-gray-900/60">
-                <h2 className="text-wb-ink text-2xl font-bold tracking-tight dark:text-gray-50">
-                  {emptyTitle}
-                </h2>
+              <div className="border-wb-rule bg-wb-paper/80 rounded-[2rem] border border-dashed px-6 py-12 text-center">
+                <h2 className="text-wb-ink text-2xl font-bold tracking-tight">{emptyTitle}</h2>
                 {emptyDescription ? (
-                  <p className="text-wb-meta mx-auto mt-4 max-w-2xl text-sm leading-7 dark:text-gray-300">
+                  <p className="text-wb-meta mx-auto mt-4 max-w-2xl text-sm leading-7">
                     {emptyDescription}
                   </p>
                 ) : null}

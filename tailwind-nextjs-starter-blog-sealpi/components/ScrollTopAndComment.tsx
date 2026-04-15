@@ -30,7 +30,7 @@ const ScrollTopAndComment = () => {
         <button
           aria-label="Scroll To Comment"
           onClick={handleScrollToComment}
-          className="border-wb-rule-soft bg-wb-canvas/80 text-wb-meta hover:bg-wb-paper hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-400 dark:hover:bg-gray-700"
+          className="border-wb-rule-soft bg-wb-canvas/80 text-wb-meta hover:bg-wb-paper hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all"
         >
           <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -44,7 +44,7 @@ const ScrollTopAndComment = () => {
       <button
         aria-label="Scroll To Top"
         onClick={handleScrollTop}
-        className="border-wb-rule-soft bg-wb-paper text-wb-meta hover:bg-wb-canvas hover:text-wb-accent rounded-full border p-2 transition-all dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600"
+        className="border-wb-rule-soft bg-wb-paper text-wb-meta hover:bg-wb-canvas hover:text-wb-accent rounded-full border p-2 transition-all"
       >
         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path

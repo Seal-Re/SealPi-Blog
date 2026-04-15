@@ -153,6 +153,22 @@
   @apply list-none;
 }
 
+/* ===== Dark mode warm palette override ===== */
+/* Overrides CSS variables so bg-wb-* / text-wb-* classes render warm in dark mode.
+   Explicit dark:bg-gray-* on individual elements still win due to higher specificity,
+   which lets us preserve intentional gray-dark UI (admin sidebar, etc.). */
+.dark {
+  --color-wb-paper: #1a130d;
+  --color-wb-canvas: #21180f;
+  --color-wb-ink: #ecdcc4;
+  --color-wb-ink-soft: #d8c8aa;
+  --color-wb-meta: #9e8a70;
+  --color-wb-accent: #d47a38;
+  --color-wb-rule: #3a2b1c;
+  --color-wb-rule-soft: #271d10;
+  --color-wb-card-shadow: #0c0905;
+}
+
 .footnotes {
   @apply mt-12 border-t border-gray-200 pt-8 dark:border-gray-700;
 }

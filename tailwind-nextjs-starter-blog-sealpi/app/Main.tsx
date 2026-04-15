@@ -11,15 +11,15 @@ export default function Home({ posts }) {
     <>
       <ul className="space-y-6">
         {!posts.length && (
-          <li className="bg-wb-canvas border-wb-rule-soft rounded-2xl border p-10 text-center dark:border-gray-800 dark:bg-gray-950">
-            <p className="text-wb-meta text-sm dark:text-gray-400">暂无已发布文章</p>
+          <li className="bg-wb-canvas border-wb-rule-soft rounded-2xl border p-10 text-center">
+            <p className="text-wb-meta text-sm">暂无已发布文章</p>
           </li>
         )}
         {posts.slice(0, MAX_DISPLAY).map((post) => {
           const { slug, date, title, summary, tags, coverImageUrl, viewCount } = post
           return (
             <li key={slug}>
-              <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg dark:border-gray-800 dark:bg-gray-950">
+              <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
                 {coverImageUrl ? (
                   <div className="relative h-52 w-full overflow-hidden">
                     <Image
@@ -33,14 +33,11 @@ export default function Home({ posts }) {
                 ) : null}
                 <div className="p-6">
                   <div className="flex flex-wrap items-center gap-3">
-                    <time
-                      dateTime={date}
-                      className="text-wb-meta text-sm font-medium dark:text-gray-500"
-                    >
+                    <time dateTime={date} className="text-wb-meta text-sm font-medium">
                       {formatDate(date, siteMetadata.locale)}
                     </time>
                     {viewCount != null && viewCount > 0 ? (
-                      <span className="text-wb-meta text-xs dark:text-gray-500">
+                      <span className="text-wb-meta text-xs">
                         {viewCount.toLocaleString('zh-CN')} 次阅读
                       </span>
                     ) : null}
@@ -52,7 +49,7 @@ export default function Home({ posts }) {
                       </div>
                     )}
                   </div>
-                  <h2 className="text-wb-ink mt-3 text-xl font-bold tracking-tight dark:text-gray-100">
+                  <h2 className="text-wb-ink mt-3 text-xl font-bold tracking-tight">
                     <Link
                       href={`/blog/${slug}`}
                       className="hover:text-wb-accent transition-colors duration-200"
@@ -60,9 +57,7 @@ export default function Home({ posts }) {
                       {title}
                     </Link>
                   </h2>
-                  <p className="text-wb-meta mt-3 line-clamp-3 text-sm leading-7 dark:text-gray-400">
-                    {summary}
-                  </p>
+                  <p className="text-wb-meta mt-3 line-clamp-3 text-sm leading-7">{summary}</p>
                   <div className="mt-4">
                     <Link
                       href={`/blog/${slug}`}

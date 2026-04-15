@@ -14,7 +14,7 @@ const Header = () => {
   const { data: session } = useSession()
 
   let headerClass =
-    'flex items-center w-full bg-wb-paper dark:bg-gray-950 justify-between py-10 border-b border-wb-rule-soft dark:border-gray-800'
+    'flex items-center w-full bg-wb-paper justify-between py-10 border-b border-wb-rule-soft'
   if (siteMetadata.stickyNav) {
     headerClass += ' sticky top-0 z-50'
   }
@@ -43,7 +43,7 @@ const Header = () => {
               <Link
                 key={link.title}
                 href={link.href}
-                className="text-wb-ink hover:text-wb-accent dark:hover:text-wb-accent m-1 font-medium transition-colors duration-200 dark:text-gray-100"
+                className="text-wb-ink hover:text-wb-accent m-1 font-medium transition-colors duration-200"
               >
                 {link.title}
               </Link>

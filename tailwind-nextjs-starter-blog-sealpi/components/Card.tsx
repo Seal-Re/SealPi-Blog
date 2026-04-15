@@ -4,9 +4,7 @@ import Link from './Link'
 const Card = ({ title, description, imgSrc, href }) => (
   <div className="md max-w-[544px] p-4 md:w-1/2">
     <div
-      className={`${
-        imgSrc && 'h-full'
-      } border-wb-rule-soft/80 overflow-hidden rounded-md border-2 dark:border-gray-700/60`}
+      className={`${imgSrc && 'h-full'} border-wb-rule-soft/80 overflow-hidden rounded-md border-2`}
     >
       {imgSrc &&
         (href ? (
@@ -38,7 +36,7 @@ const Card = ({ title, description, imgSrc, href }) => (
             title
           )}
         </h2>
-        <p className="prose text-wb-meta mb-3 max-w-none dark:text-gray-400">{description}</p>
+        <p className="prose text-wb-meta mb-3 max-w-none">{description}</p>
         {href && (
           <Link
             href={href}
