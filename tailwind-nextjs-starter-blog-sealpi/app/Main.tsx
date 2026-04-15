@@ -12,7 +12,7 @@ export default function Home({ posts }) {
       <ul className="space-y-6">
         {!posts.length && (
           <li className="bg-wb-canvas border-wb-rule-soft rounded-2xl border p-10 text-center dark:border-gray-800 dark:bg-gray-950">
-            <p className="text-sm text-gray-500 dark:text-gray-400">暂无已发布文章</p>
+            <p className="text-wb-meta text-sm dark:text-gray-400">暂无已发布文章</p>
           </li>
         )}
         {posts.slice(0, MAX_DISPLAY).map((post) => {
@@ -35,7 +35,7 @@ export default function Home({ posts }) {
                   <div className="flex items-center gap-3">
                     <time
                       dateTime={date}
-                      className="text-sm font-medium text-gray-400 dark:text-gray-500"
+                      className="text-wb-meta text-sm font-medium dark:text-gray-500"
                     >
                       {formatDate(date, siteMetadata.locale)}
                     </time>
@@ -55,7 +55,7 @@ export default function Home({ posts }) {
                       {title}
                     </Link>
                   </h2>
-                  <p className="mt-3 line-clamp-3 text-sm leading-7 text-gray-500 dark:text-gray-400">
+                  <p className="text-wb-meta mt-3 line-clamp-3 text-sm leading-7 dark:text-gray-400">
                     {summary}
                   </p>
                   <div className="mt-4">

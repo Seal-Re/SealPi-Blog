@@ -111,7 +111,6 @@ export async function fetchPublishedArticlesPage(
 
   const normalizedTag = normalizeTagName(tag)
   if (normalizedTag) {
-    searchParams.set('keyword', normalizedTag)
     searchParams.set('tag', normalizedTag)
   }
 
@@ -176,25 +175,37 @@ export async function fetchAllPublishedArticles() {
   return allItems
 }
 
-export async function fetchPublishedTags() {
+export async function fetchPublishedTags(): Promise<PublicTag[]> {
+  try {
+    const response = await fetch(buildApiUrl('/api/v1/tags'), {
+      next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
+    })
+
+    if (response.ok) {
+      const data = (await response.json()) as ArticleTag[]
+      return data
+        .filter((t) => t.name)
+        .map((t) => ({
+          name: normalizeTagName(t.name)!,
+          slug: slug(normalizeTagName(t.name)!),
+          count: t.count ?? 0,
+        }))
+    }
+  } catch {
+    // fall through to article-based derivation
+  }
+
+  // Fallback: derive tags from all published articles
   const allArticles = await fetchAllPublishedArticles()
   const tagMap = new Map<string, PublicTag>()
-
   allArticles.forEach((article) => {
     mergeTagCounts(
       tagMap,
-      article.tags.map((tagName) => ({
-        tagId: 0,
-        name: tagName,
-      }))
+      article.tags.map((tagName) => ({ tagId: 0, name: tagName }))
     )
   })
-
   return Array.from(tagMap.values()).sort((a, b) => {
-    if (b.count !== a.count) {
-      return b.count - a.count
-    }
-
+    if (b.count !== a.count) return b.count - a.count
     return a.name.localeCompare(b.name, 'zh-CN')
   })
 }

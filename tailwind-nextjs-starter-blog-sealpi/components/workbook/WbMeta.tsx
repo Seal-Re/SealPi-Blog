@@ -1,3 +1,6 @@
+import { slug } from 'github-slugger'
+import Link from 'next/link'
+
 type WbMetaProps = {
   date: string
   readMinutes?: number
@@ -15,12 +18,13 @@ export default function WbMeta({ date, readMinutes, tags = [] }: WbMetaProps) {
         </>
       ) : null}
       {tags.map((tag) => (
-        <span
+        <Link
           key={tag}
-          className="border-wb-rule font-geist-mono rounded border px-2.5 py-0.5 text-[11.5px] text-[#8a6a48]"
+          href={`/tags/${slug(tag)}`}
+          className="border-wb-rule text-wb-meta font-geist-mono hover:border-wb-accent hover:text-wb-accent rounded border px-2.5 py-0.5 text-[11.5px] transition-colors"
         >
           #{tag}
-        </span>
+        </Link>
       ))}
     </div>
   )

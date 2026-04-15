@@ -25,12 +25,12 @@ export default async function LoginPage(props: {
 
   return (
     <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden p-6 sm:p-10">
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.15),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(14,165,233,0.12),transparent_38%),linear-gradient(160deg,#f8fafc_0%,#eef2ff_50%,#f8fafc_100%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.18),transparent_36%),radial-gradient(circle_at_80%_80%,rgba(14,165,233,0.14),transparent_34%),linear-gradient(160deg,#020617_0%,#0b1120_50%,#020617_100%)]" />
-      <div className="w-full max-w-lg rounded-[2rem] border border-gray-200/80 bg-white/90 p-8 shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,rgba(166,88,43,0.10),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(201,181,151,0.12),transparent_38%),linear-gradient(160deg,#f5ece1_0%,#fbf5ec_50%,#f5ece1_100%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(166,88,43,0.15),transparent_36%),radial-gradient(circle_at_80%_80%,rgba(166,88,43,0.10),transparent_34%),linear-gradient(160deg,#020617_0%,#0b1120_50%,#020617_100%)]" />
+      <div className="border-wb-rule-soft/80 bg-wb-canvas/90 w-full max-w-lg rounded-[2rem] border p-8 shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
         <h1 className="font-fraunces text-wb-ink text-2xl font-medium tracking-tight italic dark:text-white">
           登录
         </h1>
-        <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+        <p className="text-wb-meta mt-3 text-sm leading-relaxed dark:text-gray-300">
           使用 GitHub 账号登录。
         </p>
         {err ? (
@@ -54,7 +54,7 @@ export default async function LoginPage(props: {
           </form>
           <Link
             href="/"
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-6 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             返回首页
           </Link>

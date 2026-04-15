@@ -20,12 +20,12 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
   const initial = userName?.trim()?.charAt(0)?.toUpperCase() || 'A'
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200/80 bg-white/85 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-950/80">
+    <header className="border-wb-rule-soft/80 bg-wb-canvas/85 sticky top-0 z-40 border-b backdrop-blur-xl dark:border-gray-800 dark:bg-gray-950/80">
       <div className="flex h-16 items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-3">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-wb-meta text-sm dark:text-gray-400">
             Admin /{' '}
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
+            <span className="text-wb-ink font-semibold dark:text-gray-100">
               {getCrumb(pathname)}
             </span>
           </div>
@@ -42,17 +42,17 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
               </Link>
             ) : null}
           </div>
-          <span className="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-gray-100 text-xs font-bold text-gray-950 dark:border-gray-700 dark:bg-gray-800 dark:text-white">
+          <span className="border-wb-rule bg-wb-paper text-wb-ink inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border text-xs font-bold dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             {initial}
           </span>
           <details className="group relative">
-            <summary className="cursor-pointer list-none rounded-full border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition-all duration-300 hover:border-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-500">
+            <summary className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink cursor-pointer list-none rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-500">
               {userName || 'Admin'}
             </summary>
-            <div className="absolute right-0 mt-2 w-40 rounded-xl border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-800 dark:bg-gray-950">
+            <div className="border-wb-rule-soft bg-wb-canvas absolute right-0 mt-2 w-40 rounded-xl border p-2 shadow-lg dark:border-gray-800 dark:bg-gray-950">
               <button
                 type="button"
-                className="w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-900"
+                className="hover:bg-wb-paper w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 dark:hover:bg-gray-900"
                 onClick={() => signOut({ callbackUrl: '/login?next=/admin' })}
               >
                 退出登录

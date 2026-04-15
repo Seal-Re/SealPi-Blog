@@ -20,14 +20,14 @@ function ArticleFeedSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <li
           key={i}
-          className="animate-pulse overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"
+          className="border-wb-rule-soft bg-wb-canvas animate-pulse overflow-hidden rounded-2xl border dark:border-gray-800 dark:bg-gray-950"
         >
-          <div className="h-52 w-full bg-gray-100 dark:bg-gray-900" />
+          <div className="bg-wb-paper h-52 w-full dark:bg-gray-900" />
           <div className="space-y-3 p-6">
-            <div className="h-3 w-24 rounded bg-gray-100 dark:bg-gray-900" />
-            <div className="h-5 w-3/4 rounded bg-gray-100 dark:bg-gray-900" />
-            <div className="h-3 w-full rounded bg-gray-100 dark:bg-gray-900" />
-            <div className="h-3 w-2/3 rounded bg-gray-100 dark:bg-gray-900" />
+            <div className="bg-wb-paper h-3 w-24 rounded dark:bg-gray-900" />
+            <div className="bg-wb-paper h-5 w-3/4 rounded dark:bg-gray-900" />
+            <div className="bg-wb-paper h-3 w-full rounded dark:bg-gray-900" />
+            <div className="bg-wb-paper h-3 w-2/3 rounded dark:bg-gray-900" />
           </div>
         </li>
       ))}
@@ -42,7 +42,7 @@ export default function Page() {
         <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl dark:text-gray-100">
           最新文章
         </h1>
-        <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+        <p className="text-wb-meta text-lg leading-7 dark:text-gray-400">
           {siteMetadata.description}
         </p>
       </div>

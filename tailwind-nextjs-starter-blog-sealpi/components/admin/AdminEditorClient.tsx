@@ -167,7 +167,7 @@ function getInitialState(article?: AdminArticle | null): EditorState {
 }
 
 function FieldHint({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs leading-6 text-gray-500 dark:text-gray-400">{children}</p>
+  return <p className="text-wb-meta text-xs leading-6 dark:text-gray-400">{children}</p>
 }
 
 function StatusDot({ tone }: { tone: SyncState }) {
@@ -768,12 +768,12 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       <>
         <div className="space-y-8">
           <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-            <aside className="relative overflow-hidden rounded-[2rem] border border-gray-200/90 bg-white/95 p-6 shadow-[0_28px_90px_-42px_rgba(15,23,42,0.4)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/85">
-              <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.16),transparent_58%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.14),transparent_42%)]" />
+            <aside className="border-wb-rule-soft/90 bg-wb-canvas/95 relative overflow-hidden rounded-[2rem] border p-6 shadow-[0_28px_90px_-42px_rgba(31,26,21,0.3)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/85">
+              <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(166,88,43,0.12),transparent_58%),radial-gradient(circle_at_top_right,rgba(201,181,151,0.10),transparent_42%)]" />
               <div className="relative space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="inline-flex rounded-full border border-sky-200/80 bg-sky-50/90 px-4 py-1 text-[11px] font-semibold tracking-[0.28em] text-sky-700 uppercase dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-200">
+                    <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-[11px] font-semibold tracking-[0.28em] uppercase dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                       Editor Control
                     </span>
                     <span
@@ -785,18 +785,18 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   </div>
 
                   <div className="space-y-3">
-                    <h2 className="text-2xl font-black tracking-tight text-gray-950 dark:text-gray-50">
+                    <h2 className="text-wb-ink text-2xl font-black tracking-tight dark:text-gray-50">
                       {isEditMode ? '编辑既有文章' : '创建新文章'}
                     </h2>
-                    <p className="text-sm leading-7 text-gray-600 dark:text-gray-300">
+                    <p className="text-wb-meta text-sm leading-7 dark:text-gray-300">
                       保留现有后台设计语言，强化卡片层级、焦点状态和异步反馈，使编辑过程更稳定也更有掌控感。
                     </p>
                   </div>
                 </div>
 
-                <div className="grid gap-4 rounded-[1.75rem] border border-white/80 bg-white/80 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] dark:border-gray-800 dark:bg-gray-950/60">
+                <div className="border-wb-rule-soft/80 bg-wb-canvas/80 grid gap-4 rounded-[1.75rem] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] dark:border-gray-800 dark:bg-gray-950/60">
                   <label className="group block space-y-2.5">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
                       标题
                     </span>
                     <input
@@ -804,7 +804,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       maxLength={120}
                       onChange={(event) => updateField('title', event.target.value)}
                       placeholder="输入文章标题"
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
                     />
                     {fieldErrors.title ? (
                       <p className="text-xs text-rose-600 dark:text-rose-300">
@@ -815,7 +815,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   </label>
 
                   <label className="group block space-y-2.5">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
                       Slug
                     </span>
                     <input
@@ -823,7 +823,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       maxLength={120}
                       onChange={(event) => updateField('url', event.target.value)}
                       placeholder="例如：sealpi-excalidraw-notes"
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
                     />
                     <FieldHint>
                       新建时随标题自动生成（中文转拼音）。若已手动修改
@@ -832,7 +832,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   </label>
 
                   <label className="group block space-y-2.5">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
                       摘要
                     </span>
                     <textarea
@@ -841,35 +841,35 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       onChange={(event) => updateField('summary', event.target.value)}
                       rows={4}
                       placeholder="用于文章列表与 SEO 的简述"
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm leading-7 text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm leading-7 shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
                     />
                     <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
                   </label>
 
                   <label className="group block space-y-2.5">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
                       封面图 URL
                     </span>
                     <input
                       value={formState.coverImageUrl}
                       onChange={(event) => updateField('coverImageUrl', event.target.value)}
                       placeholder="可选；为空时使用自动导出的预览图"
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3.5 text-sm text-gray-900 shadow-sm transition duration-200 ease-out outline-none placeholder:text-gray-400 hover:border-sky-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-sky-500/50 dark:focus:border-sky-400 dark:focus:ring-sky-500/10"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600 dark:focus:border-wb-accent/70"
                     />
                     <FieldHint>如已上传 OSS，可直接覆写自动生成的预览图地址。</FieldHint>
                   </label>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-                  <div className="rounded-[1.75rem] border border-gray-200/80 bg-gray-50/90 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/70">
-                    <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                  <div className="border-wb-rule-soft/80 bg-wb-paper/90 rounded-[1.75rem] border p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/70">
+                    <div className="text-wb-meta flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                       <StatusDot tone={syncState} />
                       当前状态
                     </div>
-                    <p className="mt-3 text-sm leading-7 text-gray-700 dark:text-gray-200">
+                    <p className="text-wb-meta mt-3 text-sm leading-7 dark:text-gray-200">
                       {syncState}
                     </p>
-                    <p className="mt-1 text-xs leading-6 text-gray-500 dark:text-gray-400">
+                    <p className="text-wb-meta mt-1 text-xs leading-6 dark:text-gray-400">
                       {statusMessage}
                       {lastSavedAt ? ` 最近保存于 ${lastSavedAt}` : ''}
                     </p>
@@ -880,32 +880,32 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     ) : null}
                   </div>
 
-                  <div className="rounded-[1.75rem] border border-gray-200/80 bg-white/90 p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/60">
-                    <p className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                  <div className="border-wb-rule-soft/80 bg-wb-canvas/90 rounded-[1.75rem] border p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950/60">
+                    <p className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                       内容指标
                     </p>
                     <dl className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
                       <div>
-                        <dt className="text-xs text-gray-500 dark:text-gray-400">draftJson 大小</dt>
-                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                        <dt className="text-wb-meta text-xs dark:text-gray-400">draftJson 大小</dt>
+                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
                           {draftJson ? `${Math.round(draftJson.length / 1024) || 1} KB` : '未生成'}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 dark:text-gray-400">文章模式</dt>
-                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                        <dt className="text-wb-meta text-xs dark:text-gray-400">文章模式</dt>
+                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
                           {isEditMode ? '编辑' : '新建'}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 dark:text-gray-400">图片上传</dt>
-                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                        <dt className="text-wb-meta text-xs dark:text-gray-400">图片上传</dt>
+                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
                           {isUploadingAssets ? '处理中' : '待命'}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-xs text-gray-500 dark:text-gray-400">快捷键</dt>
-                        <dd className="mt-1 text-lg font-bold text-gray-950 dark:text-gray-50">
+                        <dt className="text-wb-meta text-xs dark:text-gray-400">快捷键</dt>
+                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
                           Ctrl/Cmd + S
                         </dd>
                       </div>
@@ -926,7 +926,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     type="button"
                     disabled={isSubmitting || isUploadingAssets}
                     onClick={() => void handleSubmit('publish')}
-                    className="inline-flex items-center justify-center rounded-full border border-sky-300 bg-linear-to-r from-sky-50 to-cyan-50 px-5 py-3.5 text-sm font-semibold text-sky-700 shadow-[0_18px_38px_-24px_rgba(14,165,233,0.45)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:border-sky-500 hover:from-sky-100 hover:to-cyan-100 focus:ring-sky-100 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:border-sky-500/40 dark:bg-linear-to-r dark:from-sky-500/10 dark:to-cyan-500/10 dark:text-sky-200 dark:hover:from-sky-500/20 dark:hover:to-cyan-500/20 dark:focus:ring-sky-500/10"
+                    className="border-wb-rule text-wb-accent hover:border-wb-accent hover:text-wb-accent focus:ring-wb-accent/10 inline-flex items-center justify-center rounded-full border bg-[linear-gradient(135deg,rgba(251,245,236,0.95),rgba(245,236,225,0.90))] px-5 py-3.5 text-sm font-semibold shadow-[0_18px_38px_-24px_rgba(166,88,43,0.30)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(245,236,225,0.98),rgba(237,223,207,0.95))] focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:border-wb-accent/40 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(166,88,43,0.06))] dark:text-wb-accent/80 dark:hover:bg-[linear-gradient(135deg,rgba(166,88,43,0.20),rgba(166,88,43,0.14))]"
                   >
                     {isSubmitting ? '提交中...' : '直接发布'}
                   </button>
@@ -939,22 +939,22 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
               </div>
             </aside>
 
-            <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white shadow-[0_28px_90px_-42px_rgba(15,23,42,0.38)] dark:border-gray-800 dark:bg-gray-900/80">
-              <div className="flex flex-col gap-4 border-b border-gray-200 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(255,255,255,0.88))] px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.55),rgba(17,24,39,0.78))]">
+            <div className="border-wb-rule-soft bg-wb-canvas overflow-hidden rounded-[2rem] border shadow-[0_28px_90px_-42px_rgba(31,26,21,0.28)] dark:border-gray-800 dark:bg-gray-900/80">
+              <div className="border-wb-rule-soft/60 flex flex-col gap-4 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(15,23,42,0.92))]">
                 <div>
-                  <p className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                  <p className="text-wb-accent text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                     Excalidraw Canvas
                   </p>
-                  <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300">
+                  <p className="text-wb-meta mt-2 text-sm leading-7 dark:text-gray-300">
                     支持直接绘制、序列化为数据库 JSON，并在提交时导出预览图。
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white/90 px-3 py-1.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-950/80 dark:text-gray-300">
+                <div className="border-wb-rule bg-wb-canvas/85 text-wb-meta inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm dark:border-gray-700 dark:bg-gray-950/80 dark:text-gray-300">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
                   Canvas Ready
                 </div>
               </div>
-              <div className="h-[72vh] min-h-[680px] bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_40%),linear-gradient(180deg,rgba(255,255,255,0.9),rgba(248,250,252,0.94))] dark:bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.08),transparent_36%),linear-gradient(180deg,rgba(2,6,23,0.6),rgba(15,23,42,0.65))]">
+              <div className="h-[72vh] min-h-[680px] bg-[linear-gradient(180deg,rgba(251,245,236,0.95),rgba(245,236,225,0.98))] dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.6),rgba(15,23,42,0.65))]">
                 <Excalidraw
                   initialData={initialData}
                   excalidrawAPI={(api) => {
@@ -964,9 +964,9 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   viewModeEnabled={false}
                 />
               </div>
-              <div className="mt-4 space-y-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
+              <div className="border-wb-rule-soft bg-wb-canvas mt-4 space-y-3 rounded-xl border p-4 dark:border-gray-800 dark:bg-gray-950">
                 <label className="block">
-                  <span className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase">
+                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase">
                     画布注释（Caveat 手写体显示）
                   </span>
                   <input
@@ -977,11 +977,11 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     }
                     maxLength={200}
                     placeholder="例：DDD 分层一张图就够了"
-                    className="mt-1 w-full rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
+                    className="border-wb-rule mt-1 w-full rounded border px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase">
+                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase">
                     Markdown 正文
                   </span>
                   <textarea
@@ -990,7 +990,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
                     }
                     placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
-                    className="mt-1 min-h-[200px] w-full resize-y rounded border border-gray-300 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-900"
+                    className="border-wb-rule mt-1 min-h-[200px] w-full resize-y rounded border px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-900"
                   />
                 </label>
               </div>

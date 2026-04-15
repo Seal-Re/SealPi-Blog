@@ -35,7 +35,7 @@ const MobileNav = () => {
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
-          className="hover:text-wb-accent dark:hover:text-wb-accent h-8 w-8 text-gray-900 dark:text-gray-100"
+          className="hover:text-wb-accent dark:hover:text-wb-accent text-wb-ink h-8 w-8 dark:text-gray-100"
         >
           <path
             fillRule="evenodd"
@@ -69,7 +69,7 @@ const MobileNav = () => {
             leaveTo="translate-x-full opacity-0"
             unmount={false}
           >
-            <DialogPanel className="fixed top-0 left-0 z-70 h-full w-full bg-white/95 duration-300 dark:bg-gray-950/98">
+            <DialogPanel className="bg-wb-canvas/98 fixed top-0 left-0 z-70 h-full w-full duration-300 dark:bg-gray-950/98">
               <nav
                 ref={navRef}
                 className="mt-8 flex h-full basis-0 flex-col items-start overflow-y-auto pt-2 pl-12 text-left"
@@ -78,22 +78,22 @@ const MobileNav = () => {
                   <Link
                     key={link.title}
                     href={link.href}
-                    className="hover:text-wb-accent dark:hover:text-wb-accent mb-4 py-2 pr-4 text-2xl font-bold tracking-widest text-gray-900 outline outline-0 dark:text-gray-100"
+                    className="hover:text-wb-accent dark:hover:text-wb-accent text-wb-ink mb-4 py-2 pr-4 text-2xl font-bold tracking-widest outline outline-0 dark:text-gray-100"
                     onClick={onToggleNav}
                   >
                     {link.title}
                   </Link>
                 ))}
-                <div className="mt-8 w-full max-w-xs border-t border-gray-200 pt-6 dark:border-gray-800">
+                <div className="border-wb-rule-soft mt-8 w-full max-w-xs border-t pt-6 dark:border-gray-800">
                   {session?.user?.githubUserId ? (
                     <div className="space-y-3">
-                      <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                      <p className="text-wb-ink text-sm font-medium dark:text-gray-200">
                         {session.user.displayName || session.user.name || session.user.githubLogin}
                       </p>
                       {session.user.isAdmin ? (
                         <Link
                           href="/admin"
-                          className="hover:text-wb-accent dark:hover:text-wb-accent block text-lg font-bold text-gray-900 dark:text-gray-100"
+                          className="hover:text-wb-accent dark:hover:text-wb-accent text-wb-ink block text-lg font-bold dark:text-gray-100"
                           onClick={onToggleNav}
                         >
                           平台管理
@@ -117,7 +117,7 @@ const MobileNav = () => {
                         onToggleNav()
                         signIn('github', { callbackUrl: '/' })
                       }}
-                      className="hover:text-wb-accent dark:hover:text-wb-accent text-lg font-bold text-gray-900 dark:text-gray-100"
+                      className="hover:text-wb-accent dark:hover:text-wb-accent text-wb-ink text-lg font-bold dark:text-gray-100"
                     >
                       登录
                     </button>
@@ -126,7 +126,7 @@ const MobileNav = () => {
               </nav>
 
               <button
-                className="hover:text-wb-accent dark:hover:text-wb-accent fixed top-7 right-4 z-80 h-16 w-16 p-4 text-gray-900 dark:text-gray-100"
+                className="hover:text-wb-accent dark:hover:text-wb-accent text-wb-ink fixed top-7 right-4 z-80 h-16 w-16 p-4 dark:text-gray-100"
                 aria-label="Toggle Menu"
                 onClick={onToggleNav}
               >

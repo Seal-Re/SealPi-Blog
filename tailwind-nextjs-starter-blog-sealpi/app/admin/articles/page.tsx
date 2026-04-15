@@ -37,7 +37,7 @@ function DraftBadge({ draft }: { draft?: number }) {
   const isDraft = isDraftStatus(draft)
 
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase dark:border-gray-700">
+    <span className="border-wb-rule-soft inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase dark:border-gray-700">
       <span
         className={`h-2 w-2 rounded-full ${isDraft ? 'bg-gray-400 dark:bg-gray-500' : 'bg-emerald-500'}`}
       />
@@ -48,34 +48,34 @@ function DraftBadge({ draft }: { draft?: number }) {
 
 function ArticleRow({ article }: { article: AdminArticle }) {
   return (
-    <tr className="group border-t border-gray-200/80 align-top transition-all duration-300 hover:bg-gray-50/70 dark:border-gray-800/80 dark:hover:bg-gray-900/40">
+    <tr className="border-wb-rule-soft/80 hover:bg-wb-paper/70 group border-t align-top transition-all duration-300 dark:border-gray-800/80 dark:hover:bg-gray-900/40">
       <td className="px-4 py-5">
         <div className="space-y-2">
           <Link
             href={`/admin/editor?articleId=${article.articleId}`}
-            className="text-base font-semibold text-gray-950 hover:text-sky-700 dark:text-gray-50 dark:hover:text-sky-300"
+            className="text-wb-ink hover:text-wb-accent text-base font-semibold transition-colors duration-200 dark:text-gray-50 dark:hover:text-wb-accent"
           >
             {article.title}
           </Link>
-          <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <div className="text-wb-meta flex flex-wrap gap-2 text-xs dark:text-gray-400">
             <span>ID: {article.articleId}</span>
             <span>Slug: {article.url}</span>
           </div>
         </div>
       </td>
       <td className="px-4 py-5">
-        <p className="max-w-md text-sm leading-7 text-gray-600 dark:text-gray-300">
+        <p className="text-wb-meta max-w-md text-sm leading-7 dark:text-gray-300">
           {article.summary || '暂无摘要'}
         </p>
       </td>
       <td className="px-4 py-5">
         <DraftBadge draft={article.draft} />
       </td>
-      <td className="px-4 py-5 text-sm text-gray-600 dark:text-gray-300">
+      <td className="text-wb-meta px-4 py-5 text-sm dark:text-gray-300">
         <div>创建: {formatDateLabel(article.date)}</div>
         <div className="mt-2">更新: {formatDateLabel(article.lastmod)}</div>
       </td>
-      <td className="px-4 py-5 text-sm text-gray-600 dark:text-gray-300">
+      <td className="text-wb-meta px-4 py-5 text-sm dark:text-gray-300">
         <div>浏览量: {article.viewCount ?? article.count ?? 0}</div>
         <div className="mt-2">封面: {article.coverImageUrl ? '已配置' : '未配置'}</div>
       </td>
@@ -152,13 +152,13 @@ export default async function AdminArticlesPage(props: {
     <section className="space-y-8">
       <AdminArticlesTopbarPortal q={q} status={status} />
       <AdminErrorToast message={loadError} />
-      <div className="flex flex-col gap-5 rounded-[2rem] border border-gray-200 bg-white p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
+      <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
-          <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-sky-700 uppercase dark:border-sky-900/60 dark:bg-sky-950/40 dark:text-sky-300">
+          <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
             Admin Articles
           </span>
           <PageTitle>文章列表</PageTitle>
-          <p className="max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-300">
+          <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
             管理所有文章，进行创建、编辑、发布与删除。
           </p>
         </div>
@@ -166,13 +166,13 @@ export default async function AdminArticlesPage(props: {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/admin"
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             返回后台首页
           </Link>
           <Link
             href="/admin/editor?mode=new"
-            className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             新建文章
           </Link>
@@ -180,23 +180,23 @@ export default async function AdminArticlesPage(props: {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
-          <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
+        <div className="border-wb-rule-soft bg-wb-canvas rounded-3xl border p-5 dark:border-gray-800 dark:bg-gray-950">
+          <p className="text-wb-meta text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
             文章总数
           </p>
-          <p className="mt-3 text-3xl font-black text-gray-950 dark:text-gray-50">{totalCount}</p>
+          <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{totalCount}</p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
-          <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
+        <div className="border-wb-rule-soft bg-wb-canvas rounded-3xl border p-5 dark:border-gray-800 dark:bg-gray-950">
+          <p className="text-wb-meta text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
             当前页码
           </p>
-          <p className="mt-3 text-3xl font-black text-gray-950 dark:text-gray-50">{pageIndex}</p>
+          <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{pageIndex}</p>
         </div>
-        <div className="rounded-3xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-950">
-          <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
+        <div className="border-wb-rule-soft bg-wb-canvas rounded-3xl border p-5 dark:border-gray-800 dark:bg-gray-950">
+          <p className="text-wb-meta text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
             分页规模
           </p>
-          <p className="mt-3 text-3xl font-black text-gray-950 dark:text-gray-50">{pageSize}</p>
+          <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{pageSize}</p>
         </div>
       </div>
 
@@ -207,27 +207,27 @@ export default async function AdminArticlesPage(props: {
         </div>
       ) : null}
 
-      <div className="overflow-hidden rounded-[2rem] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+      <div className="border-wb-rule-soft bg-wb-canvas overflow-hidden rounded-[2rem] border dark:border-gray-800 dark:bg-gray-950">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left">
-            <thead className="bg-gray-50/80 dark:bg-gray-950/60">
+            <thead className="bg-wb-paper/80 dark:bg-gray-950/60">
               <tr>
-                <th className="px-4 py-4 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-wb-meta px-4 py-4 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                   标题
                 </th>
-                <th className="px-4 py-4 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-wb-meta px-4 py-4 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                   摘要
                 </th>
-                <th className="px-4 py-4 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-wb-meta px-4 py-4 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                   状态
                 </th>
-                <th className="px-4 py-4 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-wb-meta px-4 py-4 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                   时间
                 </th>
-                <th className="px-4 py-4 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-wb-meta px-4 py-4 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                   统计
                 </th>
-                <th className="px-4 py-4 text-xs font-semibold tracking-[0.2em] text-gray-500 uppercase dark:text-gray-400">
+                <th className="text-wb-meta px-4 py-4 text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
                   操作
                 </th>
               </tr>
@@ -239,9 +239,9 @@ export default async function AdminArticlesPage(props: {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-14 text-center text-sm leading-7 text-gray-500 dark:text-gray-400"
+                    className="text-wb-meta px-4 py-14 text-center text-sm leading-7 dark:text-gray-400"
                   >
-                    当前没有文章数据。可点击“新建文章”创建，或通过筛选查看草稿与已发布内容。
+                    当前没有文章数据。可点击"新建文章"创建，或通过筛选查看草稿与已发布内容。
                   </td>
                 </tr>
               )}
@@ -250,8 +250,8 @@ export default async function AdminArticlesPage(props: {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[2rem] border border-gray-200 bg-white p-6 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-950">
-        <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
+      <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-3 rounded-[2rem] border p-6 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-950">
+        <p className="text-wb-meta text-sm leading-7 dark:text-gray-200">
           共 {totalCount} 篇 · 第 {pageIndex} / {totalPages} 页
         </p>
         <div className="flex gap-3">
@@ -259,8 +259,8 @@ export default async function AdminArticlesPage(props: {
             href={buildAdminArticlesPageHref(pageIndex - 1, q, status)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex <= 1
-                ? 'pointer-events-none border border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
-                : 'border border-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950'
+                ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
+                : 'border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper border dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950'
             }`}
           >
             上一页
@@ -269,8 +269,8 @@ export default async function AdminArticlesPage(props: {
             href={buildAdminArticlesPageHref(Math.min(pageIndex + 1, totalPages), q, status)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex >= totalPages
-                ? 'pointer-events-none border border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
-                : 'border border-gray-300 text-gray-900 hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950'
+                ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
+                : 'border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper border dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950'
             }`}
           >
             下一页

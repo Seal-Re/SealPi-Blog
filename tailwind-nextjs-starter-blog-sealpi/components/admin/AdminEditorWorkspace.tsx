@@ -117,7 +117,7 @@ export default function AdminEditorWorkspace({
         type="button"
         onClick={() => void runAction('draft')}
         disabled={isTriggering}
-        className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-900 transition-all duration-300 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+        className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
       >
         {isTriggering ? '保存中...' : '保存草稿'}
       </button>
@@ -137,13 +137,13 @@ export default function AdminEditorWorkspace({
     <section className="space-y-4">
       {topbarAnchor ? createPortal(topbarActions, topbarAnchor) : null}
 
-      <div className="rounded-[2rem] border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
+      <div className="border-wb-rule-soft bg-wb-canvas rounded-[2rem] border p-4 dark:border-gray-800 dark:bg-gray-950">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <p className="text-xs tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
+            <p className="text-wb-meta text-xs tracking-[0.24em] uppercase dark:text-gray-400">
               编辑器
             </p>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-gray-950 dark:text-gray-50">
+            <h1 className="text-wb-ink mt-1 text-2xl font-black tracking-tight dark:text-gray-50">
               {resolvedArticleId ? `编辑文章 #${resolvedArticleId}` : '新建文章'}
             </h1>
           </div>
@@ -155,25 +155,25 @@ export default function AdminEditorWorkspace({
               }
               router.push('/admin/articles')
             }}
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 transition-all duration-300 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             返回列表
           </button>
         </div>
         <dl className="grid gap-3 text-sm sm:grid-cols-3">
-          <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
-            <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">模式</dt>
-            <dd className="mt-1 text-gray-900 dark:text-gray-100">
+          <div className="border-wb-rule-soft rounded-xl border px-3 py-2 dark:border-gray-800">
+            <dt className="text-wb-meta text-xs tracking-[0.2em] uppercase">模式</dt>
+            <dd className="text-wb-ink mt-1 dark:text-gray-100">
               {resolvedArticleId ? '编辑既有文章' : '创建新文章'}
             </dd>
           </div>
-          <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
-            <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">文章标识</dt>
-            <dd className="mt-1 text-gray-900 dark:text-gray-100">{resolvedArticleId || '—'}</dd>
+          <div className="border-wb-rule-soft rounded-xl border px-3 py-2 dark:border-gray-800">
+            <dt className="text-wb-meta text-xs tracking-[0.2em] uppercase">文章标识</dt>
+            <dd className="text-wb-ink mt-1 dark:text-gray-100">{resolvedArticleId || '—'}</dd>
           </div>
-          <div className="rounded-xl border border-gray-200 px-3 py-2 dark:border-gray-800">
-            <dt className="text-xs tracking-[0.2em] text-gray-500 uppercase">数据来源</dt>
-            <dd className="mt-1 text-gray-900 dark:text-gray-100">
+          <div className="border-wb-rule-soft rounded-xl border px-3 py-2 dark:border-gray-800">
+            <dt className="text-wb-meta text-xs tracking-[0.2em] uppercase">数据来源</dt>
+            <dd className="text-wb-ink mt-1 dark:text-gray-100">
               {article ? '已加载文章内容' : '新文章'}
             </dd>
           </div>
@@ -189,16 +189,16 @@ export default function AdminEditorWorkspace({
 
       {showDraftHint ? (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[1px]">
-          <div className="w-full max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl dark:border-amber-500/40 dark:bg-gray-950">
+          <div className="bg-wb-canvas w-full max-w-lg rounded-2xl border border-amber-200 p-6 shadow-2xl dark:border-amber-500/40 dark:bg-gray-950">
             <h3 className="text-lg font-bold text-amber-700 dark:text-amber-300">有未发布的草稿</h3>
-            <p className="mt-2 text-sm leading-7 text-gray-700 dark:text-gray-200">
+            <p className="text-wb-meta mt-2 text-sm leading-7 dark:text-gray-200">
               {draftHint?.draftCount || 0} 篇草稿尚未发布。
             </p>
             <div className="mt-5 flex flex-wrap justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowDraftHint(false)}
-                className="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper rounded-full border px-4 py-2 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 创建新文章
               </button>
@@ -216,18 +216,18 @@ export default function AdminEditorWorkspace({
 
       {feedback.open ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 px-4 backdrop-blur-[1px]">
-          <div className="w-full max-w-md rounded-2xl border border-emerald-200 bg-white p-6 shadow-2xl dark:border-emerald-700/60 dark:bg-gray-950">
+          <div className="bg-wb-canvas w-full max-w-md rounded-2xl border border-emerald-200 p-6 shadow-2xl dark:border-emerald-700/60 dark:bg-gray-950">
             <h3 className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
               {feedback.title}
             </h3>
-            <p className="mt-2 text-sm leading-7 text-gray-700 dark:text-gray-200">
+            <p className="text-wb-meta mt-2 text-sm leading-7 dark:text-gray-200">
               {feedback.description}
             </p>
             <div className="mt-5 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setFeedback((prev) => ({ ...prev, open: false }))}
-                className="rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper rounded-full border px-4 py-2 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 留在当前页
               </button>

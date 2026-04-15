@@ -16,7 +16,7 @@ export default function Comments({ slug }: { slug: string }) {
 
   return (
     <>
-      <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-left text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+      <div className="border-wb-rule-soft bg-wb-paper text-wb-meta mb-4 rounded-lg border px-4 py-3 text-left text-sm dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
         {canComment
           ? '你已登录且具备评论权限，可加载下方评论组件参与讨论。'
           : '当前站点评论为只读模式：可浏览讨论，登录后暂不可发表评论（默认 commentPermission=READ_ONLY）。'}

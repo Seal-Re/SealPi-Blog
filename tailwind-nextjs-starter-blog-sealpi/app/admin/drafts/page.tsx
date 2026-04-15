@@ -23,8 +23,8 @@ function formatDateLabel(value?: string) {
 
 function DraftCard({ article }: { article: AdminArticle }) {
   return (
-    <div className="group flex flex-col overflow-hidden rounded-[2rem] border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950">
-      <div className="relative h-40 w-full shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-900">
+    <div className="border-wb-rule-soft bg-wb-canvas group flex flex-col overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950">
+      <div className="bg-wb-paper relative h-40 w-full shrink-0 overflow-hidden dark:bg-gray-900">
         {article.coverImageUrl ? (
           <Image
             src={article.coverImageUrl}
@@ -35,29 +35,29 @@ function DraftCard({ article }: { article: AdminArticle }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <span className="text-xs font-semibold tracking-[0.2em] text-gray-400 uppercase dark:text-gray-600">
+            <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-600">
               无封面
             </span>
           </div>
         )}
       </div>
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-xs text-gray-400 dark:text-gray-500">
+        <p className="text-wb-meta text-xs dark:text-gray-500">
           {formatDateLabel(article.lastmod || article.date)}
         </p>
-        <h3 className="mt-2 line-clamp-2 text-base font-bold text-gray-950 dark:text-gray-50">
+        <h3 className="text-wb-ink mt-2 line-clamp-2 text-base font-bold dark:text-gray-50">
           {article.title || '无标题'}
         </h3>
         {article.summary ? (
-          <p className="mt-2 line-clamp-2 flex-1 text-sm leading-6 text-gray-500 dark:text-gray-400">
+          <p className="text-wb-meta mt-2 line-clamp-2 flex-1 text-sm leading-6 dark:text-gray-400">
             {article.summary}
           </p>
         ) : (
-          <p className="mt-2 flex-1 text-sm text-gray-400 italic dark:text-gray-600">暂无摘要</p>
+          <p className="text-wb-meta mt-2 flex-1 text-sm italic dark:text-gray-600">暂无摘要</p>
         )}
         <Link
           href={`/admin/editor?articleId=${article.articleId}`}
-          className="mt-4 inline-flex items-center justify-center rounded-full bg-gray-950 px-4 py-2 text-xs font-semibold text-white transition-all duration-300 hover:bg-gray-800 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft mt-4 inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
         >
           继续编辑
         </Link>
@@ -87,22 +87,22 @@ export default async function AdminDraftsPage() {
 
   return (
     <section className="space-y-8">
-      <div className="flex flex-col gap-5 rounded-[2rem] border border-gray-200 bg-white p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
+      <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-amber-700 uppercase dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300">
             Drafts
           </span>
-          <h1 className="text-3xl font-black tracking-tight text-gray-950 sm:text-4xl dark:text-white">
+          <h1 className="text-wb-ink text-3xl font-black tracking-tight sm:text-4xl dark:text-white">
             草稿库
           </h1>
-          <p className="max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-300">
+          <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
             所有已保存的草稿，点击卡片可继续编辑。
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link
             href="/admin/editor?mode=new"
-            className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             新建文章
           </Link>
@@ -115,9 +115,9 @@ export default async function AdminDraftsPage() {
           <p className="mt-1">{loadError}</p>
         </div>
       ) : drafts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-[2rem] border border-gray-200 bg-white py-20 text-center dark:border-gray-800 dark:bg-gray-950">
-          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">暂无草稿</p>
-          <p className="mt-2 text-sm text-gray-400 dark:text-gray-500">
+        <div className="border-wb-rule-soft bg-wb-canvas flex flex-col items-center justify-center rounded-[2rem] border py-20 text-center dark:border-gray-800 dark:bg-gray-950">
+          <p className="text-wb-meta text-sm font-semibold dark:text-gray-400">暂无草稿</p>
+          <p className="text-wb-meta mt-2 text-sm dark:text-gray-500">
             在编辑器中保存草稿后，它将出现在这里。
           </p>
         </div>

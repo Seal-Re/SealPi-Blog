@@ -9,10 +9,10 @@ export default function NotFound() {
         </h1>
       </div>
       <div className="max-w-md">
-        <p className="mb-4 text-xl leading-normal font-bold text-gray-900 md:text-2xl dark:text-gray-100">
+        <p className="text-wb-ink mb-4 text-xl leading-normal font-bold md:text-2xl dark:text-gray-100">
           找不到这个页面。
         </p>
-        <p className="mb-8 text-gray-600 dark:text-gray-300">别担心，可以从首页重新出发。</p>
+        <p className="text-wb-meta mb-8 dark:text-gray-300">别担心，可以从首页重新出发。</p>
         <Link
           href="/"
           className="text-wb-accent hover:text-wb-ink inline text-sm font-medium transition-colors duration-200"

@@ -13,15 +13,15 @@ function AdminQuickAction({
   return (
     <Link
       href={href}
-      className="group rounded-[2rem] border border-gray-200 bg-white p-5 shadow-gray-200/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950"
+      className="border-wb-rule-soft bg-wb-canvas group rounded-[2rem] border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950"
     >
-      <p className="text-xs font-semibold tracking-[0.24em] text-gray-500 uppercase dark:text-gray-400">
+      <p className="text-wb-accent text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
         Admin Action
       </p>
-      <h3 className="mt-3 text-xl font-black tracking-tight text-gray-950 group-hover:text-gray-700 dark:text-white dark:group-hover:text-gray-200">
+      <h3 className="text-wb-ink group-hover:text-wb-accent mt-3 text-xl font-black tracking-tight transition-colors dark:text-white dark:group-hover:text-gray-200">
         {title}
       </h3>
-      <p className="mt-3 text-sm leading-7 text-gray-600 dark:text-gray-300">{description}</p>
+      <p className="text-wb-meta mt-3 text-sm leading-7 dark:text-gray-300">{description}</p>
     </Link>
   )
 }
@@ -34,14 +34,12 @@ type StatCardProps = {
 
 function StatCard({ label, value, hint }: StatCardProps) {
   return (
-    <div className="group rounded-3xl border border-gray-200 bg-white p-6 shadow-gray-200/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950">
-      <p className="text-xs font-semibold tracking-[0.28em] text-gray-500 uppercase dark:text-gray-400">
+    <div className="border-wb-rule-soft bg-wb-canvas group rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-950">
+      <p className="text-wb-accent text-xs font-semibold tracking-[0.28em] uppercase dark:text-gray-400">
         {label}
       </p>
-      <p className="mt-3 text-lg font-semibold break-all text-gray-950 dark:text-gray-50">
-        {value}
-      </p>
-      <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-300">{hint}</p>
+      <p className="text-wb-ink mt-3 text-lg font-semibold break-all dark:text-gray-50">{value}</p>
+      <p className="text-wb-meta mt-2 text-sm leading-6 dark:text-gray-300">{hint}</p>
     </div>
   )
 }
@@ -54,14 +52,14 @@ export default async function AdminPage() {
     <section className="space-y-8">
       <div className="space-y-10">
         <div className="max-w-3xl space-y-4">
-          <span className="inline-flex rounded-full border border-gray-200 bg-white px-4 py-1 text-xs font-semibold tracking-[0.28em] text-gray-700 uppercase dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
+          <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.28em] uppercase dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200">
             Admin Console
           </span>
           <div className="space-y-4">
-            <h1 className="text-4xl font-black tracking-tight text-gray-950 sm:text-5xl dark:text-white">
+            <h1 className="text-wb-ink text-4xl font-black tracking-tight sm:text-5xl dark:text-white">
               管理后台
             </h1>
-            <p className="max-w-2xl text-base leading-8 text-gray-600 sm:text-lg dark:text-gray-300">
+            <p className="text-wb-meta max-w-2xl text-base leading-8 sm:text-lg dark:text-gray-300">
               通过 GitHub 登录与管理员校验后，可进行文章创建、草稿保存、发布与删除。
             </p>
           </div>
@@ -81,24 +79,22 @@ export default async function AdminPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.9fr)]">
-          <div className="rounded-[2rem] border border-gray-200 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
+          <div className="border-wb-rule-soft bg-wb-canvas rounded-[2rem] border p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-gray-900 px-3 py-1 text-xs font-semibold tracking-[0.24em] text-white uppercase dark:bg-white dark:text-gray-950">
+              <span className="bg-wb-ink text-wb-paper dark:bg-wb-paper dark:text-wb-ink rounded-full px-3 py-1 text-xs font-semibold tracking-[0.24em] uppercase">
                 当前登录信息
               </span>
             </div>
             <dl className="mt-6 grid gap-5 sm:grid-cols-2">
-              <div className="rounded-2xl bg-gray-50 p-4 dark:bg-gray-950/70">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  GitHub 昵称
-                </dt>
-                <dd className="mt-2 text-base font-semibold text-gray-950 dark:text-gray-50">
+              <div className="bg-wb-paper rounded-2xl p-4 dark:bg-gray-950/70">
+                <dt className="text-wb-meta text-sm font-medium dark:text-gray-400">GitHub 昵称</dt>
+                <dd className="text-wb-ink mt-2 text-base font-semibold dark:text-gray-50">
                   {user?.name || '未提供'}
                 </dd>
               </div>
-              <div className="rounded-2xl bg-gray-50 p-4 dark:bg-gray-950/70">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">邮箱</dt>
-                <dd className="mt-2 text-base font-semibold break-all text-gray-950 dark:text-gray-50">
+              <div className="bg-wb-paper rounded-2xl p-4 dark:bg-gray-950/70">
+                <dt className="text-wb-meta text-sm font-medium dark:text-gray-400">邮箱</dt>
+                <dd className="text-wb-ink mt-2 text-base font-semibold break-all dark:text-gray-50">
                   {user?.email || '未提供'}
                 </dd>
               </div>
@@ -118,19 +114,19 @@ export default async function AdminPage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-gray-200 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
+          <div className="border-wb-rule-soft bg-wb-canvas rounded-[2rem] border p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
             <div className="space-y-4">
-              <h2 className="text-2xl font-black tracking-tight text-gray-950 dark:text-white">
+              <h2 className="text-wb-ink text-2xl font-black tracking-tight dark:text-white">
                 常用入口
               </h2>
-              <p className="text-sm leading-7 text-gray-700 dark:text-gray-200">
+              <p className="text-wb-meta text-sm leading-7 dark:text-gray-200">
                 使用下方入口快速返回前台或结束当前管理员会话。
               </p>
             </div>
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/"
-                className="inline-flex items-center justify-center rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition-all duration-300 hover:border-gray-900 hover:bg-gray-900 hover:text-white active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 返回前台首页
               </Link>
@@ -142,7 +138,7 @@ export default async function AdminPage() {
               >
                 <button
                   type="submit"
-                  className="inline-flex w-full items-center justify-center rounded-full bg-gray-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-gray-800 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                  className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
                 >
                   退出当前管理员会话
                 </button>

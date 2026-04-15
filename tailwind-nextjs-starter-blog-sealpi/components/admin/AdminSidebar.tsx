@@ -35,7 +35,7 @@ export default function AdminSidebar() {
               }`}
             >
               {active ? (
-                <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-sky-400" />
+                <span className="bg-wb-accent absolute inset-y-2 left-0 w-1 rounded-full" />
               ) : null}
               {item.label}
             </Link>

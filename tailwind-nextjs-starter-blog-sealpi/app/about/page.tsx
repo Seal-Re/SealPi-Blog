@@ -9,7 +9,7 @@ export default function Page() {
       <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl dark:text-gray-100">
         关于
       </h1>
-      <p className="max-w-3xl text-base leading-8 text-gray-700 dark:text-gray-200">
+      <p className="text-wb-meta max-w-3xl text-base leading-8 dark:text-gray-300">
         这里是 {siteMetadata.title}。本站内容已收口为后端动态文章源，正文采用 Excalidraw JSON 渲染，
         后台提供草稿、发布、上传与封面预览图导出能力。
       </p>

@@ -18,7 +18,7 @@ export default function Error({
         <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic dark:text-gray-100">
           页面加载出错
         </h1>
-        <p className="max-w-xl text-lg leading-7 text-gray-600 dark:text-gray-300">
+        <p className="text-wb-meta max-w-xl text-lg leading-7 dark:text-gray-300">
           {error.message || '服务暂时不可用，请稍后重试。'}
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function Error({
         </button>
         <Link
           href="/"
-          className="inline-flex items-center justify-center rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-900 hover:bg-gray-900 hover:text-white dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
         >
           返回首页
         </Link>

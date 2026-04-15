@@ -28,10 +28,10 @@ export default function UserMenu() {
             alt=""
             width={36}
             height={36}
-            className="h-9 w-9 rounded-full border border-gray-200 object-cover dark:border-gray-700"
+            className="border-wb-rule-soft h-9 w-9 rounded-full border object-cover dark:border-gray-700"
           />
         ) : (
-          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-gray-100 text-sm font-bold text-gray-800 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
+          <span className="border-wb-rule bg-wb-paper text-wb-ink flex h-9 w-9 items-center justify-center rounded-full border text-sm font-bold dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100">
             {display.charAt(0).toUpperCase()}
           </span>
         )}
@@ -45,10 +45,10 @@ export default function UserMenu() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <MenuItems className="ring-opacity-5 absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-black focus:outline-hidden dark:bg-gray-900 dark:ring-gray-700">
+        <MenuItems className="ring-opacity-5 bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-xl shadow-lg ring-1 focus:outline-hidden dark:bg-gray-900 dark:ring-gray-700">
           <div className="px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <p className="text-wb-ink truncate text-sm font-semibold dark:text-gray-100">
                 {display}
               </p>
               {isAdmin ? (
@@ -58,13 +58,13 @@ export default function UserMenu() {
               ) : null}
             </div>
             {handle ? (
-              <p className="mt-0.5 truncate text-xs text-gray-600 dark:text-gray-400">@{handle}</p>
+              <p className="text-wb-meta mt-0.5 truncate text-xs dark:text-gray-400">@{handle}</p>
             ) : null}
             {email ? (
-              <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-500">{email}</p>
+              <p className="text-wb-meta mt-1 truncate text-xs opacity-75 dark:text-gray-500">{email}</p>
             ) : null}
             {user.profileBio ? (
-              <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+              <p className="text-wb-meta mt-2 line-clamp-2 text-xs leading-relaxed dark:text-gray-400">
                 {user.profileBio}
               </p>
             ) : null}
@@ -90,15 +90,15 @@ export default function UserMenu() {
             ) : null}
           </div>
 
-          <div className="border-t border-gray-100 dark:border-gray-800" />
+          <div className="border-wb-rule-soft border-t dark:border-gray-800" />
 
-          <div className="bg-gray-50 py-1 dark:bg-gray-900/50">
+          <div className="bg-wb-paper py-1 dark:bg-gray-900/50">
             {isAdmin ? (
               <MenuItem>
                 {({ focus }) => (
                   <Link
                     href="/admin"
-                    className={`${focus ? 'bg-gray-100 dark:bg-gray-800' : ''} block px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100`}
+                    className={`${focus ? 'bg-wb-canvas dark:bg-gray-800' : ''} text-wb-ink block px-4 py-2.5 text-sm dark:text-gray-100`}
                   >
                     平台管理
                   </Link>
@@ -109,7 +109,7 @@ export default function UserMenu() {
               {({ focus }) => (
                 <Link
                   href="/login"
-                  className={`${focus ? 'bg-gray-100 dark:bg-gray-800' : ''} block px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100`}
+                  className={`${focus ? 'bg-wb-paper dark:bg-gray-800' : ''} text-wb-ink block px-4 py-2.5 text-sm dark:text-gray-100`}
                 >
                   账号与登录
                 </Link>
@@ -117,9 +117,9 @@ export default function UserMenu() {
             </MenuItem>
           </div>
 
-          <div className="border-t border-gray-100 dark:border-gray-800" />
+          <div className="border-wb-rule-soft border-t dark:border-gray-800" />
 
-          <div className="bg-gray-50 py-1 dark:bg-gray-900/50">
+          <div className="bg-wb-paper py-1 dark:bg-gray-900/50">
             <MenuItem>
               {({ focus }) => (
                 <button
