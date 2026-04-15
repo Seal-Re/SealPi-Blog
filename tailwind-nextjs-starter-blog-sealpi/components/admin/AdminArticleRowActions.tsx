@@ -81,12 +81,16 @@ export default function AdminArticleRowActions({ articleId, articleUrl, isPublis
       >
         草稿预览 ↗
       </Link>
-      <Link
-        href={`/blog/${articleUrl}`}
-        className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
-      >
-        预览前台
-      </Link>
+      {isPublished ? (
+        <Link
+          href={`/blog/${articleUrl}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+        >
+          查看前台 ↗
+        </Link>
+      ) : null}
       <button
         type="button"
         onClick={() => void handleOffline()}
