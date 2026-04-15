@@ -24,7 +24,7 @@ export default async function BlogPage() {
         currentPage: response.pageIndex,
         totalPages: response.totalPages,
       }}
-      title="All Posts"
+      title="全部文章"
       availableTags={availableTags}
     />
   )

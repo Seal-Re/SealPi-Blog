@@ -37,7 +37,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
       <nav className="flex justify-between">
         {!prevPage && (
           <button className="cursor-auto disabled:opacity-50" disabled={!prevPage}>
-            Previous
+            上一页
           </button>
         )}
         {prevPage && (
@@ -45,20 +45,20 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
             href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
             rel="prev"
           >
-            Previous
+            上一页
           </Link>
         )}
         <span>
-          {currentPage} of {totalPages}
+          第 {currentPage} / {totalPages} 页
         </span>
         {!nextPage && (
           <button className="cursor-auto disabled:opacity-50" disabled={!nextPage}>
-            Next
+            下一页
           </button>
         )}
         {nextPage && (
           <Link href={`/${basePath}/page/${currentPage + 1}`} rel="next">
-            Next
+            下一页
           </Link>
         )}
       </nav>
@@ -90,13 +90,13 @@ export default function ListLayoutWithTags({
           <div className="bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-sm pt-5 shadow-md sm:flex">
             <div className="px-6 py-4">
               {pathname.startsWith('/blog') ? (
-                <h3 className="text-wb-accent font-bold uppercase">All Posts</h3>
+                <h3 className="text-wb-accent font-bold uppercase">全部文章</h3>
               ) : (
                 <Link
                   href="/blog"
                   className="hover:text-wb-accent text-wb-meta font-bold uppercase transition-colors duration-200"
                 >
-                  All Posts
+                  全部文章
                 </Link>
               )}
               <ul>

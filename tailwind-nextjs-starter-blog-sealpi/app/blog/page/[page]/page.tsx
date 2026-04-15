@@ -42,7 +42,7 @@ export default async function Page(props: { params: Promise<{ page: string }> })
         currentPage: response.pageIndex,
         totalPages: response.totalPages,
       }}
-      title="All Posts"
+      title="全部文章"
       availableTags={availableTags}
     />
   )
