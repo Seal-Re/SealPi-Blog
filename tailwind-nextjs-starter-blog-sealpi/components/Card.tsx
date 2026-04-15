@@ -2,9 +2,9 @@ import Image from './Image'
 import Link from './Link'
 
 const Card = ({ title, description, imgSrc, href }) => (
-  <div className="md max-w-[544px] p-4 md:w-1/2">
+  <div className="max-w-[544px] p-4 md:w-1/2">
     <div
-      className={`${imgSrc && 'h-full'} border-wb-rule-soft/80 overflow-hidden rounded-md border-2`}
+      className={`${imgSrc && 'h-full'} bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]`}
     >
       {imgSrc &&
         (href ? (
@@ -27,20 +27,24 @@ const Card = ({ title, description, imgSrc, href }) => (
           />
         ))}
       <div className="p-6">
-        <h2 className="text-wb-ink hover:text-wb-accent mb-3 text-2xl leading-8 font-bold tracking-tight transition-colors">
+        <h2 className="text-wb-ink mb-3 text-2xl leading-8 font-bold tracking-tight">
           {href ? (
-            <Link href={href} aria-label={`查看 ${title}`}>
+            <Link
+              href={href}
+              aria-label={`查看 ${title}`}
+              className="hover:text-wb-accent transition-colors duration-200"
+            >
               {title}
             </Link>
           ) : (
             title
           )}
         </h2>
-        <p className="prose text-wb-meta mb-3 max-w-none">{description}</p>
+        <p className="text-wb-meta mb-4 text-sm leading-6">{description}</p>
         {href && (
           <Link
             href={href}
-            className="text-wb-accent hover:text-wb-ink text-base leading-6 font-medium transition-colors duration-200"
+            className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
             aria-label={`查看 ${title}`}
           >
             了解更多 &rarr;
