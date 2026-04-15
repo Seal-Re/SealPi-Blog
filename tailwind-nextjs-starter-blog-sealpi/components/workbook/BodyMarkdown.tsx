@@ -1,3 +1,4 @@
+import type { ComponentPropsWithoutRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
@@ -28,6 +29,28 @@ const remarkNoteDirective: Plugin<[], Root> = () => (tree) => {
   })
 }
 
+/** Heading with hover anchor link. rehype-slug already adds the `id`. */
+function HeadingAnchor({
+  id,
+  children,
+  as: Tag,
+}: {
+  id?: string
+  children: React.ReactNode
+  as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+}) {
+  return (
+    <Tag id={id} className="wb-heading group">
+      {children}
+      {id ? (
+        <a href={`#${id}`} aria-label={`Link to section`} className="wb-heading-anchor">
+          #
+        </a>
+      ) : null}
+    </Tag>
+  )
+}
+
 type BodyMarkdownProps = {
   markdown: string
 }
@@ -41,6 +64,26 @@ export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
         components={
           {
             'margin-note': ({ children }) => <MarginNote>{children}</MarginNote>,
+            h1: ({ id, children }: ComponentPropsWithoutRef<'h1'>) => (
+              <HeadingAnchor id={id} as="h1">
+                {children}
+              </HeadingAnchor>
+            ),
+            h2: ({ id, children }: ComponentPropsWithoutRef<'h2'>) => (
+              <HeadingAnchor id={id} as="h2">
+                {children}
+              </HeadingAnchor>
+            ),
+            h3: ({ id, children }: ComponentPropsWithoutRef<'h3'>) => (
+              <HeadingAnchor id={id} as="h3">
+                {children}
+              </HeadingAnchor>
+            ),
+            h4: ({ id, children }: ComponentPropsWithoutRef<'h4'>) => (
+              <HeadingAnchor id={id} as="h4">
+                {children}
+              </HeadingAnchor>
+            ),
           } as never
         }
       >

@@ -228,6 +228,25 @@ input:-webkit-autofill:focus {
   margin: 4px 6px 0 0;
   color: var(--color-wb-accent);
 }
+/* Heading anchor links */
+.wb-heading {
+  position: relative;
+}
+.wb-heading-anchor {
+  margin-left: 0.4em;
+  font-size: 0.75em;
+  color: var(--color-wb-rule);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 150ms ease, color 150ms ease;
+  vertical-align: middle;
+}
+.wb-heading:hover .wb-heading-anchor {
+  opacity: 1;
+}
+.wb-heading-anchor:hover {
+  color: var(--color-wb-accent);
+}
 
 [data-reveal] {
   opacity: 0.35;
