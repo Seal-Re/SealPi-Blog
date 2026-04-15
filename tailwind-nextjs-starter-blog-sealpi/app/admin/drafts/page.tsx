@@ -100,7 +100,7 @@ export default async function AdminDraftsPage() {
       <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-amber-700 uppercase dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-300">
-            Drafts
+            草稿管理
           </span>
           <h1 className="text-wb-ink text-3xl font-black tracking-tight sm:text-4xl dark:text-white">
             草稿库
