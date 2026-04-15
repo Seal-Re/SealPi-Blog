@@ -268,6 +268,12 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-200',
     }[syncState]
 
+    const syncStateLabel: Record<SyncState, string> = {
+      SUCCESS: '正常',
+      UPDATING: '同步中',
+      FAILED: '失败',
+    }
+
     const updateField = useCallback((key: keyof EditorState, value: string) => {
       setFieldErrors((prev) => ({ ...prev, [key]: undefined }))
       setFormState((current) => {
@@ -867,7 +873,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       当前状态
                     </div>
                     <p className="text-wb-meta mt-3 text-sm leading-7 dark:text-gray-200">
-                      {syncState}
+                      {syncStateLabel[syncState]}
                     </p>
                     <p className="text-wb-meta mt-1 text-xs leading-6 dark:text-gray-400">
                       {statusMessage}
@@ -961,7 +967,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                 </div>
                 <div className="border-wb-rule bg-wb-canvas/85 text-wb-meta inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm dark:border-gray-700 dark:bg-gray-950/80 dark:text-gray-300">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                  Canvas Ready
+                  画板就绪
                 </div>
               </div>
               <div className="h-[72vh] min-h-[680px] bg-[linear-gradient(180deg,rgba(251,245,236,0.95),rgba(245,236,225,0.98))] dark:bg-[linear-gradient(180deg,rgba(2,6,23,0.6),rgba(15,23,42,0.65))]">
