@@ -7,7 +7,7 @@ export default function AdminForbiddenPage() {
       <div className="bg-wb-canvas/35 absolute inset-0 -z-10 backdrop-blur-2xl dark:bg-black/35" />
       <div className="bg-wb-canvas/85 w-full max-w-2xl rounded-[2rem] border border-rose-200/70 p-8 shadow-[0_24px_80px_-42px_rgba(225,29,72,0.35)] backdrop-blur-xl dark:border-rose-900/50 dark:bg-gray-950/65">
         <span className="inline-flex rounded-full border border-rose-300/70 bg-rose-100 px-4 py-1 text-xs font-semibold tracking-[0.2em] text-rose-700 uppercase dark:border-rose-700/60 dark:bg-rose-950/40 dark:text-rose-200">
-          Access Denied
+          权限不足
         </span>
         <h1 className="text-wb-ink mt-5 text-3xl font-black tracking-tight sm:text-4xl dark:text-white">
           当前 GitHub 账号未被授予后台权限
