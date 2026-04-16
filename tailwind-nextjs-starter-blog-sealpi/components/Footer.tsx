@@ -21,7 +21,7 @@ export default function Footer() {
           <div className="space-y-2">
             <Link
               href="/"
-              className="font-fraunces hover:text-wb-accent text-wb-ink text-xl font-medium italic transition-colors"
+              className="font-fraunces hover:text-wb-accent focus-visible:ring-wb-accent text-wb-ink rounded text-xl font-medium italic transition-colors focus-visible:ring-1 focus-visible:outline-none"
             >
               {siteMetadata.headerTitle}
             </Link>
@@ -78,7 +78,10 @@ export default function Footer() {
             <span>·</span>
             <span>© {new Date().getFullYear()}</span>
             <span>·</span>
-            <Link href="/" className="hover:text-wb-accent transition-colors duration-200">
+            <Link
+              href="/"
+              className="hover:text-wb-accent focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
+            >
               {siteMetadata.title}
             </Link>
           </div>

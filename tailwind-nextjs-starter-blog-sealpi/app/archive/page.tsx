@@ -65,7 +65,7 @@ export default async function ArchivePage() {
                       <li key={post.slug}>
                         <Link
                           href={`/${post.path}`}
-                          className="group hover:bg-wb-canvas flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors"
+                          className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                         >
                           <time
                             dateTime={post.date}
