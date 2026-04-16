@@ -7,11 +7,13 @@ import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
+import com.seal.blog.client.common.Response;
 import com.seal.blog.client.common.SingleResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,5 +48,10 @@ public class ArticleQueryController {
     @GetMapping("/tags")
     public List<TagVO> tags() {
         return articleService.getTags();
+    }
+
+    @PostMapping("/articles/{id}/view")
+    public Response recordView(@PathVariable("id") Integer id) {
+        return articleService.incrementViewCount(id);
     }
 }

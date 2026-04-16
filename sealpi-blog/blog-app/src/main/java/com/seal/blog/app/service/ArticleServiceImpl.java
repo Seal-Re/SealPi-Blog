@@ -221,4 +221,17 @@ public class ArticleServiceImpl implements ArticleServiceI {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Response incrementViewCount(Integer articleId) {
+        if (articleId == null || articleId <= 0) {
+            return Response.buildFailure("400", "文章ID不合法");
+        }
+        try {
+            articleGateway.incrementViewCount(articleId);
+        } catch (Exception e) {
+            log.warn("浏览量更新失败 articleId={}: {}", articleId, e.getMessage());
+        }
+        return Response.buildSuccess();
+    }
+
 }

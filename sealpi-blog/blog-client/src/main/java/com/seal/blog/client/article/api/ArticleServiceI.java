@@ -38,4 +38,9 @@ public interface ArticleServiceI {
 
     List<TagVO> getTags();
 
+    /**
+     * 浏览量 +1（best-effort，不影响主流程，供前端客户端主动上报）
+     */
+    Response incrementViewCount(Integer articleId);
+
 }

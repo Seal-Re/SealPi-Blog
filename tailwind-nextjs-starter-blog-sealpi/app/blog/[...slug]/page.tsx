@@ -201,6 +201,7 @@ export default async function Page(props: PageProps) {
         coverImageUrl={article.coverImageUrl}
         coverCaption={article.coverCaption}
         bodyMd={article.bodyMd}
+        articleId={article.articleId}
         slug={slug}
         prevPost={prev}
         nextPost={next}

@@ -10,6 +10,7 @@ import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
 import WbToc from './WbToc'
 import WbImageLightbox from './WbImageLightbox'
+import ViewTracker from './ViewTracker'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import Comments from '@/components/Comments'
 import siteMetadata from '@/data/siteMetadata'
@@ -38,6 +39,7 @@ type WorkbookArticleLayoutProps = {
   coverCaption?: string
   bodyMd?: string
   eyebrow?: string
+  articleId?: string | number
   slug?: string
   prevPost?: AdjacentPost | null
   nextPost?: AdjacentPost | null
@@ -56,6 +58,7 @@ export default function WorkbookArticleLayout({
   coverCaption,
   bodyMd,
   eyebrow = '随笔',
+  articleId,
   slug,
   prevPost,
   nextPost,
@@ -71,6 +74,7 @@ export default function WorkbookArticleLayout({
       <ScrollTopAndComment />
       <CopyCodeInit />
       <WbImageLightbox />
+      {articleId != null ? <ViewTracker articleId={articleId} /> : null}
 
       <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
         {eyebrow}
