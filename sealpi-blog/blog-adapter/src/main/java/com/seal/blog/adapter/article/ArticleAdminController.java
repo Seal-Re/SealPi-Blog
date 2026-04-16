@@ -71,7 +71,7 @@ public class ArticleAdminController {
      */
     @Deprecated
     @PostMapping("/articles")
-    public Response adminCreate(
+    public SingleResponse<Integer> adminCreate(
             @Valid @RequestBody ArticleDraftSaveCmd cmd,
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
@@ -85,9 +85,10 @@ public class ArticleAdminController {
      * Form fields:
      * - title, url, summary(optional), draftJson
      * - previewImage(optional): image file, uploaded to OSS to produce coverImageUrl
+     * Returns: {@code { success, data: articleId }} on success.
      */
     @PostMapping(value = "/articles", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Response adminCreateMultipart(
+    public SingleResponse<Integer> adminCreateMultipart(
             @RequestParam("title") String title,
             @RequestParam(name = "summary", required = false) String summary,
             @RequestParam("url") String url,
@@ -124,6 +125,7 @@ public class ArticleAdminController {
 
         return articleService.adminCreate(cmd, action, finalCoverUrl);
     }
+
 
     /**
      * v1 admin write (deprecated JSON form): update article draft / publish.

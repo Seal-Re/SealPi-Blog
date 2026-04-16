@@ -79,10 +79,10 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl) {
+    public SingleResponse<Integer> adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl) {
         boolean publishing = "publish".equalsIgnoreCase(action);
         if (publishing && (cmd.getTitle() == null || cmd.getTitle().trim().isEmpty())) {
-            return Response.buildFailure("400", "发布失败：标题不能为空");
+            return SingleResponse.buildSingleFailure("400", "发布失败：标题不能为空");
         }
         String normalizedTitle = (cmd.getTitle() == null || cmd.getTitle().trim().isEmpty())
                 ? DRAFT_PLACEHOLDER_TITLE
@@ -91,7 +91,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
         Response validation = validateUrlUniqueForCreate(cmd.getUrl());
         if (validation != null) {
-            return validation;
+            return SingleResponse.buildSingleFailure(validation.getErrorCode(), validation.getErrorMessage());
         }
         Article article = new Article(cmd.getTitle(), cmd.getSummary(), cmd.getUrl());
         article.saveDraft(cmd.getDraftJson(), coverImageUrl, cmd.getDraftBodyMd(), cmd.getCoverCaption());
@@ -106,7 +106,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
             articleGateway.setTagsForArticle(article.getArticleId(), cmd.getTags());
         }
 
-        return Response.buildSuccess();
+        return SingleResponse.of(article.getArticleId());
     }
 
     @Override

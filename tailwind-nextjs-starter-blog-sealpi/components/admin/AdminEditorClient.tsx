@@ -18,13 +18,12 @@ import {
 import { pinyin } from 'pinyin-pro'
 
 import {
-  adminFetch,
   createAdminArticle,
   type AdminArticleFormPayload,
   updateAdminArticle,
   uploadAdminAsset,
 } from '@/lib/admin-api'
-import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
+import type { AdminArticle } from '@/lib/blog-api-types'
 import { isPublishedStatus } from '@/lib/article-status'
 import BodyMarkdown from '@/components/workbook/BodyMarkdown'
 
@@ -55,7 +54,6 @@ const MAX_UPLOAD_IMAGE_BYTES = 10 * 1024 * 1024
 const AUTO_SYNC_IDLE_MS = 1200
 const AUTO_SAVE_TO_SERVER_MS = 4000
 const DEBUG_PREFIX = '[AdminEditor]'
-const CREATE_LOOKUP_PAGE_SIZE = 10
 
 type EditorState = {
   title: string
@@ -600,27 +598,6 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       window.history.replaceState(null, '', nextUrl.toString())
     }, [])
 
-    const resolveCreatedArticleId = useCallback(
-      async (payload: AdminArticleFormPayload, action: SubmitAction) => {
-        const params = new URLSearchParams({
-          pageIndex: '1',
-          pageSize: String(CREATE_LOOKUP_PAGE_SIZE),
-          q: payload.url,
-          status: action === 'publish' ? 'published' : 'draft',
-        })
-        // Use the admin BFF endpoint (not the public /api/v1/articles) so drafts are
-        // accessible and no draft metadata is leaked to unauthenticated public callers.
-        const response = await adminFetch<PageResult<AdminArticle>>(`/api/admin/articles?${params}`)
-        const matched = (response?.data || []).find((item) => item.url === payload.url)
-        const matchedId = matched?.articleId ? Number(matched.articleId) : NaN
-        if (!Number.isFinite(matchedId) || matchedId <= 0) {
-          return null
-        }
-        return matchedId
-      },
-      []
-    )
-
     const handleSubmit = useCallback(
       async (action: SubmitAction, source: 'manual' | 'auto' = 'manual') => {
         if (submitInFlightRef.current) {
@@ -642,8 +619,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           if (isEditMode && currentArticleId) {
             await updateAdminArticle(currentArticleId, payload, action)
           } else {
-            await createAdminArticle(payload, action)
-            const createdId = await resolveCreatedArticleId(payload, action)
+            const createResult = await createAdminArticle(payload, action)
+            const createdId = createResult?.data ?? null
             if (createdId) {
               setCurrentArticleId(createdId)
               bindArticleIdToUrl(createdId)
@@ -714,7 +691,6 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         onArticleIdResolved,
         onSubmitSuccess,
         pushSnackbar,
-        resolveCreatedArticleId,
       ]
     )
 

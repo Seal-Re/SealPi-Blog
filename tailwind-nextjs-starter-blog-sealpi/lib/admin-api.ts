@@ -167,7 +167,7 @@ export async function createAdminArticle(
   payload: AdminArticleFormPayload,
   action: 'draft' | 'publish' = 'draft'
 ) {
-  return adminFetch<ApiEnvelope>('/api/admin/articles?action=' + action, {
+  return adminFetch<ApiEnvelope & { data?: number }>('/api/admin/articles?action=' + action, {
     method: 'POST',
     body: toArticleFormData(payload),
   })

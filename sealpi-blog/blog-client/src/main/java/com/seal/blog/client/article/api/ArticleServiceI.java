@@ -25,7 +25,8 @@ public interface ArticleServiceI {
     Response delete(Integer id);
 
     // v1 admin: save draft / publish
-    Response adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl);
+    /** Creates an article and returns its generated ID. */
+    SingleResponse<Integer> adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl);
 
     Response adminUpdate(ArticleDraftUpdateCmd cmd, String action, String coverImageUrl);
 

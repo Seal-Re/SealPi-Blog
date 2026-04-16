@@ -110,7 +110,7 @@ class BlogAdapterApplicationTests {
 
     @Test
     void adminApi_withPreviewImage_overridesCoverImageUrl() throws Exception {
-        when(articleService.adminCreate(any(), anyString(), anyString())).thenReturn(Response.buildSuccess());
+        when(articleService.adminCreate(any(), anyString(), anyString())).thenReturn(SingleResponse.of(1));
         when(objectStorage.upload(any(), anyLong(), anyString(), anyString())).thenReturn("https://cdn.example.com/preview.webp");
 
         MockMultipartFile previewImage = new MockMultipartFile(
@@ -129,7 +129,8 @@ class BlogAdapterApplicationTests {
                         .param("draftJson", "{}")
                         .param("action", "draft")
                         .param("coverImageUrl", "https://cdn.example.com/fallback.webp")
-        ).andExpect(status().isOk());
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.data").value(1));
 
         verify(objectStorage).upload(any(), anyLong(), anyString(), anyString());
         verify(articleService).adminCreate(any(), anyString(), anyString());
@@ -137,7 +138,7 @@ class BlogAdapterApplicationTests {
 
     @Test
     void adminApi_withoutPreviewImage_doesNotUploadCover() throws Exception {
-        when(articleService.adminCreate(any(), anyString(), anyString())).thenReturn(Response.buildSuccess());
+        when(articleService.adminCreate(any(), anyString(), anyString())).thenReturn(SingleResponse.of(1));
 
         mvc.perform(
                 multipart("/api/v1/admin/articles")
@@ -155,7 +156,7 @@ class BlogAdapterApplicationTests {
 
     @Test
     void adminCreateMultipart_forwardsDraftBodyMdAndCoverCaption() throws Exception {
-        when(articleService.adminCreate(any(), anyString(), any())).thenReturn(Response.buildSuccess());
+        when(articleService.adminCreate(any(), anyString(), any())).thenReturn(SingleResponse.of(1));
 
         mvc.perform(
                 multipart("/api/v1/admin/articles")
@@ -177,7 +178,7 @@ class BlogAdapterApplicationTests {
 
     @Test
     void adminCreateMultipart_forwardsTags() throws Exception {
-        when(articleService.adminCreate(any(), anyString(), any())).thenReturn(Response.buildSuccess());
+        when(articleService.adminCreate(any(), anyString(), any())).thenReturn(SingleResponse.of(1));
 
         mvc.perform(
                 multipart("/api/v1/admin/articles")
