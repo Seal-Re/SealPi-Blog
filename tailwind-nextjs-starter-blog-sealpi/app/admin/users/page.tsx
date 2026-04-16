@@ -3,6 +3,7 @@ import Link from '@/components/Link'
 import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminUser, PageResult } from '@/lib/blog-api-types'
 import UserPermissionsActions from '@/components/admin/UserPermissionsActions'
+import AdminUsersTopbarPortal from '@/components/admin/AdminUsersTopbarPortal'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
@@ -101,31 +102,38 @@ function UserRow({ user }: { user: AdminUser }) {
   )
 }
 
-async function fetchUsers(pageIndex: number) {
+async function fetchUsers(pageIndex: number, q?: string, banned?: string) {
   const params = new URLSearchParams({
     pageIndex: String(pageIndex),
     pageSize: '20',
   })
+  if (q) params.set('q', q)
+  if (banned === 'true' || banned === 'false') params.set('banned', banned)
   return adminServerGet<PageResult<AdminUser>>(`/api/v1/admin/users?${params.toString()}`)
 }
 
-function buildPageHref(pageIndex: number) {
-  return `/admin/users?pageIndex=${Math.max(pageIndex, 1)}`
+function buildPageHref(pageIndex: number, q?: string, banned?: string) {
+  const params = new URLSearchParams({ pageIndex: String(Math.max(pageIndex, 1)) })
+  if (q) params.set('q', q)
+  if (banned === 'true' || banned === 'false') params.set('banned', banned)
+  return `/admin/users?${params.toString()}`
 }
 
 export default async function AdminUsersPage(props: {
-  searchParams?: Promise<{ pageIndex?: string }>
+  searchParams?: Promise<{ pageIndex?: string; q?: string; banned?: string }>
 }) {
   await auth()
   const searchParams = await props.searchParams
   const pageIndex = Math.max(Number(searchParams?.pageIndex || '1') || 1, 1)
+  const q = searchParams?.q?.trim() || undefined
+  const banned = searchParams?.banned || undefined
   let users: AdminUser[] = []
   let pageSize = 20
   let totalCount = 0
   let totalPages = 1
   let loadError = ''
 
-  const response = await fetchUsers(pageIndex)
+  const response = await fetchUsers(pageIndex, q, banned)
   if (response === null) {
     loadError = '读取用户列表失败，请检查登录态后重试。'
   } else {
@@ -135,8 +143,12 @@ export default async function AdminUsersPage(props: {
     totalPages = Math.max(Math.ceil(totalCount / pageSize), 1)
   }
 
+  const hasFilter = Boolean(q || banned === 'true' || banned === 'false')
+
   return (
     <section className="space-y-8">
+      <AdminUsersTopbarPortal q={q} banned={banned} />
+
       <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
           <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
@@ -147,6 +159,17 @@ export default async function AdminUsersPage(props: {
           </h1>
           <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
             通过 GitHub OAuth 登录的注册用户列表。
+            {hasFilter && (
+              <span className="text-wb-accent ml-2 dark:text-gray-400">
+                （已筛选）
+                <a
+                  href="/admin/users"
+                  className="text-wb-meta hover:text-wb-ink ml-1 underline underline-offset-2 dark:text-gray-500 dark:hover:text-gray-300"
+                >
+                  清空
+                </a>
+              </span>
+            )}
           </p>
         </div>
         <Link
@@ -160,7 +183,7 @@ export default async function AdminUsersPage(props: {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="border-wb-rule-soft bg-wb-canvas rounded-3xl border p-5 dark:border-gray-800 dark:bg-gray-950">
           <p className="text-wb-meta text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
-            注册用户总数
+            {hasFilter ? '筛选结果数' : '注册用户总数'}
           </p>
           <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{totalCount}</p>
         </div>
@@ -216,7 +239,7 @@ export default async function AdminUsersPage(props: {
                     colSpan={5}
                     className="text-wb-meta px-4 py-14 text-center text-sm leading-7 dark:text-gray-400"
                   >
-                    暂无注册用户数据。
+                    {hasFilter ? '未找到符合条件的用户。' : '暂无注册用户数据。'}
                   </td>
                 </tr>
               )}
@@ -231,7 +254,7 @@ export default async function AdminUsersPage(props: {
         </p>
         <div className="flex gap-3">
           <Link
-            href={buildPageHref(pageIndex - 1)}
+            href={buildPageHref(pageIndex - 1, q, banned)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex <= 1
                 ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
@@ -241,7 +264,7 @@ export default async function AdminUsersPage(props: {
             上一页
           </Link>
           <Link
-            href={buildPageHref(Math.min(pageIndex + 1, totalPages))}
+            href={buildPageHref(Math.min(pageIndex + 1, totalPages), q, banned)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex >= totalPages
                 ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'

@@ -60,12 +60,9 @@ public class UserServiceImpl implements UserServiceI {
 
     @Override
     public PageResponse<UserProfileVO> getUsers(UserPageQry qry) {
-        int pageIndex = qry.getPageIndex() != null ? qry.getPageIndex() : 1;
-        int pageSize = qry.getPageSize() != null ? qry.getPageSize() : 20;
-        List<BlogUser> users = userGateway.findPage(pageIndex, pageSize);
-        long total = userGateway.countAll();
-        List<UserProfileVO> vos = users.stream().map(this::toVo).collect(Collectors.toList());
-        return PageResponse.of(vos, (int) total, pageSize, pageIndex);
+        PageResponse<BlogUser> page = userGateway.findPage(qry);
+        List<UserProfileVO> vos = page.getData().stream().map(this::toVo).collect(Collectors.toList());
+        return PageResponse.of(vos, page.getTotalCount(), page.getPageSize(), page.getPageIndex());
     }
 
     @Override

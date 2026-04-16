@@ -15,4 +15,14 @@ public class UserPageQry {
     @Min(value = 1, message = "每页数量不能小于1")
     @Max(value = 100, message = "每页数量不能超过100")
     private Integer pageSize = 20;
+
+    /**
+     * Keyword search — matches against nickname, githubLogin, email (LIKE).
+     */
+    private String q;
+
+    /**
+     * Filter by banned status: true = banned only, false = non-banned only, null = all.
+     */
+    private Boolean banned;
 }
