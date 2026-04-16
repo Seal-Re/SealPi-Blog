@@ -11,6 +11,7 @@ function normalizeTagLabel(tag: string) {
 }
 
 export const dynamicParams = true
+export const revalidate = 300
 
 export const generateStaticParams = async () => {
   const tags = await fetchPublishedTags()

@@ -124,7 +124,7 @@ export default function WorkbookArticleLayout({
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={post.coverImageUrl}
-                    alt=""
+                    alt={post.title}
                     className="border-wb-rule-soft h-28 w-full rounded-lg border object-cover"
                   />
                 ) : null}
