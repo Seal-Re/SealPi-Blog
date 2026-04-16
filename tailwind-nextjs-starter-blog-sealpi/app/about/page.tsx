@@ -28,7 +28,7 @@ export default function Page() {
           <p className="text-wb-ink text-xl font-bold">{siteMetadata.author}</p>
           <Link
             href={siteMetadata.github || '#'}
-            className="text-wb-meta hover:text-wb-accent font-inter inline-flex items-center gap-1.5 text-sm transition-colors"
+            className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent font-inter inline-flex items-center gap-1.5 rounded text-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -53,7 +53,7 @@ export default function Page() {
           <p className="text-wb-ink text-xl font-bold">{siteMetadata.title}</p>
           <Link
             href={siteMetadata.siteRepo || '#'}
-            className="text-wb-meta hover:text-wb-accent font-inter inline-flex items-center gap-1.5 text-sm transition-colors"
+            className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent font-inter inline-flex items-center gap-1.5 rounded text-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
             target="_blank"
             rel="noopener noreferrer"
           >
