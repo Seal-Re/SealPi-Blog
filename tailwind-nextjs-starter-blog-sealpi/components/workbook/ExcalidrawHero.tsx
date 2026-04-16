@@ -35,11 +35,17 @@ export default function ExcalidrawHero({
           <ExcalidrawViewer contentJson={contentJson} title={title} compact />
         ) : coverImageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={coverImageUrl} alt={title} className="h-[88%] w-[88%] object-contain" />
+          <img
+            src={coverImageUrl}
+            alt={title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
         ) : (
-          <span className="text-wb-rule font-inter text-xs font-semibold tracking-[0.2em] uppercase">
-            暂无封面
-          </span>
+          <div className="from-wb-rule-soft/30 via-wb-canvas to-wb-rule-soft/20 absolute inset-0 bg-gradient-to-br">
+            <span className="text-wb-rule absolute right-4 bottom-4 font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">
+              no cover
+            </span>
+          </div>
         )}
       </div>
       {coverCaption ? (
