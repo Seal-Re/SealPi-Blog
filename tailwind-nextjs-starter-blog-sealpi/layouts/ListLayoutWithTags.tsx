@@ -41,7 +41,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
         <Link
           href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
           rel="prev"
-          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
         >
           <span aria-hidden="true">←</span> 上一页
         </Link>
@@ -57,7 +57,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
         <Link
           href={`/${basePath}/page/${currentPage + 1}`}
           rel="next"
-          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
         >
           下一页 <span aria-hidden="true">→</span>
         </Link>
@@ -93,7 +93,7 @@ export default function ListLayoutWithTags({
             eyebrowHref ? (
               <Link
                 href={eyebrowHref}
-                className="font-inter text-wb-accent hover:text-wb-ink mb-3 inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.26em] uppercase transition-colors duration-200"
+                className="font-inter text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent mb-3 inline-flex items-center gap-1.5 rounded text-[11px] font-semibold tracking-[0.26em] uppercase transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
               >
                 <span aria-hidden="true">←</span>
                 {eyebrow}
@@ -117,7 +117,7 @@ export default function ListLayoutWithTags({
           <div className="no-scrollbar -mx-1 mb-4 flex gap-1.5 overflow-x-auto px-1 sm:hidden">
             <Link
               href="/blog"
-              className={`rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors ${
+              className={`focus-visible:ring-wb-accent rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:ring-1 focus-visible:outline-none ${
                 pathname.startsWith('/blog') && !pathname.includes('/tags/')
                   ? 'border-wb-accent bg-wb-accent/10 text-wb-accent'
                   : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent'
@@ -133,7 +133,7 @@ export default function ListLayoutWithTags({
                   key={tag.slug}
                   href={`/tags/${tag.slug}`}
                   aria-label={`查看标签：${tag.name}`}
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors ${
+                  className={`focus-visible:ring-wb-accent rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:ring-1 focus-visible:outline-none ${
                     isActive
                       ? 'border-wb-accent bg-wb-accent/10 text-wb-accent'
                       : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent'
@@ -155,7 +155,7 @@ export default function ListLayoutWithTags({
               ) : (
                 <Link
                   href="/blog"
-                  className="hover:text-wb-accent hover:bg-wb-accent/5 text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
+                  className="hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
                 >
                   全部文章
                 </Link>
@@ -172,7 +172,7 @@ export default function ListLayoutWithTags({
                     ) : (
                       <Link
                         href={`/tags/${tag.slug}`}
-                        className="hover:text-wb-accent hover:bg-wb-accent/5 text-wb-meta flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
+                        className="hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent text-wb-meta flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
                         aria-label={`查看标签：${tag.name}`}
                       >
                         <span className="flex-1">{tag.name}</span>
@@ -239,7 +239,7 @@ export default function ListLayoutWithTags({
                           <h2 className="font-fraunces text-wb-ink mt-3 text-[22px] leading-snug font-semibold tracking-tight italic">
                             <Link
                               href={`/${post.path}`}
-                              className="hover:text-wb-accent transition-colors duration-200"
+                              className="hover:text-wb-accent focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
                             >
                               {post.title}
                             </Link>
@@ -250,7 +250,7 @@ export default function ListLayoutWithTags({
                           <div className="mt-4">
                             <Link
                               href={`/${post.path}`}
-                              className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
+                              className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
                               aria-label={`阅读全文：${post.title}`}
                             >
                               阅读全文 &rarr;

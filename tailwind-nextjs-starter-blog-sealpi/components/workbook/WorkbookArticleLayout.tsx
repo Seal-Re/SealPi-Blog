@@ -85,7 +85,7 @@ export default function WorkbookArticleLayout({
 
       <Link
         href={eyebrowHref}
-        className="font-inter text-wb-accent hover:text-wb-ink mb-5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200"
+        className="font-inter text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent mb-5 inline-flex items-center gap-1.5 rounded text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
       >
         <span aria-hidden="true">←</span>
         {eyebrow}
@@ -133,7 +133,7 @@ export default function WorkbookArticleLayout({
               <Link
                 key={post.path}
                 href={`/${post.path}`}
-                className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-2 rounded-xl border p-4 transition-colors"
+                className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
               >
                 {post.coverImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -185,7 +185,7 @@ export default function WorkbookArticleLayout({
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors focus-visible:ring-2 focus-visible:outline-none"
             >
               {prevPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -220,7 +220,7 @@ export default function WorkbookArticleLayout({
           {nextPost ? (
             <Link
               href={`/${nextPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors sm:items-end"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:items-end"
             >
               {nextPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -262,7 +262,7 @@ export default function WorkbookArticleLayout({
       <div className="border-wb-rule-soft mt-8 flex items-center justify-between border-t pt-8">
         <Link
           href="/blog"
-          className="text-wb-meta hover:text-wb-accent font-inter inline-flex items-center gap-2 text-sm transition-colors duration-200"
+          className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent font-inter inline-flex items-center gap-2 rounded text-sm transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
         >
           <span aria-hidden="true">←</span>
           所有文章

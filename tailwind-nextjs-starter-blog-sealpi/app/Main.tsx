@@ -62,7 +62,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                   <h2 className="font-fraunces text-wb-ink mt-3 text-[22px] leading-snug font-semibold tracking-tight italic">
                     <Link
                       href={`/blog/${slug}`}
-                      className="hover:text-wb-accent transition-colors duration-200"
+                      className="hover:text-wb-accent focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
                     >
                       {title}
                     </Link>
@@ -71,7 +71,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                   <div className="mt-4">
                     <Link
                       href={`/blog/${slug}`}
-                      className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
+                      className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
                       aria-label={`阅读全文：${title}`}
                     >
                       阅读全文 &rarr;
@@ -88,7 +88,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
         <div className="mt-6 flex justify-end text-base leading-6 font-medium">
           <Link
             href="/blog"
-            className="text-wb-accent hover:text-wb-ink transition-colors duration-200"
+            className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             aria-label="查看全部文章"
           >
             查看全部文章 &rarr;
