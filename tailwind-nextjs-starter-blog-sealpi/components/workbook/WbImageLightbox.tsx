@@ -19,11 +19,16 @@ export default function WbImageLightbox() {
 
   useEffect(() => {
     if (!lightbox) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setLightbox(null)
     }
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prev
+    }
   }, [lightbox])
 
   if (!lightbox) return null
@@ -37,13 +42,13 @@ export default function WbImageLightbox() {
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         onClick={close}
       />
-      {/* Image */}
+      {/* Image — pointer-events-auto so right-click to save works */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={lightbox.src}
           alt={lightbox.alt}
-          className="max-h-[90vh] max-w-full rounded-xl object-contain shadow-2xl"
+          className="pointer-events-auto max-h-[90vh] max-w-full rounded-xl object-contain shadow-2xl"
         />
       </div>
       {/* Close button */}
