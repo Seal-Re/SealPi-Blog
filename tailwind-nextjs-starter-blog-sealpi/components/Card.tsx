@@ -8,7 +8,11 @@ const Card = ({ title, description, imgSrc, href }) => (
     >
       {imgSrc &&
         (href ? (
-          <Link href={href} aria-label={`查看 ${title}`}>
+          <Link
+            href={href}
+            aria-label={`查看 ${title}`}
+            className="focus-visible:ring-wb-accent block focus-visible:ring-2 focus-visible:outline-none"
+          >
             <Image
               alt={title}
               src={imgSrc}
@@ -32,7 +36,7 @@ const Card = ({ title, description, imgSrc, href }) => (
             <Link
               href={href}
               aria-label={`查看 ${title}`}
-              className="hover:text-wb-accent transition-colors duration-200"
+              className="hover:text-wb-accent focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             >
               {title}
             </Link>
@@ -44,7 +48,7 @@ const Card = ({ title, description, imgSrc, href }) => (
         {href && (
           <Link
             href={href}
-            className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
+            className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             aria-label={`查看 ${title}`}
           >
             了解更多 &rarr;
