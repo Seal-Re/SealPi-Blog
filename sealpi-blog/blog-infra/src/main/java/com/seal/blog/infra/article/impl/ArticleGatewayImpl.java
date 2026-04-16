@@ -164,7 +164,11 @@ public class ArticleGatewayImpl implements ArticleGateway {
             queryWrapper.in(ArticlePO::getArticleId, articleIds);
         }
 
-        queryWrapper.orderByDesc(ArticlePO::getDate);
+        if ("lastmod".equalsIgnoreCase(articlePageQry.getSort())) {
+            queryWrapper.orderByDesc(ArticlePO::getLastmod);
+        } else {
+            queryWrapper.orderByDesc(ArticlePO::getDate);
+        }
 
         Page<ArticlePO> pageRequest = new Page<>(
                 articlePageQry.getPageIndex(),

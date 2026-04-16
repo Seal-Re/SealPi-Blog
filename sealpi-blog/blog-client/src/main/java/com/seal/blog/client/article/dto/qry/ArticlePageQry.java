@@ -32,6 +32,11 @@ public class ArticlePageQry {
      */
     private String status;
 
+    /**
+     * Sort order: date (default) | lastmod.
+     */
+    private String sort;
+
     public String resolveKeyword() {
         if (q != null && !q.trim().isEmpty()) {
             return q.trim();
