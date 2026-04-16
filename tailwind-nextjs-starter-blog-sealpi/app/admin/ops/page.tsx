@@ -38,7 +38,7 @@ async function fetchArticleStats(): Promise<ArticleStats> {
 
 async function fetchRecentArticles() {
   const res = await adminServerGet<PageResult<AdminArticle>>(
-    '/api/v1/admin/articles?pageIndex=1&pageSize=5'
+    '/api/v1/admin/articles?pageIndex=1&pageSize=5&sort=lastmod'
   )
   return res?.data ?? []
 }
