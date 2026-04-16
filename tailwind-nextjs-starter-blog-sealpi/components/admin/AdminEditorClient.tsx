@@ -220,6 +220,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const [syncState, setSyncState] = useState<SyncState>('SUCCESS')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isSceneDirty, setIsSceneDirty] = useState(false)
+    const [isTextDirty, setIsTextDirty] = useState(false)
     const [isUploadingAssets, setIsUploadingAssets] = useState(false)
     const [lastSavedAt, setLastSavedAt] = useState<string>('')
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
@@ -635,6 +636,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           setDraftJson(payload.draftJson)
           pendingDraftJsonRef.current = payload.draftJson
           setIsSceneDirty(false)
+          setIsTextDirty(false)
           setSyncState('SUCCESS')
           const draftSuccessText = source === 'auto' ? '草稿已自动保存。' : '草稿已保存。'
           setStatusMessage(action === 'publish' ? '文章已提交发布。' : draftSuccessText)
@@ -693,7 +695,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     )
 
     useEffect(() => {
-      if (!isSceneDirty || isSubmitting || isUploadingAssets) {
+      if ((!isSceneDirty && !isTextDirty) || isSubmitting || isUploadingAssets) {
         return
       }
       const timer = setTimeout(async () => {
@@ -706,7 +708,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         }
       }, AUTO_SAVE_TO_SERVER_MS)
       return () => clearTimeout(timer)
-    }, [handleSubmit, isSceneDirty, isSubmitting, isUploadingAssets])
+    }, [handleSubmit, isSceneDirty, isTextDirty, isSubmitting, isUploadingAssets])
 
     useEffect(() => {
       const onSaveShortcut = (event: KeyboardEvent) => {
@@ -1015,13 +1017,17 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   <input
                     type="text"
                     value={formState.coverCaption}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setFormState((prev) => ({ ...prev, coverCaption: e.target.value }))
-                    }
+                      setIsTextDirty(true)
+                    }}
                     maxLength={200}
                     placeholder="例：DDD 分层一张图就够了"
                     className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                   />
+                  <p className="text-wb-meta text-right text-xs tabular-nums dark:text-gray-500">
+                    {formState.coverCaption.length} / 200
+                  </p>
                 </label>
                 <label className="block space-y-2.5">
                   <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
@@ -1029,9 +1035,10 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                   </span>
                   <textarea
                     value={formState.draftBodyMd}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
-                    }
+                      setIsTextDirty(true)
+                    }}
                     placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
                     className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y rounded-2xl border px-4 py-3 font-mono text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                   />
