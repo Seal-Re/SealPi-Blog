@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import ExcalidrawHero from './ExcalidrawHero'
+import ExcalidrawHero, { hasRenderableElements } from './ExcalidrawHero'
 import WbMeta from './WbMeta'
 import WbDivider from './WbDivider'
 import BodyMarkdown from './BodyMarkdown'
@@ -73,6 +73,7 @@ export default function WorkbookArticleLayout({
   children,
 }: WorkbookArticleLayoutProps) {
   const hasRelated = relatedPosts && relatedPosts.length > 0
+  const showHero = !!(coverImageUrl || hasRenderableElements(contentJson))
 
   return (
     <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-4 max-w-[820px] rounded-2xl px-6 py-10 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] sm:my-10 sm:px-8 sm:py-12 md:px-16 md:py-14 dark:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.55)]">
@@ -91,18 +92,16 @@ export default function WorkbookArticleLayout({
         {eyebrow}
       </Link>
 
-      <div data-reveal>
-        <ExcalidrawHero
-          contentJson={contentJson}
-          coverImageUrl={coverImageUrl}
-          coverCaption={coverCaption}
-          title={title}
-        />
-      </div>
+      <ExcalidrawHero
+        contentJson={contentJson}
+        coverImageUrl={coverImageUrl}
+        coverCaption={coverCaption}
+        title={title}
+      />
 
       <h1
         data-reveal
-        className="font-fraunces text-wb-ink mt-10 mb-5 text-[28px] leading-[1.12] font-medium tracking-[-0.02em] italic sm:mt-12 sm:text-[38px] sm:leading-[1.1] md:text-[48px] md:leading-[1.08]"
+        className={`font-fraunces text-wb-ink mb-5 text-[28px] leading-[1.12] font-medium tracking-[-0.02em] italic sm:text-[38px] sm:leading-[1.1] md:text-[48px] md:leading-[1.08] ${showHero ? 'mt-10 sm:mt-12' : 'mt-6 sm:mt-8'}`}
       >
         {title}
       </h1>

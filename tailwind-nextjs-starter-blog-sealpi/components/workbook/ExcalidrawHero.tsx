@@ -7,7 +7,7 @@ type ExcalidrawHeroProps = {
   title: string
 }
 
-function hasRenderableElements(contentJson?: string): boolean {
+export function hasRenderableElements(contentJson?: string): boolean {
   if (!contentJson?.trim()) return false
   try {
     const scene = JSON.parse(contentJson) as { elements?: Array<{ isDeleted?: boolean }> }
@@ -29,7 +29,7 @@ export default function ExcalidrawHero({
   if (!showViewer && !coverImageUrl) return null
 
   return (
-    <div className="relative mb-10">
+    <div data-reveal className="relative mb-10">
       <div
         className="border-wb-rule bg-wb-canvas relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[10px] border sm:aspect-video"
         style={{ boxShadow: '3px 4px 0 var(--color-wb-card-shadow)' }}
