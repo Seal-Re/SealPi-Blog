@@ -7,7 +7,7 @@ export const metadata = genPageMetadata({ title: '项目' })
 export default function Projects() {
   return (
     <>
-      <div className="divide-wb-rule-soft divide-y">
+      <div className="wb-page-enter divide-wb-rule-soft divide-y">
         <div className="pt-8 pb-10 md:pt-12">
           <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
             开源 · 实验

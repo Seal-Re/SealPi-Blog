@@ -85,7 +85,7 @@ export default function ListLayoutWithTags({
 
   return (
     <>
-      <div>
+      <div className="wb-page-enter">
         <div className="pt-8 pb-6 md:pt-10">
           {eyebrow ? (
             <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">

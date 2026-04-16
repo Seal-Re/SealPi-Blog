@@ -28,7 +28,7 @@ export default async function ArchivePage() {
   const years = Array.from(byYear.keys()).sort((a, b) => b - a)
 
   return (
-    <div className="pt-8 pb-16 md:pt-12">
+    <div className="wb-page-enter pt-8 pb-16 md:pt-12">
       <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
         时间 · 记录
       </p>
