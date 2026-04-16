@@ -19,7 +19,7 @@ export default function Projects() {
             一些有趣的项目与实验性想法。
           </p>
         </div>
-        <div className="py-12">
+        <div data-reveal className="py-12">
           <div className="-m-4 flex flex-wrap">
             {projectsData.map((d) => (
               <Card
