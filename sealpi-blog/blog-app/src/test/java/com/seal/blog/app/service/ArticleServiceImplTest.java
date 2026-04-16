@@ -527,6 +527,33 @@ class ArticleServiceImplTest {
     }
 
     @Test
+    void getAdjacentBySlug_passesArticleIdToGateway_enablesSameDateNavigation() {
+        // Verifies that both currentDate AND currentArticleId are forwarded to the gateway.
+        // This ensures same-date articles can navigate to each other via (date, articleId) composite ordering.
+        Article current = Article.reconstruct(
+                30, "middle", "s", "middle-adj", "2026-03-15", "2026-03-15",
+                ArticleStatus.PUBLISHED, 0, null, null, null, 0, null, null, null);
+        Article sameDate = Article.reconstruct(
+                31, "same-date newer", "s", "same-date-adj", "2026-03-15", "2026-03-15",
+                ArticleStatus.PUBLISHED, 0, null, null, null, 0, null, null, null);
+
+        when(articleGateway.findBySlug("middle-adj")).thenReturn(current);
+        when(articleGateway.findPrevPublished(eq("2026-03-15"), eq(30))).thenReturn(sameDate);
+        when(articleGateway.findNextPublished(eq("2026-03-15"), eq(30))).thenReturn(null);
+        when(articleGateway.findRelatedPublished(any(), any(), anyInt())).thenReturn(Collections.emptyList());
+
+        SingleResponse<ArticleAdjacentVO> result = service.getAdjacentBySlug("middle-adj", List.of("tag1"));
+
+        assertTrue(result.isSuccess());
+        assertNotNull(result.getData().getPrev());
+        assertEquals("same-date newer", result.getData().getPrev().getTitle());
+        assertNull(result.getData().getNext());
+        // Confirm gateway was called with both date and ID (not just date as in the old API)
+        verify(articleGateway).findPrevPublished("2026-03-15", 30);
+        verify(articleGateway).findNextPublished("2026-03-15", 30);
+    }
+
+    @Test
     void getAdjacentBySlug_noTags_doesNotCallRelatedLookup() {
         Article current = Article.reconstruct(
                 24, "current2", "s", "current-adj2", "2026-03-01", "2026-03-01",
