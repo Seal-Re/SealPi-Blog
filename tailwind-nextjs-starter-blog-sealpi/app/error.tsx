@@ -10,33 +10,32 @@ export default function Error({
   reset: () => void
 }) {
   return (
-    <div className="flex flex-col items-start justify-center space-y-6 py-16">
-      <div className="space-y-3">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16">
+      <div className="border-wb-rule-soft bg-wb-canvas w-full max-w-md rounded-[2rem] border p-10 text-center shadow-[0_12px_40px_-12px_rgba(31,26,21,0.14)] dark:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)]">
         <span className="border-wb-accent/40 bg-wb-accent/10 text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase">
           加载失败
         </span>
-        <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic">
+        <h1 className="font-fraunces text-wb-ink mt-5 text-2xl font-medium tracking-tight italic">
           页面加载出错
         </h1>
-        <p className="text-wb-meta max-w-xl text-lg leading-7">
+        <p className="text-wb-meta mt-3 text-sm leading-7">
           {error.message || '服务暂时不可用，请稍后重试。'}
         </p>
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={reset}
-          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition"
-        >
-          重试
-        </button>
-        <Link
-          href="/"
-          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition"
-        >
-          返回首页
-        </Link>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <button
+            type="button"
+            onClick={reset}
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition"
+          >
+            重试
+          </button>
+          <Link
+            href="/"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition"
+          >
+            返回首页
+          </Link>
+        </div>
       </div>
     </div>
   )

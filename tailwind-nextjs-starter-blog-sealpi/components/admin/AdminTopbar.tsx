@@ -75,7 +75,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
       </div>
 
       {/* Mobile nav — only visible when sidebar is hidden (< lg) */}
-      <nav className="no-scrollbar flex gap-1 overflow-x-auto border-t border-gray-800/50 px-4 pt-1 pb-1 lg:hidden">
+      <nav className="no-scrollbar border-wb-rule-soft flex gap-1 overflow-x-auto border-t px-4 pt-1 pb-1 lg:hidden dark:border-gray-800/50">
         {mobileNavItems.map((item) => {
           const active =
             pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
@@ -85,8 +85,8 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
               href={item.href}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors ${
                 active
-                  ? 'bg-white/10 text-white'
-                  : 'text-gray-400 hover:bg-white/6 hover:text-gray-200'
+                  ? 'bg-wb-accent/10 text-wb-accent dark:bg-white/10 dark:text-white'
+                  : 'text-wb-meta hover:bg-wb-paper/60 hover:text-wb-ink dark:text-gray-400 dark:hover:bg-white/6 dark:hover:text-gray-200'
               }`}
             >
               {item.label}
