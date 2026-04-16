@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 
 /**
  * Attaches a single IntersectionObserver that reveals elements marked
- * [data-reveal]. Start state (CSS): opacity-[0.35] blur-[8px]. On intersect,
+ * [data-reveal]. Start state (CSS): opacity 0.35, blur(4px). On intersect,
  * the `data-revealed` attribute is set; CSS transitions to final state.
  *
  * Respects prefers-reduced-motion by skipping the observer entirely.

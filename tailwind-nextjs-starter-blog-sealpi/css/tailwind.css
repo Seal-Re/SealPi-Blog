@@ -216,6 +216,9 @@ input:-webkit-autofill:focus {
     filter: none;
     transition: none;
   }
+  .wb-page-enter {
+    animation: none;
+  }
 }
 
 /* Workbook page-enter animation (spec §4.3, no framer-motion needed) */
