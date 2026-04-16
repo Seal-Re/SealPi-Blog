@@ -133,10 +133,6 @@ public class Article {
         return article;
     }
 
-    public String getBodyMd() { return bodyMd; }
-    public String getDraftBodyMd() { return draftBodyMd; }
-    public String getCoverCaption() { return coverCaption; }
-
     public Article withTags(List<Tag> tags) {
         this.tags = tags != null ? tags : Collections.emptyList();
         return this;
