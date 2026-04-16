@@ -61,6 +61,18 @@ function ArticleRow({ article }: { article: AdminArticle }) {
             <span>ID: {article.articleId}</span>
             <span>Slug: {article.url}</span>
           </div>
+          {article.tags && article.tags.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {article.tags.map((tag) => (
+                <span
+                  key={tag.tagId}
+                  className="border-wb-rule-soft text-wb-meta rounded border px-2 py-0.5 font-mono text-[10px] dark:border-gray-700 dark:text-gray-500"
+                >
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </td>
       <td className="px-4 py-5">

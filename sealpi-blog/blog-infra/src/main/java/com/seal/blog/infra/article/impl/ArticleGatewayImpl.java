@@ -89,7 +89,11 @@ public class ArticleGatewayImpl implements ArticleGateway {
 
     @Override
     public void remove(Integer id) {
-        ArticlePO articlePO = articleMapper.selectById(id);
+        // Clean up tag relationships before removing the article
+        LambdaQueryWrapper<RelyPO> relyWrapper = new LambdaQueryWrapper<>();
+        relyWrapper.eq(RelyPO::getArticleId, id);
+        relyMapper.delete(relyWrapper);
+
         articleMapper.deleteById(id);
     }
 
