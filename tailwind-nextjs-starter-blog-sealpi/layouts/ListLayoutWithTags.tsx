@@ -83,7 +83,7 @@ export default function ListLayoutWithTags({
     <>
       <div>
         <div className="pt-6 pb-4">
-          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden sm:text-4xl md:text-6xl">
+          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden">
             {title}
           </h1>
         </div>

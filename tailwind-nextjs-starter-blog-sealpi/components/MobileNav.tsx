@@ -30,7 +30,7 @@ const MobileNav = () => {
 
   return (
     <>
-      <button aria-label="Toggle Menu" onClick={onToggleNav} className="sm:hidden">
+      <button aria-label="打开导航菜单" onClick={onToggleNav} className="sm:hidden">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -127,7 +127,7 @@ const MobileNav = () => {
 
               <button
                 className="hover:text-wb-accent text-wb-ink fixed top-7 right-4 z-80 h-16 w-16 p-4"
-                aria-label="Toggle Menu"
+                aria-label="关闭导航菜单"
                 onClick={onToggleNav}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
