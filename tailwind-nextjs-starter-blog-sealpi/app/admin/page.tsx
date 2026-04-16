@@ -100,7 +100,7 @@ export default async function AdminPage() {
               </div>
             </dl>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <AdminQuickAction
                 href="/admin/articles"
                 title="文章列表"
@@ -110,6 +110,11 @@ export default async function AdminPage() {
                 href="/admin/editor"
                 title="新建文章"
                 description="直接进入编辑入口，使用 Excalidraw 进行创作、保存草稿与发布。"
+              />
+              <AdminQuickAction
+                href="/admin/drafts"
+                title="草稿箱"
+                description="查看所有已保存的草稿，选择继续编辑或发布。"
               />
               <AdminQuickAction
                 href="/admin/users"

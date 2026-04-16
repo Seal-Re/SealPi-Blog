@@ -38,13 +38,12 @@ export default async function AdminEditorPage(props: {
   const articleId = searchParams?.articleId
   const forceNew = searchParams?.mode === 'new'
   const article = articleId ? await fetchArticleDetail(articleId) : null
-  const resolvedArticleId = articleId || article?.articleId
   const draftStats = forceNew && !articleId ? await fetchDraftStats() : { draftCount: 0 }
 
   return (
     <AdminEditorWorkspace
       article={article}
-      articleId={resolvedArticleId}
+      articleId={articleId}
       draftHint={forceNew ? draftStats : undefined}
     />
   )

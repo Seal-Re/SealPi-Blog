@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from '@/components/Link'
 import { AdminApiError, deleteAdminArticle, offlineAdminArticle } from '@/lib/admin-api'
 
@@ -16,6 +16,12 @@ export default function AdminArticleRowActions({ articleId, articleUrl, isPublis
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [tone, setTone] = useState<'ok' | 'error'>('ok')
+
+  useEffect(() => {
+    if (!message) return
+    const timer = setTimeout(() => setMessage(''), 4000)
+    return () => clearTimeout(timer)
+  }, [message])
 
   const handleDelete = async () => {
     if (loading) return
