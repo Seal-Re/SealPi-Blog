@@ -207,7 +207,7 @@ export default function ListLayoutWithTags({
                           <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
                         )}
                         <div className="p-6">
-                          <div className="mb-2 flex flex-wrap items-center gap-3">
+                          <div className="flex flex-wrap items-center gap-3">
                             <time
                               dateTime={post.date}
                               className="text-wb-meta text-sm font-medium"
@@ -236,7 +236,7 @@ export default function ListLayoutWithTags({
                               </div>
                             )}
                           </div>
-                          <h2 className="font-fraunces text-wb-ink text-[22px] leading-snug font-semibold tracking-tight italic">
+                          <h2 className="font-fraunces text-wb-ink mt-3 text-[22px] leading-snug font-semibold tracking-tight italic">
                             <Link
                               href={`/${post.path}`}
                               className="hover:text-wb-accent transition-colors duration-200"
@@ -244,10 +244,10 @@ export default function ListLayoutWithTags({
                               {post.title}
                             </Link>
                           </h2>
-                          <p className="text-wb-meta mt-2 line-clamp-2 text-sm leading-6">
+                          <p className="text-wb-meta mt-3 line-clamp-3 text-sm leading-7">
                             {post.summary}
                           </p>
-                          <div className="mt-3">
+                          <div className="mt-4">
                             <Link
                               href={`/${post.path}`}
                               className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"

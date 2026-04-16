@@ -198,8 +198,8 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Response delete(Integer aritcleId) {
-        articleGateway.remove(aritcleId);
+    public Response delete(Integer articleId) {
+        articleGateway.remove(articleId);
 
         return Response.buildSuccess();
     }
