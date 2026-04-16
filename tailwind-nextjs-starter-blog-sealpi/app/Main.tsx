@@ -25,7 +25,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                   <div className="relative h-52 w-full overflow-hidden">
                     <Image
                       src={coverImageUrl}
-                      alt={`${title} cover`}
+                      alt={title}
                       fill
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                       sizes="(max-width: 1280px) 100vw, 60vw"

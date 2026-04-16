@@ -166,7 +166,7 @@ export default function ListLayoutWithTags({
                         <div className="relative h-48 w-full overflow-hidden">
                           <Image
                             src={post.coverImageUrl}
-                            alt={`${post.title} cover`}
+                            alt={post.title}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             sizes="(max-width: 1280px) 100vw, 60vw"
