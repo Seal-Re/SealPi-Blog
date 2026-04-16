@@ -20,6 +20,7 @@ interface ListLayoutProps {
   initialDisplayPosts?: PublicBlogPost[]
   pagination?: PaginationProps
   availableTags?: PublicTag[]
+  totalCount?: number
   emptyTitle?: string
   emptyDescription?: string
 }
@@ -75,6 +76,7 @@ export default function ListLayoutWithTags({
   initialDisplayPosts = [],
   pagination,
   availableTags = [],
+  totalCount,
   emptyTitle = '暂无文章',
   emptyDescription = '',
 }: ListLayoutProps) {
@@ -90,9 +92,14 @@ export default function ListLayoutWithTags({
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl">
-            {title}
-          </h1>
+          <div className="flex items-baseline gap-3">
+            <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl">
+              {title}
+            </h1>
+            {totalCount != null && totalCount > 0 ? (
+              <span className="font-inter text-wb-meta text-sm">共 {totalCount} 篇</span>
+            ) : null}
+          </div>
         </div>
         {availableTags.length > 0 && (
           <div className="no-scrollbar -mx-1 mb-4 flex gap-2 overflow-x-auto px-1 sm:hidden">

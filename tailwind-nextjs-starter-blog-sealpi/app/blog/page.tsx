@@ -33,6 +33,7 @@ export default async function BlogPage() {
       title="全部文章"
       eyebrow="随笔 · 技术"
       availableTags={availableTags}
+      totalCount={response.totalCount}
     />
   )
 }

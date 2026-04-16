@@ -61,6 +61,7 @@ export default async function Page(props: { params: Promise<{ page: string }> })
       title="全部文章"
       eyebrow="随笔 · 技术"
       availableTags={availableTags}
+      totalCount={response.totalCount}
     />
   )
 }
