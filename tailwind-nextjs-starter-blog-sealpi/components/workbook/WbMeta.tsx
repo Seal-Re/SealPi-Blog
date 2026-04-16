@@ -2,21 +2,42 @@ import { slug } from 'github-slugger'
 import Link from 'next/link'
 
 type WbMetaProps = {
-  date: string
-  lastmod?: string
+  /** ISO 8601 date string (e.g. "2026-04-16T00:00:00.000Z"). Formatted to zh-CN locale internally. */
+  dateIso: string
+  /** ISO 8601 lastmod string. Only shown when it falls on a different calendar day than dateIso. */
+  lastmodIso?: string
   readMinutes?: number
   viewCount?: number
   tags?: string[]
 }
 
-export default function WbMeta({ date, lastmod, readMinutes, viewCount, tags = [] }: WbMetaProps) {
+function formatZhCN(isoDate: string): string {
+  return new Date(isoDate).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+
+export default function WbMeta({
+  dateIso,
+  lastmodIso,
+  readMinutes,
+  viewCount,
+  tags = [],
+}: WbMetaProps) {
+  const showLastmod =
+    lastmodIso != null && lastmodIso.substring(0, 10) !== dateIso.substring(0, 10)
+
   return (
     <div className="font-inter text-wb-meta mb-7 flex flex-wrap items-center gap-3.5 text-[13px]">
-      <span>{date}</span>
-      {lastmod ? (
+      <time dateTime={dateIso}>{formatZhCN(dateIso)}</time>
+      {showLastmod ? (
         <>
           <span className="opacity-40">·</span>
-          <span className="text-[12px] opacity-70">更新于 {lastmod}</span>
+          <time dateTime={lastmodIso} className="text-[12px] opacity-70">
+            更新于 {formatZhCN(lastmodIso!)}
+          </time>
         </>
       ) : null}
       {readMinutes != null ? (

@@ -33,8 +33,8 @@ type RelatedPost = {
 
 type WorkbookArticleLayoutProps = {
   title: string
-  date: string
-  lastmod?: string
+  dateIso: string
+  lastmodIso?: string
   tags?: string[]
   readMinutes?: number
   viewCount?: number
@@ -53,8 +53,8 @@ type WorkbookArticleLayoutProps = {
 
 export default function WorkbookArticleLayout({
   title,
-  date,
-  lastmod,
+  dateIso,
+  lastmodIso,
   tags,
   readMinutes,
   viewCount,
@@ -106,8 +106,8 @@ export default function WorkbookArticleLayout({
       </h1>
 
       <WbMeta
-        date={date}
-        lastmod={lastmod}
+        dateIso={dateIso}
+        lastmodIso={lastmodIso}
         readMinutes={readMinutes}
         viewCount={viewCount}
         tags={tags}

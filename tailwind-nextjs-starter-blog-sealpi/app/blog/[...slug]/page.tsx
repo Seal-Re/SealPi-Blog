@@ -137,17 +137,8 @@ export default async function Page(props: PageProps) {
   }
 
   const authorDetails = getAuthorDetails()
-  const date = normalizeDate(article.date)
-  const lastmodIso = article.lastmod ? normalizeDate(article.lastmod) : null
-  // Only surface lastmod when it's a meaningfully different day from the publish date
-  const formattedLastmod =
-    lastmodIso && lastmodIso.substring(0, 10) !== date.substring(0, 10)
-      ? new Date(lastmodIso).toLocaleDateString('zh-CN', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })
-      : undefined
+  const dateIso = normalizeDate(article.date)
+  const lastmodIso = article.lastmod ? normalizeDate(article.lastmod) : undefined
   const summary = article.summary?.trim()
   const currentTags = article.tags?.map((t) => t.name).filter((n): n is string => Boolean(n)) ?? []
   const adjacent = await fetchAdjacentBySlug(article.url, currentTags)
@@ -165,13 +156,16 @@ export default async function Page(props: PageProps) {
     tags: r.tags ?? [],
     date: r.date,
   }))
+  const articleUrl = `${siteMetadata.siteUrl}/blog/${article.url}`
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: article.title,
-    datePublished: date,
+    url: articleUrl,
+    datePublished: dateIso,
     dateModified: normalizeDate(article.lastmod || article.date),
     description: summary || siteMetadata.description,
+    keywords: currentTags.length > 0 ? currentTags.join(', ') : undefined,
     image: article.coverImageUrl
       ? [
           article.coverImageUrl.includes('http')
@@ -193,12 +187,8 @@ export default async function Page(props: PageProps) {
       />
       <WorkbookArticleLayout
         title={article.title}
-        date={new Date(date).toLocaleDateString('zh-CN', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        })}
-        lastmod={formattedLastmod}
+        dateIso={dateIso}
+        lastmodIso={lastmodIso}
         tags={currentTags}
         readMinutes={estimateReadMinutes(article.bodyMd)}
         viewCount={article.viewCount}

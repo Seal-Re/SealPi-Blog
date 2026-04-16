@@ -19,14 +19,14 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
   const article = await fetchArticleForPreview(id)
   if (!article) return notFound()
 
+  const dateIso = article.date
+    ? new Date(article.date).toISOString()
+    : new Date().toISOString()
+
   return (
     <WorkbookArticleLayout
       title={article.title || '（无标题草稿）'}
-      date={new Date(article.date || Date.now()).toLocaleDateString('zh-CN', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })}
+      dateIso={dateIso}
       tags={article.tags?.map((t) => t.name).filter((n): n is string => Boolean(n)) || []}
       contentJson={article.draftJson || article.contentJson}
       coverImageUrl={article.coverImageUrl}
