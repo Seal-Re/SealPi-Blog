@@ -147,6 +147,7 @@ export default async function AdminArticlesPage(props: {
   const q = searchParams?.q?.trim() || ''
   const status = searchParams?.status || 'all'
   const tag = searchParams?.tag?.trim() || ''
+  const hasFilter = Boolean(q || (status && status !== 'all') || tag)
   let articles: AdminArticle[] = []
   let pageSize = 10
   let totalCount = 0
@@ -179,6 +180,17 @@ export default async function AdminArticlesPage(props: {
           <PageTitle>文章列表</PageTitle>
           <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
             管理所有文章，进行创建、编辑、发布与删除。
+            {hasFilter && (
+              <span className="text-wb-accent ml-2 dark:text-gray-400">
+                （已筛选）
+                <a
+                  href="/admin/articles"
+                  className="text-wb-meta hover:text-wb-ink ml-1 underline underline-offset-2 dark:text-gray-500 dark:hover:text-gray-300"
+                >
+                  清空
+                </a>
+              </span>
+            )}
           </p>
         </div>
 
@@ -201,7 +213,7 @@ export default async function AdminArticlesPage(props: {
       <div className="grid gap-4 md:grid-cols-3">
         <div className="border-wb-rule-soft bg-wb-canvas rounded-3xl border p-5 dark:border-gray-800 dark:bg-gray-950">
           <p className="text-wb-meta text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
-            文章总数
+            {hasFilter ? '筛选结果数' : '文章总数'}
           </p>
           <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{totalCount}</p>
         </div>
@@ -260,7 +272,9 @@ export default async function AdminArticlesPage(props: {
                     colSpan={6}
                     className="text-wb-meta px-4 py-14 text-center text-sm leading-7 dark:text-gray-400"
                   >
-                    当前没有文章数据。可点击"新建文章"创建，或通过筛选查看草稿与已发布内容。
+                    {hasFilter
+                      ? '未找到符合条件的文章。'
+                      : '当前没有文章数据。可点击"新建文章"创建，或通过筛选查看草稿与已发布内容。'}
                   </td>
                 </tr>
               )}
