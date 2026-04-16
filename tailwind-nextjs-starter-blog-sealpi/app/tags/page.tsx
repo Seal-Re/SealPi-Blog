@@ -27,7 +27,7 @@ export default async function Page() {
       {tags.length === 0 ? (
         <p className="text-wb-meta text-sm">暂无标签数据。</p>
       ) : (
-        <div className="flex flex-wrap gap-3">
+        <div data-reveal className="flex flex-wrap gap-3">
           {sorted.map((tag) => {
             // Scale font size between 0.8rem and 1.25rem based on relative count
             const ratio = maxCount > 1 ? (tag.count - 1) / (maxCount - 1) : 0

@@ -54,10 +54,10 @@ export default async function AdminPage() {
   const [allResult, publishedResult, draftResult, recentResult] = await Promise.all([
     adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
     adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=PUBLISHED'
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=published'
     ),
     adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=DRAFT'
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
     ),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=5&sort=lastmod'

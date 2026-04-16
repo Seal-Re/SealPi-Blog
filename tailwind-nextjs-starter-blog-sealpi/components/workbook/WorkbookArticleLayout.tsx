@@ -4,7 +4,6 @@ import ExcalidrawHero, { hasRenderableElements } from './ExcalidrawHero'
 import WbMeta from './WbMeta'
 import WbDivider from './WbDivider'
 import BodyMarkdown from './BodyMarkdown'
-import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
@@ -78,7 +77,6 @@ export default function WorkbookArticleLayout({
 
   return (
     <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-4 max-w-[820px] rounded-2xl px-6 py-10 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] sm:my-10 sm:px-8 sm:py-12 md:px-16 md:py-14 dark:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.55)]">
-      <WorkbookRevealInit />
       <WorkbookReadingProgress />
       <ScrollTopAndComment />
       <CopyCodeInit />
