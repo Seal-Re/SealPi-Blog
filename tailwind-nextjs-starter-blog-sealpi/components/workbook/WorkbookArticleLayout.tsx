@@ -43,6 +43,7 @@ type WorkbookArticleLayoutProps = {
   coverCaption?: string
   bodyMd?: string
   eyebrow?: string
+  eyebrowHref?: string
   articleId?: string | number
   slug?: string
   prevPost?: AdjacentPost | null
@@ -63,6 +64,7 @@ export default function WorkbookArticleLayout({
   coverCaption,
   bodyMd,
   eyebrow = '随笔',
+  eyebrowHref = '/blog',
   articleId,
   slug,
   prevPost,
@@ -82,7 +84,7 @@ export default function WorkbookArticleLayout({
       {articleId != null ? <ViewTracker articleId={articleId} /> : null}
 
       <Link
-        href="/blog"
+        href={eyebrowHref}
         className="font-inter text-wb-accent hover:text-wb-ink mb-5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200"
       >
         <span aria-hidden="true">←</span>

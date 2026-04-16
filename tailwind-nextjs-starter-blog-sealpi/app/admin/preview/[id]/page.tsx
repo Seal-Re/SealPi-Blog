@@ -33,6 +33,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
       coverCaption={article.coverCaption}
       bodyMd={article.draftBodyMd || article.bodyMd}
       eyebrow="草稿预览"
+      eyebrowHref="/admin/drafts"
     />
   )
 }

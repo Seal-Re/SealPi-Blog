@@ -1,6 +1,7 @@
 {
-  "name": "",
-  "short_name": "",
+  "name": "Sealの小屋",
+  "short_name": "Sealの小屋",
+  "description": "Seal 的个人博客，记录技术探索与日常思考。",
   "icons": [
     {
       "src": "/android-chrome-96x96.png",
@@ -8,7 +9,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#000000",
-  "background_color": "#000000",
+  "theme_color": "#f5ece1",
+  "background_color": "#f5ece1",
   "display": "standalone"
 }
