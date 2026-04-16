@@ -16,13 +16,13 @@ async function fetchArticleDetail(articleId: string) {
     return null
   }
 
-  const response = await adminFetch<ApiResult<AdminArticle>>(`/api/v1/articles/${numericId}`)
+  const response = await adminFetch<ApiResult<AdminArticle>>(`/api/admin/articles/${numericId}`)
   return response?.data || null
 }
 
 async function fetchDraftStats() {
   const response = await adminFetch<PageResult<AdminArticle>>(
-    '/api/v1/articles?pageIndex=1&pageSize=1&status=draft'
+    '/api/admin/articles?pageIndex=1&pageSize=1&status=draft'
   )
   return {
     draftCount: response?.totalCount || 0,

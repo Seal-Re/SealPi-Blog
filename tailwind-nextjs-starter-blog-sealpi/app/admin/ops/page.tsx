@@ -18,11 +18,11 @@ type ArticleStats = {
 
 async function fetchArticleStats(): Promise<ArticleStats> {
   const [totalRes, publishedRes, draftRes, usersRes] = await Promise.allSettled([
-    adminFetch<PageResult<AdminArticle>>('/api/v1/articles?pageIndex=1&pageSize=1'),
+    adminFetch<PageResult<AdminArticle>>('/api/admin/articles?pageIndex=1&pageSize=1'),
     adminFetch<PageResult<AdminArticle>>(
-      '/api/v1/articles?pageIndex=1&pageSize=1&status=published'
+      '/api/admin/articles?pageIndex=1&pageSize=1&status=published'
     ),
-    adminFetch<PageResult<AdminArticle>>('/api/v1/articles?pageIndex=1&pageSize=1&status=draft'),
+    adminFetch<PageResult<AdminArticle>>('/api/admin/articles?pageIndex=1&pageSize=1&status=draft'),
     adminFetch<PageResult<AdminUser>>('/api/admin/users?pageIndex=1&pageSize=1'),
   ])
 
@@ -37,7 +37,7 @@ async function fetchArticleStats(): Promise<ArticleStats> {
 async function fetchRecentArticles() {
   try {
     const res = await adminFetch<PageResult<AdminArticle>>(
-      '/api/v1/articles?pageIndex=1&pageSize=5'
+      '/api/admin/articles?pageIndex=1&pageSize=5'
     )
     return res?.data ?? []
   } catch {

@@ -119,7 +119,7 @@ async function fetchArticles(pageIndex: number, q?: string, status?: string, tag
     params.set('tag', tag)
   }
 
-  return adminFetch<PageResult<AdminArticle>>(`/api/v1/articles?${params.toString()}`)
+  return adminFetch<PageResult<AdminArticle>>(`/api/admin/articles?${params.toString()}`)
 }
 
 function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: string, tag?: string) {

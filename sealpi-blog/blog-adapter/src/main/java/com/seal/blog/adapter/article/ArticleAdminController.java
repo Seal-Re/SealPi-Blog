@@ -5,7 +5,12 @@ import com.seal.blog.client.article.dto.cmd.ArticleCreateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
+import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
+import com.seal.blog.client.article.dto.qry.ArticlePageQry;
+import com.seal.blog.client.article.dto.vo.ArticleVO;
+import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.Response;
+import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.infra.oss.MinioObjectStorage;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -16,6 +21,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,6 +39,20 @@ public class ArticleAdminController {
     private final ArticleServiceI articleService;
 
     private final MinioObjectStorage objectStorage;
+
+    /** Admin article list — returns all articles (any status). Requires JWT auth via AdminAuthFilter. */
+    @GetMapping("/articles")
+    public PageResponse<ArticleVO> adminList(@Valid ArticlePageQry qry) {
+        return articleService.getPage(qry);
+    }
+
+    /** Admin article detail — returns full article including draft fields. Requires JWT auth. */
+    @GetMapping("/articles/{id}")
+    public SingleResponse<ArticleVO> adminGetById(@PathVariable("id") Integer id) {
+        ArticleByIdQry qry = new ArticleByIdQry();
+        qry.setArticleId(id);
+        return articleService.getSingleById(qry);
+    }
 
     // Legacy create/update endpoints (non-admin draft/publish semantics).
     // Keep them for now under /legacy to avoid conflicting with v1 admin write endpoints.

@@ -8,6 +8,7 @@ import com.seal.blog.domain.article.model.Article;
 import com.seal.blog.domain.article.model.ArticleStatus;
 import com.seal.blog.domain.article.model.Tag;
 import org.mapstruct.Mapper;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.Collection;
@@ -26,9 +27,46 @@ public interface ArticleAssembler {
     }
 
     /**
-     * Entity -> VO
+     * Entity -> VO (full, for admin use — includes draft fields).
      */
     ArticleVO toVO(Article article);
+
+    /**
+     * Entity -> VO stripped of draft-only fields (for public endpoints).
+     * Prevents in-progress draft content from leaking to unauthenticated callers.
+     * @Named prevents MapStruct from picking this up as an implicit collection mapping method.
+     */
+    @Named("toPublicVO")
+    default ArticleVO toPublicVO(Article article) {
+        ArticleVO vo = toVO(article);
+        if (vo == null) {
+            return null;
+        }
+        vo.setDraftJson(null);
+        vo.setDraftBodyMd(null);
+        return vo;
+    }
+
+    /**
+     * 分页转换 (public — strips draft fields)
+     */
+    default PageResponse<ArticleVO> toPublicPageResponse(PageResponse<Article> pages) {
+        if (pages == null) {
+            return PageResponse.empty();
+        }
+
+        Collection<ArticleVO> voList = pages.getData() == null ? java.util.Collections.emptyList()
+                : pages.getData().stream()
+                        .map(this::toPublicVO)
+                        .collect(java.util.stream.Collectors.toList());
+
+        return PageResponse.of(
+                voList,
+                pages.getTotalCount(),
+                pages.getPageSize(),
+                pages.getPageIndex()
+        );
+    }
 
     /**
      * Domain Tag -> VO

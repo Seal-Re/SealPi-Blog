@@ -187,7 +187,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
             return SingleResponse.buildSingleFailure("404", "文章不存在");
         }
 
-        return SingleResponse.of(articleAssembler.toVO(article));
+        return SingleResponse.of(articleAssembler.toPublicVO(article));
     }
 
     @Override
@@ -198,14 +198,14 @@ public class ArticleServiceImpl implements ArticleServiceI {
             return SingleResponse.buildSingleFailure("404", "文章不存在");
         }
 
-        return SingleResponse.of(articleAssembler.toVO(article));
+        return SingleResponse.of(articleAssembler.toPublicVO(article));
     }
 
     @Override
     public PageResponse<ArticleVO> getPage(ArticlePageQry qry) {
         PageResponse<Article> articlePage = articleGateway.PageQuery(qry);
 
-        return articleAssembler.toPageResponse(articlePage);
+        return articleAssembler.toPublicPageResponse(articlePage);
     }
 
     @Override

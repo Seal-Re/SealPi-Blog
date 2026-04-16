@@ -1,5 +1,10 @@
 import { proxyAdminRequest } from '@/app/api/admin/_utils'
 
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params
+  return proxyAdminRequest(`/api/v1/admin/articles/${id}`, 'GET')
+}
+
 export async function PUT(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params
   const formData = await request.formData()

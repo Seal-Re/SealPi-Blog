@@ -10,7 +10,7 @@ type PreviewPageProps = {
 export const dynamic = 'force-dynamic'
 
 async function fetchArticleForPreview(id: string): Promise<AdminArticle | null> {
-  const response = await proxyAdminRequest(`/api/v1/articles/${id}`, 'GET')
+  const response = await proxyAdminRequest(`/api/v1/admin/articles/${id}`, 'GET')
   if (!response || !response.ok) return null
   const payload = (await response.json()) as ApiResult<AdminArticle>
   return payload.data || null

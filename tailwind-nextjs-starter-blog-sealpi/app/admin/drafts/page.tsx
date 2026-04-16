@@ -84,7 +84,7 @@ export default async function AdminDraftsPage() {
 
   try {
     const response = await adminFetch<PageResult<AdminArticle>>(
-      '/api/v1/articles?status=draft&pageSize=50&pageIndex=1'
+      '/api/admin/articles?status=draft&pageSize=50&pageIndex=1'
     )
     drafts = response?.data || []
   } catch (error) {
