@@ -161,7 +161,7 @@ export default function ListLayoutWithTags({
               <ul>
                 {displayPosts.map((post) => (
                   <li key={post.path} className="py-3">
-                    <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)]">
+                    <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]">
                       {post.coverImageUrl ? (
                         <div className="relative h-48 w-full overflow-hidden">
                           <Image
