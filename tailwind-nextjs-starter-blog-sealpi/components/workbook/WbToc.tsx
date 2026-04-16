@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import GithubSlugger from 'github-slugger'
 
 type TocHeading = {
@@ -48,6 +51,36 @@ function extractHeadings(markdown: string): TocHeading[] {
 
 export default function WbToc({ markdown }: { markdown: string }) {
   const headings = extractHeadings(markdown)
+  const [activeId, setActiveId] = useState<string>('')
+
+  useEffect(() => {
+    if (headings.length === 0) return
+
+    const els = headings
+      .map((h) => document.getElementById(h.id))
+      .filter((el): el is HTMLElement => el !== null)
+
+    if (els.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the topmost entry that is intersecting
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+        if (visible.length > 0) {
+          setActiveId(visible[0].target.id)
+        }
+      },
+      // Track headings in the top 35% of the viewport, offset for the sticky header
+      { rootMargin: '-72px 0px -65% 0px', threshold: 0 }
+    )
+
+    els.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markdown])
+
   if (headings.length < 2) return null
 
   return (
@@ -59,16 +92,21 @@ export default function WbToc({ markdown }: { markdown: string }) {
         目录
       </p>
       <ol className="space-y-1.5">
-        {headings.map((h) => (
-          <li key={`${h.id}-${h.level}`} style={{ paddingLeft: h.level === 3 ? '1rem' : 0 }}>
-            <a
-              href={`#${h.id}`}
-              className="text-wb-meta hover:text-wb-accent text-sm leading-snug transition-colors duration-150"
-            >
-              {h.text}
-            </a>
-          </li>
-        ))}
+        {headings.map((h) => {
+          const isActive = h.id === activeId
+          return (
+            <li key={`${h.id}-${h.level}`} style={{ paddingLeft: h.level === 3 ? '1rem' : 0 }}>
+              <a
+                href={`#${h.id}`}
+                className={`block text-sm leading-snug transition-colors duration-150 ${
+                  isActive ? 'text-wb-accent font-medium' : 'text-wb-meta hover:text-wb-accent'
+                }`}
+              >
+                {h.text}
+              </a>
+            </li>
+          )
+        })}
       </ol>
     </nav>
   )
