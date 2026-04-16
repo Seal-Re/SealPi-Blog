@@ -49,13 +49,13 @@ export default function Page() {
         <div className="mt-7 flex flex-wrap items-center gap-3">
           <Link
             href="/blog"
-            className="bg-wb-ink text-wb-paper hover:bg-wb-accent rounded-full px-6 py-2.5 text-sm font-semibold transition-colors duration-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-accent focus-visible:ring-wb-accent rounded-full px-6 py-2.5 text-sm font-semibold transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
           >
             浏览全部文章
           </Link>
           <Link
             href="/about"
-            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent rounded-full border px-6 py-2.5 text-sm font-medium transition-colors duration-200"
+            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent rounded-full border px-6 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
           >
             关于我
           </Link>
