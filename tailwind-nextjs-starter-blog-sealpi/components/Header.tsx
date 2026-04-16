@@ -54,7 +54,7 @@ const Header = () => {
         ) : (
           <button
             type="button"
-            className="border-wb-rule text-wb-meta hover:border-wb-ink hover:text-wb-ink hidden rounded-full border px-3 py-1 text-xs font-semibold transition sm:block"
+            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:bg-wb-accent/5 hover:text-wb-accent hidden rounded-full border px-3 py-1 text-xs font-semibold transition sm:block"
             onClick={() => signIn('github', { callbackUrl: '/' })}
           >
             登录

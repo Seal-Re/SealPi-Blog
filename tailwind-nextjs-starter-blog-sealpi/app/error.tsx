@@ -27,13 +27,13 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition"
         >
           重试
         </button>
         <Link
           href="/"
-          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition"
         >
           返回首页
         </Link>

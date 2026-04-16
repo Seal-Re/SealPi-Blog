@@ -44,7 +44,7 @@ const ScrollTopAndComment = () => {
       <button
         aria-label="Scroll To Top"
         onClick={handleScrollTop}
-        className="border-wb-rule-soft bg-wb-paper text-wb-meta hover:bg-wb-canvas hover:text-wb-accent rounded-full border p-2 transition-all"
+        className="border-wb-rule-soft bg-wb-paper/90 text-wb-meta hover:bg-wb-canvas hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all"
       >
         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path
