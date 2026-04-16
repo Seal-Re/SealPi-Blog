@@ -21,7 +21,6 @@ type AdjacentPost = {
   path: string
   date?: string
   coverImageUrl?: string
-  summary?: string
 }
 
 type RelatedPost = {
