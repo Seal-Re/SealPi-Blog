@@ -6,6 +6,7 @@ import com.seal.blog.domain.article.model.Article;
 import com.seal.blog.domain.article.model.Tag;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ArticleGateway {
 
@@ -60,5 +61,30 @@ public interface ArticleGateway {
      * @param tagNames  标签名列表（null 视为空列表）
      */
     void setTagsForArticle(Integer articleId, List<String> tagNames);
+
+    /**
+     * 查找比指定日期更新（在按日期降序的列表中排在前面）的已发布文章。
+     * 即 date > currentDate，按 date ASC LIMIT 1，取最接近的那篇。
+     * @param currentDate ISO 日期字符串（如 2026-03-25）
+     * @return 最邻近的更新文章，若无则返回 null
+     */
+    Article findPrevPublished(String currentDate);
+
+    /**
+     * 查找比指定日期更旧（在按日期降序的列表中排在后面）的已发布文章。
+     * 即 date < currentDate，按 date DESC LIMIT 1，取最接近的那篇。
+     * @param currentDate ISO 日期字符串
+     * @return 最邻近的更旧文章，若无则返回 null
+     */
+    Article findNextPublished(String currentDate);
+
+    /**
+     * 查找相关已发布文章：与给定标签名称中至少一个相匹配，排除指定文章 ID，按日期降序，最多取 limit 篇。
+     * @param tagNames   标签名称列表
+     * @param excludeIds 需要排除的文章 ID 集合
+     * @param limit      最多返回篇数（调用方应传合理值如 3）
+     * @return 相关文章列表（可能为空），每篇文章已加载标签
+     */
+    List<Article> findRelatedPublished(List<String> tagNames, Set<Integer> excludeIds, int limit);
 
 }

@@ -1,11 +1,15 @@
 package com.seal.blog.adapter;
 
+import java.util.Collections;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,7 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.seal.blog.client.article.api.ArticleServiceI;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
+import com.seal.blog.client.article.dto.vo.ArticleAdjacentVO;
 import com.seal.blog.client.common.Response;
+import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.client.user.api.UserServiceI;
 import com.seal.blog.client.user.dto.qry.UserPageQry;
 import org.mockito.ArgumentCaptor;
@@ -239,7 +245,7 @@ class BlogAdapterApplicationTests {
     }
 
     @Test
-    void publicArticles_withExplicitStatusAll_doesNotOverride() throws Exception {
+    void publicArticles_withExplicitStatusAll_isOverriddenToPublished() throws Exception {
         when(articleService.getPage(any(com.seal.blog.client.article.dto.qry.ArticlePageQry.class)))
                 .thenReturn(com.seal.blog.client.common.PageResponse.empty());
 
@@ -249,8 +255,255 @@ class BlogAdapterApplicationTests {
         ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticlePageQry> captor =
                 ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticlePageQry.class);
         verify(articleService).getPage(captor.capture());
-        // Explicit status=all must be preserved — this is used by the admin listing pages.
-        org.assertj.core.api.Assertions.assertThat(captor.getValue().getStatus()).isEqualTo("all");
+        // Public endpoint always forces status=published regardless of caller-supplied value.
+        // Draft enumeration requires the admin endpoint (/api/v1/admin/articles).
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getStatus()).isEqualTo("published");
+    }
+
+    @Test
+    void publicArticlesAdjacent_returnsAdjacentVO() throws Exception {
+        ArticleAdjacentVO vo = new ArticleAdjacentVO();
+        vo.setRelated(Collections.emptyList());
+        when(articleService.getAdjacentBySlug(eq("my-slug"), any()))
+                .thenReturn(SingleResponse.of(vo));
+
+        mvc.perform(get("/api/v1/articles/adjacent").param("slug", "my-slug"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        verify(articleService).getAdjacentBySlug(eq("my-slug"), any());
+    }
+
+    @Test
+    void publicArticles_withExplicitStatusDraft_isOverriddenToPublished() throws Exception {
+        when(articleService.getPage(any(com.seal.blog.client.article.dto.qry.ArticlePageQry.class)))
+                .thenReturn(com.seal.blog.client.common.PageResponse.empty());
+
+        mvc.perform(get("/api/v1/articles").param("status", "draft"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticlePageQry> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticlePageQry.class);
+        verify(articleService).getPage(captor.capture());
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getStatus()).isEqualTo("published");
+    }
+
+    @Test
+    void publicViewCount_returnsOk() throws Exception {
+        when(articleService.incrementViewCount(5)).thenReturn(Response.buildSuccess());
+
+        mvc.perform(post("/api/v1/articles/5/view"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        verify(articleService).incrementViewCount(5);
+    }
+
+    @Test
+    void publicTags_returnsOk() throws Exception {
+        when(articleService.getTags()).thenReturn(java.util.Collections.emptyList());
+
+        mvc.perform(get("/api/v1/tags"))
+                .andExpect(status().isOk());
+
+        verify(articleService).getTags();
+    }
+
+    @Test
+    void adminGetById_withWhitelistedUser_returnsArticle() throws Exception {
+        com.seal.blog.client.article.dto.vo.ArticleVO vo =
+                new com.seal.blog.client.article.dto.vo.ArticleVO();
+        when(articleService.adminGetSingleById(42))
+                .thenReturn(SingleResponse.of(vo));
+
+        mvc.perform(
+                get("/api/v1/admin/articles/42")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.success").value(true));
+
+        verify(articleService).adminGetSingleById(42);
+    }
+
+    @Test
+    void adminGetById_withoutAuth_returns401() throws Exception {
+        mvc.perform(get("/api/v1/admin/articles/42"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void adminUpdateMultipart_withWhitelistedUser_callsService() throws Exception {
+        when(articleService.adminUpdate(any(), anyString(), any())).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                multipart("/api/v1/admin/articles/10")
+                        .with(request -> { request.setMethod("PUT"); return request; })
+                        .header("Authorization", bearerToken("123"))
+                        .param("title", "Updated Title")
+                        .param("url", "updated-slug")
+                        .param("draftJson", "{\"elements\":[]}")
+                        .param("draftBodyMd", "## Updated")
+                        .param("action", "draft")
+        ).andExpect(status().isOk());
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd> cmdCaptor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd.class);
+        verify(articleService).adminUpdate(cmdCaptor.capture(), eq("draft"), any());
+        org.assertj.core.api.Assertions.assertThat(cmdCaptor.getValue().getArticleId()).isEqualTo(10);
+        org.assertj.core.api.Assertions.assertThat(cmdCaptor.getValue().getDraftBodyMd()).isEqualTo("## Updated");
+    }
+
+    @Test
+    void adminDelete_withWhitelistedUser_callsService() throws Exception {
+        when(articleService.delete(15)).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                delete("/api/v1/admin/articles/15")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk());
+
+        verify(articleService).delete(15);
+    }
+
+    @Test
+    void publicArticleById_returnsOk() throws Exception {
+        com.seal.blog.client.article.dto.vo.ArticleVO vo =
+                new com.seal.blog.client.article.dto.vo.ArticleVO();
+        when(articleService.getSingleById(any(com.seal.blog.client.article.dto.qry.ArticleByIdQry.class)))
+                .thenReturn(SingleResponse.of(vo));
+
+        mvc.perform(get("/api/v1/articles/99"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticleByIdQry> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticleByIdQry.class);
+        verify(articleService).getSingleById(captor.capture());
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getArticleId()).isEqualTo(99);
+    }
+
+    @Test
+    void publicArticleBySlug_returnsOk() throws Exception {
+        com.seal.blog.client.article.dto.vo.ArticleVO vo =
+                new com.seal.blog.client.article.dto.vo.ArticleVO();
+        when(articleService.getSingleBySlug(any(com.seal.blog.client.article.dto.qry.ArticleBySlugQry.class)))
+                .thenReturn(SingleResponse.of(vo));
+
+        mvc.perform(get("/api/v1/articles/slug/my-slug"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticleBySlugQry> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticleBySlugQry.class);
+        verify(articleService).getSingleBySlug(captor.capture());
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getSlug()).isEqualTo("my-slug");
+    }
+
+    @Test
+    void adminList_withWhitelistedUser_returnsPage() throws Exception {
+        when(articleService.getPage(any(com.seal.blog.client.article.dto.qry.ArticlePageQry.class)))
+                .thenReturn(com.seal.blog.client.common.PageResponse.empty());
+
+        mvc.perform(
+                get("/api/v1/admin/articles")
+                        .header("Authorization", bearerToken("123"))
+                        .param("pageIndex", "1")
+                        .param("pageSize", "10")
+        ).andExpect(status().isOk());
+
+        verify(articleService).getPage(any());
+    }
+
+    @Test
+    void adminUpload_withoutAuth_returns401() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "image.png", "image/png", "png".getBytes(StandardCharsets.UTF_8));
+
+        mvc.perform(
+                multipart("/api/v1/admin/upload").file(file)
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void adminUpload_withValidAuth_returnsUploadedUrl() throws Exception {
+        when(objectStorage.upload(any(), anyLong(), anyString(), anyString()))
+                .thenReturn("https://cdn.example.com/uploaded.png");
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "image.png", "image/png", "png".getBytes(StandardCharsets.UTF_8));
+
+        mvc.perform(
+                multipart("/api/v1/admin/upload")
+                        .file(file)
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.data").value("https://cdn.example.com/uploaded.png"));
+
+        verify(objectStorage).upload(any(), anyLong(), anyString(), anyString());
+    }
+
+    @Test
+    void adminUpdateMultipart_withPreviewImage_uploadsCover() throws Exception {
+        when(articleService.adminUpdate(any(), anyString(), anyString())).thenReturn(Response.buildSuccess());
+        when(objectStorage.upload(any(), anyLong(), anyString(), anyString()))
+                .thenReturn("https://cdn.example.com/new-cover.webp");
+
+        MockMultipartFile previewImage = new MockMultipartFile(
+                "previewImage", "cover.png", "image/png", "png".getBytes(StandardCharsets.UTF_8));
+
+        mvc.perform(
+                multipart("/api/v1/admin/articles/20")
+                        .file(previewImage)
+                        .with(request -> { request.setMethod("PUT"); return request; })
+                        .header("Authorization", bearerToken("123"))
+                        .param("title", "Updated")
+                        .param("url", "updated-slug")
+                        .param("draftJson", "{}")
+                        .param("action", "draft")
+        ).andExpect(status().isOk());
+
+        verify(objectStorage).upload(any(), anyLong(), anyString(), anyString());
+        org.mockito.ArgumentCaptor<String> urlCaptor = org.mockito.ArgumentCaptor.forClass(String.class);
+        verify(articleService).adminUpdate(any(), anyString(), urlCaptor.capture());
+        org.assertj.core.api.Assertions.assertThat(urlCaptor.getValue())
+                .isEqualTo("https://cdn.example.com/new-cover.webp");
+    }
+
+    @Test
+    void internalSync_withoutSecret_returns401() throws Exception {
+        mvc.perform(
+                post("/api/v1/internal/users/oauth-sync")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"githubId\":1,\"githubLogin\":\"seal\"}")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void internalSync_withWrongSecret_returns401() throws Exception {
+        mvc.perform(
+                post("/api/v1/internal/users/oauth-sync")
+                        .header("X-Blog-Internal-Sync-Secret", "wrong-secret")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"githubId\":1,\"githubLogin\":\"seal\"}")
+        ).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void internalSync_withValidSecret_callsService() throws Exception {
+        com.seal.blog.client.user.dto.vo.UserProfileVO profile =
+                new com.seal.blog.client.user.dto.vo.UserProfileVO();
+        when(userService.syncFromOauth(any())).thenReturn(
+                com.seal.blog.client.common.SingleResponse.of(profile));
+
+        mvc.perform(
+                post("/api/v1/internal/users/oauth-sync")
+                        .header("X-Blog-Internal-Sync-Secret", "test-internal")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"githubId\":1,\"githubLogin\":\"seal\"}")
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.success").value(true));
+
+        verify(userService).syncFromOauth(any());
     }
 
     private static String bearerToken(String githubUserId) throws Exception {

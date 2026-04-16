@@ -4,6 +4,7 @@ import com.seal.blog.client.article.api.ArticleServiceI;
 import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
+import com.seal.blog.client.article.dto.vo.ArticleAdjacentVO;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -42,12 +44,25 @@ public class ArticleQueryController {
 
     @GetMapping("/articles")
     public PageResponse<ArticleVO> page(@Valid ArticlePageQry qry) {
-        // Public endpoint defaults to published-only when no explicit status or draft filter is set.
-        // This prevents unauthenticated callers from enumerating draft articles.
-        if (qry.getStatus() == null && qry.getDraft() == null) {
-            qry.setStatus("published");
-        }
+        // Public endpoint ALWAYS returns published articles only.
+        // Draft/archived enumeration requires the admin-authenticated endpoint (/api/v1/admin/articles).
+        qry.setStatus("published");
+        qry.setDraft(null);
         return articleService.getPage(qry);
+    }
+
+    /**
+     * Returns prev/next adjacent published articles and up to 3 related articles (by shared tag).
+     * Always returns 200 with an empty payload if the slug is not found or not published.
+     *
+     * @param slug     the current article's URL slug
+     * @param tags     optional comma-separated or repeated tag names for related-articles lookup
+     */
+    @GetMapping("/articles/adjacent")
+    public SingleResponse<ArticleAdjacentVO> adjacent(
+            @RequestParam("slug") String slug,
+            @RequestParam(value = "tags", required = false) List<String> tags) {
+        return articleService.getAdjacentBySlug(slug, tags);
     }
 
     @GetMapping("/tags")

@@ -9,6 +9,7 @@ import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
 import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
+import com.seal.blog.client.article.dto.vo.ArticleAdjacentVO;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
@@ -18,7 +19,10 @@ import com.seal.blog.domain.article.gateway.ArticleGateway;
 import com.seal.blog.domain.article.model.Article;
 import com.seal.blog.domain.article.model.ArticleStatus;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -223,6 +227,64 @@ public class ArticleServiceImpl implements ArticleServiceI {
         return articleGateway.getAllPublishedTags().stream()
                 .map(articleAssembler::toTagVO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public SingleResponse<ArticleAdjacentVO> getAdjacentBySlug(String slug, List<String> tagNames) {
+        Article current = articleGateway.findBySlug(slug);
+        if (current == null || current.getDraft() != ArticleStatus.PUBLISHED) {
+            ArticleAdjacentVO empty = new ArticleAdjacentVO();
+            empty.setRelated(Collections.emptyList());
+            return SingleResponse.of(empty);
+        }
+
+        String currentDate = current.getDate();
+        Article prevArticle = articleGateway.findPrevPublished(currentDate);
+        Article nextArticle = articleGateway.findNextPublished(currentDate);
+
+        Set<Integer> excludeIds = new HashSet<>();
+        excludeIds.add(current.getArticleId());
+        if (prevArticle != null && prevArticle.getArticleId() != null) {
+            excludeIds.add(prevArticle.getArticleId());
+        }
+        if (nextArticle != null && nextArticle.getArticleId() != null) {
+            excludeIds.add(nextArticle.getArticleId());
+        }
+
+        List<Article> relatedArticles = (tagNames != null && !tagNames.isEmpty())
+                ? articleGateway.findRelatedPublished(tagNames, excludeIds, 3)
+                : Collections.emptyList();
+
+        ArticleAdjacentVO vo = buildAdjacentVO(prevArticle, nextArticle, relatedArticles);
+        return SingleResponse.of(vo);
+    }
+
+    private ArticleAdjacentVO buildAdjacentVO(Article prev, Article next, List<Article> related) {
+        ArticleAdjacentVO vo = new ArticleAdjacentVO();
+        if (prev != null) {
+            vo.setPrev(toAdjacentSummary(prev));
+        }
+        if (next != null) {
+            vo.setNext(toAdjacentSummary(next));
+        }
+        vo.setRelated(related.stream().map(this::toAdjacentSummary).collect(Collectors.toList()));
+        return vo;
+    }
+
+    private ArticleAdjacentVO.ArticleSummary toAdjacentSummary(Article article) {
+        ArticleAdjacentVO.ArticleSummary s = new ArticleAdjacentVO.ArticleSummary();
+        s.setTitle(article.getTitle());
+        s.setUrl(article.getUrl());
+        s.setSummary(article.getSummary());
+        s.setCoverImageUrl(article.getCoverImageUrl());
+        s.setDate(article.getDate());
+        s.setTags(article.getTags() != null
+                ? article.getTags().stream()
+                        .map(com.seal.blog.domain.article.model.Tag::getName)
+                        .filter(n -> n != null && !n.isBlank())
+                        .collect(Collectors.toList())
+                : Collections.emptyList());
+        return s;
     }
 
     @Override

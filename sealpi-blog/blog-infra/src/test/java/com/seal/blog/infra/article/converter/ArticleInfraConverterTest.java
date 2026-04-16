@@ -79,4 +79,50 @@ class ArticleInfraConverterTest {
         assertEquals(entity.getCoverImageUrl(), po.getCoverImageUrl());
         assertEquals(entity.getViewCount(), po.getViewCount());
     }
+
+    @Test
+    void toEntity_should_return_null_for_null_input() {
+        ArticleInfraConverter converter = new ArticleInfraConverter();
+        assertNull(converter.toEntity(null));
+    }
+
+    @Test
+    void toPo_should_return_null_for_null_input() {
+        ArticleInfraConverter converter = new ArticleInfraConverter();
+        assertNull(converter.toPO(null));
+    }
+
+    @Test
+    void roundtrip_should_preserve_v2_fields() {
+        ArticleInfraConverter converter = new ArticleInfraConverter();
+
+        ArticlePO po = new ArticlePO();
+        po.setArticleId(3);
+        po.setTitle("v2 article");
+        po.setSummary("s");
+        po.setUrl("/blog/v2");
+        po.setDate("2026-04-01");
+        po.setLastmod("2026-04-01");
+        po.setDraft(ArticleStatus.PUBLISHED.getCode());
+        po.setCount(0);
+        po.setContentJson(null);
+        po.setDraftJson(null);
+        po.setCoverImageUrl(null);
+        po.setViewCount(0);
+        po.setBodyMd("## Hello\nworld");
+        po.setDraftBodyMd("## Draft\ncontent");
+        po.setCoverCaption("手写说明文字");
+
+        Article entity = converter.toEntity(po);
+
+        assertEquals("## Hello\nworld", entity.getBodyMd());
+        assertEquals("## Draft\ncontent", entity.getDraftBodyMd());
+        assertEquals("手写说明文字", entity.getCoverCaption());
+
+        ArticlePO roundtripped = converter.toPO(entity);
+
+        assertEquals("## Hello\nworld", roundtripped.getBodyMd());
+        assertEquals("## Draft\ncontent", roundtripped.getDraftBodyMd());
+        assertEquals("手写说明文字", roundtripped.getCoverCaption());
+    }
 }

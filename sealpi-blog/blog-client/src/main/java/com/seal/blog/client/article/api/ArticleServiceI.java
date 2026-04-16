@@ -7,6 +7,7 @@ import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
 import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
+import com.seal.blog.client.article.dto.vo.ArticleAdjacentVO;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
@@ -40,6 +41,15 @@ public interface ArticleServiceI {
     PageResponse<ArticleVO> getPage(ArticlePageQry articlePageQry);
 
     List<TagVO> getTags();
+
+    /**
+     * 返回指定 slug 文章的上一篇（更新）、下一篇（更旧）及相关文章（共享标签）。
+     * 若文章不存在或未发布，返回空的 ArticleAdjacentVO（不返回 404）。
+     *
+     * @param slug     当前文章的 slug/url
+     * @param tagNames 当前文章的标签名称列表，用于查找相关文章（可为空）
+     */
+    SingleResponse<ArticleAdjacentVO> getAdjacentBySlug(String slug, List<String> tagNames);
 
     /**
      * 浏览量 +1（best-effort，不影响主流程，供前端客户端主动上报）

@@ -21,8 +21,10 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -239,6 +241,85 @@ public class ArticleGatewayImpl implements ArticleGateway {
             relyPO.setTagId(tagPO.getTagId());
             relyMapper.insert(relyPO);
         }
+    }
+
+    @Override
+    public Article findPrevPublished(String currentDate) {
+        if (currentDate == null || currentDate.isBlank()) {
+            return null;
+        }
+        // In descending-date list, "previous" = newer = date > currentDate; take the oldest of those (ASC LIMIT 1)
+        LambdaQueryWrapper<ArticlePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ArticlePO::getDraft, 1)
+               .gt(ArticlePO::getDate, currentDate)
+               .orderByAsc(ArticlePO::getDate)
+               .last("LIMIT 1");
+        return converter.toEntity(articleMapper.selectOne(wrapper));
+    }
+
+    @Override
+    public Article findNextPublished(String currentDate) {
+        if (currentDate == null || currentDate.isBlank()) {
+            return null;
+        }
+        // In descending-date list, "next" = older = date < currentDate; take the newest of those (DESC LIMIT 1)
+        LambdaQueryWrapper<ArticlePO> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ArticlePO::getDraft, 1)
+               .lt(ArticlePO::getDate, currentDate)
+               .orderByDesc(ArticlePO::getDate)
+               .last("LIMIT 1");
+        return converter.toEntity(articleMapper.selectOne(wrapper));
+    }
+
+    @Override
+    public List<Article> findRelatedPublished(List<String> tagNames, Set<Integer> excludeIds, int limit) {
+        if (tagNames == null || tagNames.isEmpty() || limit <= 0) {
+            return Collections.emptyList();
+        }
+
+        // Resolve tag names → tag IDs
+        LambdaQueryWrapper<TagPO> tagWrapper = new LambdaQueryWrapper<>();
+        tagWrapper.in(TagPO::getName, tagNames);
+        List<TagPO> tagPos = tagMapper.selectList(tagWrapper);
+        if (tagPos.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Integer> tagIds = tagPos.stream().map(TagPO::getTagId).collect(Collectors.toList());
+
+        // Find candidate article IDs that have any of these tags
+        LambdaQueryWrapper<RelyPO> relyWrapper = new LambdaQueryWrapper<>();
+        relyWrapper.select(RelyPO::getArticleId).in(RelyPO::getTagId, tagIds);
+        List<Object> rawIds = relyMapper.selectObjs(relyWrapper);
+        List<Integer> candidateIds = rawIds.stream()
+                .map(id -> (Integer) id)
+                .distinct()
+                .collect(Collectors.toList());
+        if (candidateIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Query published articles from candidates, excluding the given IDs
+        LambdaQueryWrapper<ArticlePO> artWrapper = new LambdaQueryWrapper<>();
+        artWrapper.eq(ArticlePO::getDraft, 1)
+                  .in(ArticlePO::getArticleId, candidateIds)
+                  .orderByDesc(ArticlePO::getDate)
+                  .last("LIMIT " + Math.max(1, Math.min(limit, 20)));
+        if (excludeIds != null && !excludeIds.isEmpty()) {
+            artWrapper.notIn(ArticlePO::getArticleId, excludeIds);
+        }
+
+        List<ArticlePO> pos = articleMapper.selectList(artWrapper);
+        List<Article> articles = pos.stream().map(converter::toEntity).collect(Collectors.toList());
+
+        // Batch-load tags for related articles
+        List<Integer> resultIds = articles.stream()
+                .filter(a -> a.getArticleId() != null)
+                .map(Article::getArticleId)
+                .collect(Collectors.toList());
+        Map<Integer, List<Tag>> tagsMap = loadTagsForArticles(resultIds);
+        articles.forEach(a -> a.withTags(tagsMap.getOrDefault(a.getArticleId(), Collections.emptyList())));
+
+        return articles;
     }
 
     private Map<Integer, List<Tag>> loadTagsForArticles(List<Integer> articleIds) {
