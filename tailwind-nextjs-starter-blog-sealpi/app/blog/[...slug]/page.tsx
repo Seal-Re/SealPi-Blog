@@ -95,7 +95,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata | und
   const publishedAt = normalizeDate(article.date)
   const modifiedAt = normalizeDate(article.lastmod || article.date)
   const authors = authorDetails.map((author) => author.name)
-  const imageList = article.coverImageUrl ? [article.coverImageUrl] : [siteMetadata.socialBanner]
+  const ogImages = resolveOgImages(article)
 
   return {
     title: article.title,
@@ -112,14 +112,14 @@ export async function generateMetadata(props: PageProps): Promise<Metadata | und
       publishedTime: publishedAt,
       modifiedTime: modifiedAt,
       url: `${siteMetadata.siteUrl}/blog/${article.url}`,
-      images: resolveOgImages(article),
+      images: ogImages,
       authors: authors.length > 0 ? authors : [siteMetadata.author],
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
       description: article.summary,
-      images: imageList,
+      images: ogImages.map((img) => img.url),
     },
   }
 }
