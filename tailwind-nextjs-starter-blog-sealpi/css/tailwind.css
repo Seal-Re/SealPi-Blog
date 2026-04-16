@@ -4,10 +4,6 @@
 @source '../node_modules/pliny';
 @custom-variant dark (&:where(.dark, .dark *));
 
-html {
-  scroll-behavior: smooth;
-}
-
 /* Core theme configuration */
 @theme {
   /* Font families */
