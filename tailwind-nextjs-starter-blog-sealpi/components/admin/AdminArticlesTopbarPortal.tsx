@@ -65,6 +65,7 @@ export default function AdminArticlesTopbarPortal({
             <option value="all">全部</option>
             <option value="draft">草稿</option>
             <option value="published">发布</option>
+            <option value="archived">归档</option>
           </select>
           <button
             type="submit"
