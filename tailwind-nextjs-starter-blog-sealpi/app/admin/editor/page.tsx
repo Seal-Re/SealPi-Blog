@@ -2,7 +2,7 @@ import AdminEditorWorkspace from '@/components/admin/AdminEditorWorkspace'
 import { genPageMetadata } from 'app/seo'
 
 import { auth } from '@/auth'
-import { adminFetch } from '@/lib/admin-api'
+import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminArticle, ApiResult, PageResult } from '@/lib/blog-api-types'
 
 export const metadata = genPageMetadata({
@@ -16,17 +16,19 @@ async function fetchArticleDetail(articleId: string) {
     return null
   }
 
-  const response = await adminFetch<ApiResult<AdminArticle>>(`/api/admin/articles/${numericId}`)
-  return response?.data || null
+  const payload = await adminServerGet<ApiResult<AdminArticle>>(
+    `/api/v1/admin/articles/${numericId}`
+  )
+  return payload?.data || null
 }
 
 async function fetchDraftStats() {
-  const response = await adminFetch<PageResult<AdminArticle>>(
-    '/api/admin/articles?pageIndex=1&pageSize=1&status=draft'
+  const payload = await adminServerGet<PageResult<AdminArticle>>(
+    '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
   )
   return {
-    draftCount: response?.totalCount || 0,
-    latestDraftId: response?.data?.[0]?.articleId ? String(response.data[0].articleId) : undefined,
+    draftCount: payload?.totalCount || 0,
+    latestDraftId: payload?.data?.[0]?.articleId ? String(payload.data[0].articleId) : undefined,
   }
 }
 

@@ -4,7 +4,7 @@ import AdminArticleRowActions from '@/components/admin/AdminArticleRowActions'
 import AdminErrorToast from '@/components/admin/AdminErrorToast'
 import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
 import PageTitle from '@/components/PageTitle'
-import { AdminApiError, adminFetch } from '@/lib/admin-api'
+import { adminServerGet } from '@/app/api/admin/_utils'
 import { isDraftStatus, isPublishedStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
@@ -119,7 +119,7 @@ async function fetchArticles(pageIndex: number, q?: string, status?: string, tag
     params.set('tag', tag)
   }
 
-  return adminFetch<PageResult<AdminArticle>>(`/api/admin/articles?${params.toString()}`)
+  return adminServerGet<PageResult<AdminArticle>>(`/api/v1/admin/articles?${params.toString()}`)
 }
 
 function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: string, tag?: string) {
@@ -155,16 +155,16 @@ export default async function AdminArticlesPage(props: {
 
   try {
     const response = await fetchArticles(pageIndex, q, status, tag)
-    articles = response?.data || []
-    pageSize = response?.pageSize || 10
-    totalCount = response?.totalCount || 0
-    totalPages = Math.max(Math.ceil(totalCount / pageSize), 1)
-  } catch (error) {
-    if (error instanceof AdminApiError) {
-      loadError = `${error.message} (HTTP ${error.status})`
+    if (response === null) {
+      loadError = '读取文章列表失败，请检查登录态后重试。'
     } else {
-      loadError = '读取文章列表失败，请稍后重试。'
+      articles = response?.data || []
+      pageSize = response?.pageSize || 10
+      totalCount = response?.totalCount || 0
+      totalPages = Math.max(Math.ceil(totalCount / pageSize), 1)
     }
+  } catch {
+    loadError = '读取文章列表失败，请稍后重试。'
   }
 
   return (

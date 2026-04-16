@@ -3,6 +3,29 @@ import { buildApiUrl } from '@/lib/api-config'
 import { SignJWT } from 'jose'
 
 /**
+ * Server-component helper: sign a JWT and call the backend admin API directly.
+ * Use this instead of adminFetch('/api/admin/...') from server components, because
+ * internal server-side self-fetches to BFF routes do NOT forward request cookies,
+ * so auth() in the BFF handler sees no session.
+ */
+export async function adminServerGet<T>(backendPath: string): Promise<T | null> {
+  const ctx = await requireAdminBffContext()
+  if (!ctx.token) return null
+
+  try {
+    const response = await fetch(buildApiUrl(backendPath), {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${ctx.token}` },
+      cache: 'no-store',
+    })
+    if (!response.ok) return null
+    return (await response.json()) as T
+  } catch {
+    return null
+  }
+}
+
+/**
  * BFF 前置条件：已登录 + 管理员 + 服务端 JWT 内存在 GitHub token。
  * 不向客户端 session 暴露 accessToken，仅在此用 getToken 读取。
  */

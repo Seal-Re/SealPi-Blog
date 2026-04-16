@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
 import Image from 'next/image'
-import { AdminApiError, adminFetch } from '@/lib/admin-api'
+import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -82,17 +82,13 @@ export default async function AdminDraftsPage() {
   let drafts: AdminArticle[] = []
   let loadError = ''
 
-  try {
-    const response = await adminFetch<PageResult<AdminArticle>>(
-      '/api/admin/articles?status=draft&pageSize=50&pageIndex=1'
-    )
+  const response = await adminServerGet<PageResult<AdminArticle>>(
+    '/api/v1/admin/articles?status=draft&pageSize=50&pageIndex=1'
+  )
+  if (response === null) {
+    loadError = '读取草稿列表失败，请检查登录态后重试。'
+  } else {
     drafts = response?.data || []
-  } catch (error) {
-    if (error instanceof AdminApiError) {
-      loadError = `${error.message} (HTTP ${error.status})`
-    } else {
-      loadError = '读取草稿列表失败，请稍后重试。'
-    }
   }
 
   return (

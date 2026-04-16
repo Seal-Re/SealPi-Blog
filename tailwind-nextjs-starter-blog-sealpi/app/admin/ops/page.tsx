@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
-import { AdminApiError, adminFetch } from '@/lib/admin-api'
+import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminUser, PageResult, AdminArticle } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -17,32 +17,30 @@ type ArticleStats = {
 }
 
 async function fetchArticleStats(): Promise<ArticleStats> {
-  const [totalRes, publishedRes, draftRes, usersRes] = await Promise.allSettled([
-    adminFetch<PageResult<AdminArticle>>('/api/admin/articles?pageIndex=1&pageSize=1'),
-    adminFetch<PageResult<AdminArticle>>(
-      '/api/admin/articles?pageIndex=1&pageSize=1&status=published'
+  const [totalRes, publishedRes, draftRes, usersRes] = await Promise.all([
+    adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=published'
     ),
-    adminFetch<PageResult<AdminArticle>>('/api/admin/articles?pageIndex=1&pageSize=1&status=draft'),
-    adminFetch<PageResult<AdminUser>>('/api/admin/users?pageIndex=1&pageSize=1'),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
+    ),
+    adminServerGet<PageResult<AdminUser>>('/api/v1/admin/users?pageIndex=1&pageSize=1'),
   ])
 
   return {
-    total: totalRes.status === 'fulfilled' ? (totalRes.value?.totalCount ?? 0) : 0,
-    published: publishedRes.status === 'fulfilled' ? (publishedRes.value?.totalCount ?? 0) : 0,
-    draft: draftRes.status === 'fulfilled' ? (draftRes.value?.totalCount ?? 0) : 0,
-    users: usersRes.status === 'fulfilled' ? (usersRes.value?.totalCount ?? 0) : 0,
+    total: totalRes?.totalCount ?? 0,
+    published: publishedRes?.totalCount ?? 0,
+    draft: draftRes?.totalCount ?? 0,
+    users: usersRes?.totalCount ?? 0,
   }
 }
 
 async function fetchRecentArticles() {
-  try {
-    const res = await adminFetch<PageResult<AdminArticle>>(
-      '/api/admin/articles?pageIndex=1&pageSize=5'
-    )
-    return res?.data ?? []
-  } catch {
-    return []
-  }
+  const res = await adminServerGet<PageResult<AdminArticle>>(
+    '/api/v1/admin/articles?pageIndex=1&pageSize=5'
+  )
+  return res?.data ?? []
 }
 
 function StatCard({
@@ -90,9 +88,7 @@ export default async function OpsPage() {
     ;[stats, recentArticles] = await Promise.all([fetchArticleStats(), fetchRecentArticles()])
   } catch (error) {
     statsError = true
-    if (error instanceof AdminApiError) {
-      console.error('[ops] stats fetch failed:', error.message)
-    }
+    console.error('[ops] stats fetch failed:', error)
   }
 
   const now = new Date()
