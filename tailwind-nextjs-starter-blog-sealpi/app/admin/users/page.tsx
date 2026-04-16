@@ -166,9 +166,9 @@ export default async function AdminUsersPage(props: {
         </div>
         <div className="border-wb-rule-soft bg-wb-canvas rounded-3xl border p-5 dark:border-gray-800 dark:bg-gray-950">
           <p className="text-wb-meta text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
-            分页规模
+            总页数
           </p>
-          <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{pageSize}</p>
+          <p className="text-wb-ink mt-3 text-3xl font-black dark:text-gray-50">{totalPages}</p>
         </div>
       </div>
 
