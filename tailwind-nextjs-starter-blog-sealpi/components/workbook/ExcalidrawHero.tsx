@@ -25,6 +25,9 @@ export default function ExcalidrawHero({
 }: ExcalidrawHeroProps) {
   const showViewer = hasRenderableElements(contentJson)
 
+  // Nothing to render — skip the hero entirely so the title becomes the visual anchor.
+  if (!showViewer && !coverImageUrl) return null
+
   return (
     <div className="relative mb-10">
       <div
@@ -33,19 +36,14 @@ export default function ExcalidrawHero({
       >
         {showViewer ? (
           <ExcalidrawViewer contentJson={contentJson} title={title} compact />
-        ) : coverImageUrl ? (
+        ) : (
+          // coverImageUrl is guaranteed truthy here — null guard at top ensures this
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={coverImageUrl}
+            src={coverImageUrl!}
             alt={title}
             className="absolute inset-0 h-full w-full object-cover"
           />
-        ) : (
-          <div className="from-wb-rule-soft/30 via-wb-canvas to-wb-rule-soft/20 absolute inset-0 bg-gradient-to-br">
-            <span className="text-wb-rule absolute right-4 bottom-4 font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">
-              无封面
-            </span>
-          </div>
         )}
       </div>
       {coverCaption ? (
