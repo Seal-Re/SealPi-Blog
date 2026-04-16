@@ -104,7 +104,7 @@ class ArticleServiceImplTest {
     @Test
     void adminCreate_draftAction_allowsEmptyTitle() {
         stubGateway();
-        ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd("", "s", "slug-a", "{}", null, null);
+        ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd("", "s", "slug-a", "{}", null, null, null);
 
         Response result = service.adminCreate(cmd, "draft", null);
 
@@ -114,7 +114,7 @@ class ArticleServiceImplTest {
 
     @Test
     void adminCreate_publishAction_rejectsEmptyTitle() {
-        ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd("", "s", "slug-b", "{}", null, null);
+        ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd("", "s", "slug-b", "{}", null, null, null);
 
         Response result = service.adminCreate(cmd, "publish", null);
 
@@ -156,7 +156,7 @@ class ArticleServiceImplTest {
         );
         when(articleGateway.findById(10)).thenReturn(article);
 
-        ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd(10, "", "s", "slug-d", "{}", null, null);
+        ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd(10, "", "s", "slug-d", "{}", null, null, null);
         Response result = service.adminUpdate(cmd, "publish", null);
 
         assertFalse(result.isSuccess());

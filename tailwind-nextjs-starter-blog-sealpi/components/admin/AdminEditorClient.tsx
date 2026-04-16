@@ -62,6 +62,7 @@ type EditorState = {
   coverImageUrl: string
   draftBodyMd: string
   coverCaption: string
+  tags: string
 }
 
 type FieldErrors = {
@@ -156,6 +157,11 @@ function buildSceneFingerprint(elements: readonly ExcalidrawElement[], files: Bi
 }
 
 function getInitialState(article?: AdminArticle | null): EditorState {
+  const tagNames =
+    article?.tags
+      ?.map((t) => t.name)
+      .filter(Boolean)
+      .join(', ') ?? ''
   return {
     title: article?.title || '',
     url: article?.url || '',
@@ -163,6 +169,7 @@ function getInitialState(article?: AdminArticle | null): EditorState {
     coverImageUrl: article?.coverImageUrl || '',
     draftBodyMd: article?.draftBodyMd ?? '',
     coverCaption: article?.coverCaption ?? '',
+    tags: tagNames,
   }
 }
 
@@ -532,6 +539,11 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           setStatusMessage(`已完成 ${uploadedScene.uploadedCount} 张图片上传，正在生成提交内容...`)
         }
 
+        const parsedTags = formState.tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
+
         return {
           title: sanitizedTitle || '未命名草稿',
           url: trimmedUrl || `draft-${Date.now()}`,
@@ -541,6 +553,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           previewImage: previewImage || undefined,
           draftBodyMd: formState.draftBodyMd || undefined,
           coverCaption: formState.coverCaption || undefined,
+          tags: parsedTags,
         }
       },
       [
@@ -548,6 +561,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         formState.coverCaption,
         formState.draftBodyMd,
         formState.summary,
+        formState.tags,
         formState.title,
         formState.url,
         uploadSceneAssets,
@@ -850,6 +864,19 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm leading-7 shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
                     <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
+                  </label>
+
+                  <label className="group block space-y-2.5">
+                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
+                      标签
+                    </span>
+                    <input
+                      value={formState.tags}
+                      onChange={(event) => updateField('tags', event.target.value)}
+                      placeholder="spring, ddd, architecture"
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
+                    />
+                    <FieldHint>多个标签用英文逗号分隔，保存时全量覆盖。</FieldHint>
                   </label>
 
                   <label className="group block space-y-2.5">

@@ -9,6 +9,10 @@ import com.seal.blog.client.common.Response;
 import com.seal.blog.infra.oss.MinioObjectStorage;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -74,6 +78,7 @@ public class ArticleAdminController {
             @RequestParam("draftJson") String draftJson,
             @RequestParam(name = "draftBodyMd", required = false) String draftBodyMd,
             @RequestParam(name = "coverCaption", required = false) String coverCaption,
+            @RequestParam(name = "tags", required = false) String tagsParam,
             @RequestParam(name = "previewImage", required = false) MultipartFile previewImage,
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
@@ -99,6 +104,7 @@ public class ArticleAdminController {
         cmd.setDraftJson(draftJson);
         cmd.setDraftBodyMd(draftBodyMd);
         cmd.setCoverCaption(coverCaption);
+        cmd.setTags(parseTagsParam(tagsParam));
 
         return articleService.adminCreate(cmd, action, finalCoverUrl);
     }
@@ -131,6 +137,7 @@ public class ArticleAdminController {
             @RequestParam("draftJson") String draftJson,
             @RequestParam(name = "draftBodyMd", required = false) String draftBodyMd,
             @RequestParam(name = "coverCaption", required = false) String coverCaption,
+            @RequestParam(name = "tags", required = false) String tagsParam,
             @RequestParam(name = "previewImage", required = false) MultipartFile previewImage,
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
@@ -157,7 +164,20 @@ public class ArticleAdminController {
         cmd.setDraftJson(draftJson);
         cmd.setDraftBodyMd(draftBodyMd);
         cmd.setCoverCaption(coverCaption);
+        cmd.setTags(parseTagsParam(tagsParam));
         return articleService.adminUpdate(cmd, action, finalCoverUrl);
+    }
+
+    /** Parses a comma-separated tags string into a list. Returns null when no tags provided. */
+    private List<String> parseTagsParam(String tagsParam) {
+        if (tagsParam == null || tagsParam.isBlank()) {
+            return null;
+        }
+        List<String> result = Arrays.stream(tagsParam.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     @DeleteMapping("/articles/{id}")

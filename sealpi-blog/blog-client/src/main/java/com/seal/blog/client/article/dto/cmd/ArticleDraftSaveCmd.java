@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * v1 admin write API: save draft / publish article.
  *
@@ -35,4 +37,7 @@ public class ArticleDraftSaveCmd {
 
     /** Handwriting caption under the Excalidraw hero. Nullable. */
     private String coverCaption;
+
+    /** Optional tag names. When present, replaces all existing tags for this article. */
+    private List<String> tags;
 }

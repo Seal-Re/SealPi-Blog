@@ -96,6 +96,11 @@ public class ArticleServiceImpl implements ArticleServiceI {
         }
 
         articleGateway.save(article);
+
+        if (cmd.getTags() != null) {
+            articleGateway.setTagsForArticle(article.getArticleId(), cmd.getTags());
+        }
+
         return Response.buildSuccess();
     }
 
@@ -127,6 +132,11 @@ public class ArticleServiceImpl implements ArticleServiceI {
         }
 
         articleGateway.save(article);
+
+        if (cmd.getTags() != null) {
+            articleGateway.setTagsForArticle(cmd.getArticleId(), cmd.getTags());
+        }
+
         return Response.buildSuccess();
     }
 

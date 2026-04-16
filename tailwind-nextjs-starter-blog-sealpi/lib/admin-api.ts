@@ -118,6 +118,7 @@ export type AdminArticleFormPayload = {
   previewImage?: Blob | null
   draftBodyMd?: string
   coverCaption?: string
+  tags?: string[]
 }
 
 function appendIfPresent(formData: FormData, key: string, value?: string | null) {
@@ -143,6 +144,11 @@ function toArticleFormData(payload: AdminArticleFormPayload) {
 
   appendIfPresent(formData, 'draftBodyMd', payload.draftBodyMd)
   appendIfPresent(formData, 'coverCaption', payload.coverCaption)
+
+  if (payload.tags !== undefined) {
+    // Always send tags field when provided (even empty string to clear all tags)
+    formData.append('tags', payload.tags.join(','))
+  }
 
   return formData
 }

@@ -53,4 +53,12 @@ public interface ArticleGateway {
      */
     List<Tag> getAllPublishedTags();
 
+    /**
+     * 全量替换文章的标签（先清空旧关联，再按名称 findOrCreate 写入）。
+     * tagNames 为空时仅执行清空操作，不报错。
+     * @param articleId 文章 ID（不能为 null）
+     * @param tagNames  标签名列表（null 视为空列表）
+     */
+    void setTagsForArticle(Integer articleId, List<String> tagNames);
+
 }

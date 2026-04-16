@@ -200,6 +200,49 @@ public class ArticleGatewayImpl implements ArticleGateway {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void setTagsForArticle(Integer articleId, List<String> tagNames) {
+        if (articleId == null) {
+            return;
+        }
+
+        // 1. Clear existing article-tag relationships
+        LambdaQueryWrapper<RelyPO> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.eq(RelyPO::getArticleId, articleId);
+        relyMapper.delete(deleteWrapper);
+
+        if (tagNames == null || tagNames.isEmpty()) {
+            return;
+        }
+
+        // 2. Normalize: trim, filter empty, deduplicate (preserve order)
+        List<String> normalized = tagNames.stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .collect(Collectors.toList());
+
+        for (String tagName : normalized) {
+            // 3. Find or create the tag by name
+            LambdaQueryWrapper<TagPO> tagWrapper = new LambdaQueryWrapper<>();
+            tagWrapper.eq(TagPO::getName, tagName).last("limit 1");
+            TagPO tagPO = tagMapper.selectOne(tagWrapper);
+
+            if (tagPO == null) {
+                tagPO = new TagPO();
+                tagPO.setName(tagName);
+                tagPO.setCount(0);
+                tagMapper.insert(tagPO);
+            }
+
+            // 4. Create the article-tag relationship
+            RelyPO relyPO = new RelyPO();
+            relyPO.setArticleId(articleId);
+            relyPO.setTagId(tagPO.getTagId());
+            relyMapper.insert(relyPO);
+        }
+    }
+
     private Map<Integer, List<Tag>> loadTagsForArticles(List<Integer> articleIds) {
         if (articleIds == null || articleIds.isEmpty()) {
             return Collections.emptyMap();
