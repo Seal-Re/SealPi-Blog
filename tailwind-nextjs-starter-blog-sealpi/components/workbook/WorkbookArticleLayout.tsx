@@ -76,9 +76,12 @@ export default function WorkbookArticleLayout({
       <WbImageLightbox />
       {articleId != null ? <ViewTracker articleId={articleId} /> : null}
 
-      <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
+      <Link
+        href="/blog"
+        className="font-inter text-wb-accent hover:text-wb-ink mb-5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200"
+      >
         {eyebrow}
-      </p>
+      </Link>
 
       <div data-reveal>
         <ExcalidrawHero
