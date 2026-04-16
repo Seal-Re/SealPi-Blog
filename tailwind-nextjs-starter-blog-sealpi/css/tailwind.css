@@ -329,6 +329,13 @@ input:-webkit-autofill:focus {
 .wb-body li {
   margin-bottom: 0.4em;
 }
+.wb-body ul > li::marker {
+  color: var(--color-wb-accent);
+}
+.wb-body ol > li::marker {
+  color: var(--color-wb-accent);
+  font-weight: 600;
+}
 .wb-body blockquote {
   border-left: 3px solid var(--color-wb-accent);
   margin: 1.8em 0;
@@ -366,6 +373,14 @@ input:-webkit-autofill:focus {
 }
 .wb-body strong { color: var(--color-wb-ink); font-weight: 700; }
 .wb-body em { font-style: italic; }
+.wb-body del,
+.wb-body s { color: var(--color-wb-meta); text-decoration: line-through; }
+/* Task list: override @tailwindcss/forms blue accent with warm wb-accent */
+.wb-body input[type='checkbox'] {
+  accent-color: var(--color-wb-accent);
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
 
 /* ===== Workbook code block styles (rehype-highlight / hljs) ===== */
 .wb-body pre {
