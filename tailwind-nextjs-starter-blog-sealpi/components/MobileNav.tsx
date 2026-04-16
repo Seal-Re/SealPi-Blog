@@ -106,7 +106,7 @@ const MobileNav = () => {
                       {session.user.isAdmin ? (
                         <Link
                           href="/admin"
-                          className="hover:text-wb-accent text-wb-ink block text-lg font-bold"
+                          className="hover:text-wb-accent focus-visible:ring-wb-accent text-wb-ink block rounded text-lg font-bold focus-visible:ring-2 focus-visible:outline-none"
                           onClick={onToggleNav}
                         >
                           平台管理
@@ -118,7 +118,7 @@ const MobileNav = () => {
                           onToggleNav()
                           signOut({ callbackUrl: '/' })
                         }}
-                        className="text-lg font-bold text-red-600 dark:text-red-400"
+                        className="rounded text-lg font-bold text-red-600 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-red-400"
                       >
                         退出登录
                       </button>
