@@ -206,6 +206,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const contentFingerprintRef = useRef<string>('')
     const baselineReadyRef = useRef(false)
     const isSceneDirtyRef = useRef(false)
+    const isTextDirtyRef = useRef(false)
     const isSubmittingRef = useRef(false)
     const isUploadingAssetsRef = useRef(false)
     /** 新建文章时默认 false：slug 随标题（含拼音）更新；用户手动改过 slug 后为 true。编辑已有文章初始为 true，避免改标题误伤线上 URL。 */
@@ -236,6 +237,10 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     useEffect(() => {
       isSceneDirtyRef.current = isSceneDirty
     }, [isSceneDirty])
+
+    useEffect(() => {
+      isTextDirtyRef.current = isTextDirty
+    }, [isTextDirty])
 
     useEffect(() => {
       isSubmittingRef.current = isSubmitting
@@ -758,7 +763,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           return await handleSubmit('publish')
         },
         isBusy: () => isSubmitting,
-        hasPendingChanges: () => isSceneDirtyRef.current,
+        hasPendingChanges: () => isSceneDirtyRef.current || isTextDirtyRef.current,
       }),
       [handleSubmit, isSubmitting]
     )
