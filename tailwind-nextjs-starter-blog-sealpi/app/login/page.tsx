@@ -25,7 +25,7 @@ export default async function LoginPage(props: {
   const err = errorText(sp?.error)
 
   return (
-    <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden p-6 sm:p-10">
+    <section className="wb-page-enter relative flex min-h-[70vh] items-center justify-center overflow-hidden p-6 sm:p-10">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_20%_20%,rgba(166,88,43,0.10),transparent_40%),radial-gradient(circle_at_80%_80%,rgba(201,181,151,0.12),transparent_38%),linear-gradient(160deg,#f5ece1_0%,#fbf5ec_50%,#f5ece1_100%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(212,122,56,0.18),transparent_36%),radial-gradient(circle_at_80%_80%,rgba(166,88,43,0.12),transparent_34%),linear-gradient(160deg,#1a130d_0%,#21180f_50%,#1a130d_100%)]" />
       <div className="border-wb-rule-soft/80 bg-wb-canvas/90 w-full max-w-lg rounded-[2rem] border p-8 shadow-xl backdrop-blur">
         <h1 className="font-fraunces text-wb-ink text-2xl font-medium tracking-tight italic">
