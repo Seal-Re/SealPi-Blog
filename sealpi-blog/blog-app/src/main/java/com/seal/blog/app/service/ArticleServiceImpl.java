@@ -192,6 +192,15 @@ public class ArticleServiceImpl implements ArticleServiceI {
     }
 
     @Override
+    public SingleResponse<ArticleVO> adminGetSingleById(Integer id) {
+        Article article = articleGateway.findById(id);
+        if (article == null) {
+            return SingleResponse.buildSingleFailure("404", "文章不存在");
+        }
+        return SingleResponse.of(articleAssembler.toVO(article));
+    }
+
+    @Override
     public SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry qry) {
         Article article = articleGateway.findBySlug(qry.getSlug());
 

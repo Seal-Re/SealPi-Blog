@@ -264,6 +264,36 @@ class ArticleServiceImplTest {
     }
 
     @Test
+    void adminGetSingleById_draftArticle_returnsSuccessWithFullVO() {
+        Article draft = Article.reconstruct(
+                14,
+                "draft title", "summary", "draft-slug-3",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.DRAFT, 0,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findById(14)).thenReturn(draft);
+        when(articleAssembler.toVO(draft)).thenReturn(new com.seal.blog.client.article.dto.vo.ArticleVO());
+
+        com.seal.blog.client.common.SingleResponse<?> result = service.adminGetSingleById(14);
+
+        assertTrue(result.isSuccess());
+        verify(articleAssembler).toVO(draft);
+    }
+
+    @Test
+    void adminGetSingleById_missingArticle_returns404() {
+        when(articleGateway.findById(99)).thenReturn(null);
+
+        com.seal.blog.client.common.SingleResponse<?> result = service.adminGetSingleById(99);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+    }
+
+    @Test
     void adminUpdate_publishAction_rejectsEmptyTitle() {
         Article article = Article.reconstruct(
                 10,

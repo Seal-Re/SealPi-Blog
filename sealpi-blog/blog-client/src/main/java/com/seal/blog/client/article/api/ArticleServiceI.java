@@ -32,6 +32,9 @@ public interface ArticleServiceI {
 
     SingleResponse<ArticleVO> getSingleById(ArticleByIdQry articleByIdQry);
 
+    /** Admin-only: returns any article regardless of status, with full draft fields. */
+    SingleResponse<ArticleVO> adminGetSingleById(Integer id);
+
     SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry articleBySlugQry);
 
     PageResponse<ArticleVO> getPage(ArticlePageQry articlePageQry);

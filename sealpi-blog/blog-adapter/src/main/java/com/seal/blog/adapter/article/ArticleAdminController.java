@@ -5,7 +5,6 @@ import com.seal.blog.client.article.dto.cmd.ArticleCreateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
-import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.common.PageResponse;
@@ -49,9 +48,7 @@ public class ArticleAdminController {
     /** Admin article detail — returns full article including draft fields. Requires JWT auth. */
     @GetMapping("/articles/{id}")
     public SingleResponse<ArticleVO> adminGetById(@PathVariable("id") Integer id) {
-        ArticleByIdQry qry = new ArticleByIdQry();
-        qry.setArticleId(id);
-        return articleService.getSingleById(qry);
+        return articleService.adminGetSingleById(id);
     }
 
     // Legacy create/update endpoints (non-admin draft/publish semantics).
