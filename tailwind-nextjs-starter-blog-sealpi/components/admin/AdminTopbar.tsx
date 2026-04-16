@@ -3,6 +3,7 @@
 import Link from '@/components/Link'
 import { signOut } from 'next-auth/react'
 import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 
 type AdminTopbarProps = {
   userName?: string | null
@@ -30,6 +31,19 @@ function getCrumb(pathname: string) {
 export default function AdminTopbar({ userName }: AdminTopbarProps) {
   const pathname = usePathname()
   const initial = userName?.trim()?.charAt(0)?.toUpperCase() || 'A'
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
 
   return (
     <header className="border-wb-rule-soft/80 bg-wb-canvas/85 sticky top-0 z-40 border-b backdrop-blur-xl dark:border-gray-800 dark:bg-gray-950/80">
@@ -57,20 +71,29 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
           <span className="border-wb-rule bg-wb-paper text-wb-ink inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border text-xs font-bold dark:border-gray-700 dark:bg-gray-800 dark:text-white">
             {initial}
           </span>
-          <details className="group relative">
-            <summary className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink cursor-pointer list-none rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-500">
+          <div ref={menuRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink cursor-pointer rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-500"
+            >
               {userName || 'Admin'}
-            </summary>
-            <div className="border-wb-rule-soft bg-wb-canvas absolute right-0 mt-2 w-40 rounded-xl border p-2 shadow-lg dark:border-gray-800 dark:bg-gray-950">
-              <button
-                type="button"
-                className="hover:bg-wb-paper w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 dark:hover:bg-gray-900"
-                onClick={() => signOut({ callbackUrl: '/login?next=/admin' })}
-              >
-                退出登录
-              </button>
-            </div>
-          </details>
+            </button>
+            {menuOpen && (
+              <div className="border-wb-rule-soft bg-wb-canvas absolute right-0 z-50 mt-2 w-40 rounded-xl border p-2 shadow-lg dark:border-gray-800 dark:bg-gray-950">
+                <button
+                  type="button"
+                  className="hover:bg-wb-paper w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 dark:hover:bg-gray-900"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    void signOut({ callbackUrl: '/login?next=/admin' })
+                  }}
+                >
+                  退出登录
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
