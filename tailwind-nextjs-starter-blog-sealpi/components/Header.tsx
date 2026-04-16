@@ -45,7 +45,7 @@ const Header = () => {
                 <Link
                   key={link.title}
                   href={link.href}
-                  className={`focus-visible:ring-wb-accent m-1 rounded font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none ${isActive ? 'text-wb-accent' : 'text-wb-ink hover:text-wb-accent'}`}
+                  className={`focus-visible:ring-wb-accent m-1 rounded pb-0.5 font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none ${isActive ? 'border-wb-accent text-wb-accent border-b-2' : 'text-wb-ink hover:text-wb-accent border-b-2 border-transparent'}`}
                 >
                   {link.title}
                 </Link>

@@ -11,7 +11,7 @@ export default function Page() {
         <p className="font-inter text-wb-accent text-[11px] font-semibold tracking-[0.26em] uppercase">
           关于本站
         </p>
-        <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl">
+        <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
           关于
         </h1>
         <p className="text-wb-meta max-w-2xl text-base leading-8">{siteMetadata.description}</p>

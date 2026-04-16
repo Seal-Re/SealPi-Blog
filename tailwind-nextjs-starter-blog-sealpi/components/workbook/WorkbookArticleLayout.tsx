@@ -193,7 +193,7 @@ export default function WorkbookArticleLayout({
                   src={prevPost.coverImageUrl}
                   alt={prevPost.title}
                   loading="lazy"
-                  className="h-20 w-full object-cover"
+                  className="border-wb-rule-soft/60 h-20 w-full border-b object-cover"
                 />
               ) : null}
               <div className="flex flex-col gap-1.5 px-4 pt-2 pb-3">
@@ -228,7 +228,7 @@ export default function WorkbookArticleLayout({
                   src={nextPost.coverImageUrl}
                   alt={nextPost.title}
                   loading="lazy"
-                  className="h-20 w-full object-cover"
+                  className="border-wb-rule-soft/60 h-20 w-full border-b object-cover"
                 />
               ) : null}
               <div className="flex w-full flex-col gap-1.5 px-4 pt-2 pb-3 sm:items-end sm:text-right">

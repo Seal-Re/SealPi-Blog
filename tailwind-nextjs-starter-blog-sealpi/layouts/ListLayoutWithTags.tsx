@@ -105,7 +105,7 @@ export default function ListLayoutWithTags({
             )
           ) : null}
           <div className="flex items-baseline gap-3">
-            <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl">
+            <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
               {title}
             </h1>
             {totalCount != null && totalCount > 0 ? (
@@ -114,7 +114,7 @@ export default function ListLayoutWithTags({
           </div>
         </div>
         {availableTags.length > 0 && (
-          <div className="no-scrollbar -mx-1 mb-4 flex gap-2 overflow-x-auto px-1 sm:hidden">
+          <div className="no-scrollbar -mx-1 mb-4 flex gap-1.5 overflow-x-auto px-1 sm:hidden">
             <Link
               href="/blog"
               className={`rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors ${
