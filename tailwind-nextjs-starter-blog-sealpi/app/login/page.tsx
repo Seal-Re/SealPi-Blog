@@ -3,10 +3,11 @@ import Link from '@/components/Link'
 import { redirect } from 'next/navigation'
 
 function errorText(code?: string) {
+  if (!code) return null
   if (code === 'banned') return '该账号已被封禁，无法登录。'
   if (code === 'sync') return '用户资料同步失败，请稍后重试或联系管理员。'
   if (code === 'AccessDenied' || code === 'Configuration') return '登录被拒绝或登录配置有误。'
-  return null
+  return 'GitHub 登录过程出错，请重试。'
 }
 
 export default async function LoginPage(props: {
