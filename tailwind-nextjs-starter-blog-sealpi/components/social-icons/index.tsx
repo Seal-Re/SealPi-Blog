@@ -45,13 +45,16 @@ const SocialIcon = ({ kind, href, size = 8 }: SocialIconProps) => {
 
   return (
     <a
-      className="text-wb-meta hover:text-wb-accent text-sm transition"
+      className="text-wb-meta hover:text-wb-accent transition-colors duration-200"
       target="_blank"
       rel="noopener noreferrer"
       href={href}
     >
       <span className="sr-only">{kind}</span>
-      <SocialSvg className={`hover:text-wb-accent text-wb-meta fill-current h-${size} w-${size}`} />
+      <SocialSvg
+        className="fill-current"
+        style={{ height: `${size * 0.25}rem`, width: `${size * 0.25}rem` }}
+      />
     </a>
   )
 }

@@ -3,7 +3,12 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from '@/components/Link'
-import { AdminApiError, deleteAdminArticle, offlineAdminArticle, publishAdminArticle } from '@/lib/admin-api'
+import {
+  AdminApiError,
+  deleteAdminArticle,
+  offlineAdminArticle,
+  publishAdminArticle,
+} from '@/lib/admin-api'
 
 type Props = {
   articleId: string

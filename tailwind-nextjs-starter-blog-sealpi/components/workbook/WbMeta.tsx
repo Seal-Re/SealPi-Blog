@@ -26,8 +26,7 @@ export default function WbMeta({
   viewCount,
   tags = [],
 }: WbMetaProps) {
-  const showLastmod =
-    lastmodIso != null && lastmodIso.substring(0, 10) !== dateIso.substring(0, 10)
+  const showLastmod = lastmodIso != null && lastmodIso.substring(0, 10) !== dateIso.substring(0, 10)
 
   return (
     <div className="font-inter text-wb-meta mb-7 flex flex-wrap items-center gap-3.5 text-[13px]">

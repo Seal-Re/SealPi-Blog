@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type LightboxState = { src: string; alt: string } | null
 
 /** Attaches a click-to-zoom lightbox to all .wb-body img elements on mount. */
 export default function WbImageLightbox() {
   const [lightbox, setLightbox] = useState<LightboxState>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
   const close = () => setLightbox(null)
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function WbImageLightbox() {
     if (!lightbox) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setLightbox(null)
     }
@@ -64,9 +66,10 @@ export default function WbImageLightbox() {
       </div>
       {/* Close button */}
       <button
+        ref={closeButtonRef}
         type="button"
         aria-label="关闭预览"
-        className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+        className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
         onClick={close}
       >
         <svg

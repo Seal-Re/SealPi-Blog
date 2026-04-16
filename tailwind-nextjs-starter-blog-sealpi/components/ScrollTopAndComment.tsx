@@ -30,7 +30,7 @@ const ScrollTopAndComment = () => {
         <button
           aria-label="跳转到评论区"
           onClick={handleScrollToComment}
-          className="border-wb-rule-soft bg-wb-canvas/80 text-wb-meta hover:bg-wb-paper hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all"
+          className="border-wb-rule-soft bg-wb-canvas/80 text-wb-meta hover:bg-wb-paper hover:text-wb-accent focus-visible:ring-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all focus-visible:ring-2 focus-visible:outline-none"
         >
           <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -44,7 +44,7 @@ const ScrollTopAndComment = () => {
       <button
         aria-label="回到顶部"
         onClick={handleScrollTop}
-        className="border-wb-rule-soft bg-wb-paper/90 text-wb-meta hover:bg-wb-canvas hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all"
+        className="border-wb-rule-soft bg-wb-paper/90 text-wb-meta hover:bg-wb-canvas hover:text-wb-accent focus-visible:ring-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all focus-visible:ring-2 focus-visible:outline-none"
       >
         <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
           <path

@@ -195,6 +195,9 @@ input:-webkit-autofill:focus {
 .wb-heading-anchor:hover {
   color: var(--color-wb-accent);
 }
+.wb-heading-anchor:focus-visible {
+  opacity: 1;
+}
 
 [data-reveal] {
   opacity: 0.35;
@@ -374,6 +377,11 @@ input:-webkit-autofill:focus {
 .wb-copy-btn:hover {
   color: var(--color-wb-accent);
   border-color: var(--color-wb-rule);
+}
+.wb-copy-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--color-wb-accent);
+  outline-offset: 2px;
 }
 /* Language label — injected by CopyCodeInit alongside each code block */
 .wb-lang-label {

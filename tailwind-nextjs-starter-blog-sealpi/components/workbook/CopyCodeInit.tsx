@@ -82,6 +82,7 @@ export default function CopyCodeInit() {
       const btn = document.createElement('button')
       btn.className = 'wb-copy-btn'
       btn.setAttribute('aria-label', '复制代码')
+      btn.tabIndex = 0
       btn.innerHTML = COPY_ICON
 
       btn.addEventListener('click', async () => {

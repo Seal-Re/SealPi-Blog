@@ -32,7 +32,11 @@ const MobileNav = () => {
 
   return (
     <>
-      <button aria-label="打开导航菜单" onClick={onToggleNav} className="sm:hidden">
+      <button
+        aria-label="打开导航菜单"
+        onClick={onToggleNav}
+        className="focus-visible:ring-wb-accent rounded focus-visible:ring-2 focus-visible:outline-none sm:hidden"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
@@ -83,7 +87,7 @@ const MobileNav = () => {
                     <Link
                       key={link.title}
                       href={link.href}
-                      className={`mb-4 py-2 pr-4 text-2xl font-bold tracking-widest outline outline-0 transition-colors ${isActive ? 'text-wb-accent' : 'text-wb-ink hover:text-wb-accent'}`}
+                      className={`focus-visible:ring-wb-accent mb-4 py-2 pr-4 text-2xl font-bold tracking-widest outline-0 transition-colors focus-visible:rounded focus-visible:ring-1 focus-visible:outline-none ${isActive ? 'text-wb-accent' : 'text-wb-ink hover:text-wb-accent'}`}
                       onClick={onToggleNav}
                     >
                       {link.title}
@@ -125,7 +129,7 @@ const MobileNav = () => {
                         onToggleNav()
                         signIn('github', { callbackUrl: '/' })
                       }}
-                      className="hover:text-wb-accent text-wb-ink text-lg font-bold"
+                      className="hover:text-wb-accent text-wb-ink focus-visible:ring-wb-accent rounded text-lg font-bold focus-visible:ring-2 focus-visible:outline-none"
                     >
                       登录
                     </button>
@@ -134,7 +138,7 @@ const MobileNav = () => {
               </nav>
 
               <button
-                className="hover:text-wb-accent text-wb-ink fixed top-7 right-4 z-80 h-16 w-16 p-4"
+                className="hover:text-wb-accent text-wb-ink focus-visible:ring-wb-accent fixed top-7 right-4 z-80 h-16 w-16 rounded p-4 focus-visible:ring-2 focus-visible:outline-none"
                 aria-label="关闭导航菜单"
                 onClick={onToggleNav}
               >

@@ -19,7 +19,7 @@ export default function UserMenu() {
 
   return (
     <Menu as="div" className="relative hidden text-left sm:block">
-      <MenuButton className="focus:ring-wb-accent ring-offset-wb-paper flex rounded-full focus:ring-2 focus:ring-offset-2 focus:outline-hidden">
+      <MenuButton className="focus-visible:ring-wb-accent flex rounded-full focus-visible:ring-2 focus-visible:outline-none">
         <span className="sr-only">打开用户菜单</span>
         {user.image ? (
           // eslint-disable-next-line @next/next/no-img-element

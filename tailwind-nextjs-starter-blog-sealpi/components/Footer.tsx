@@ -30,7 +30,7 @@ export default function Footer() {
               <Link
                 key={href}
                 href={href}
-                className="text-wb-meta hover:text-wb-accent text-sm transition-colors duration-200"
+                className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent rounded text-sm transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
               >
                 {label}
               </Link>
@@ -56,7 +56,7 @@ export default function Footer() {
             <Link
               href="/feed.xml"
               title="RSS 订阅"
-              className="text-wb-meta hover:text-wb-accent transition"
+              className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent rounded transition focus-visible:ring-1 focus-visible:outline-none"
             >
               <span className="sr-only">RSS 订阅</span>
               <svg
