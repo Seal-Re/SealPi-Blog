@@ -69,7 +69,7 @@ export default function UserMenu() {
                 href={user.profileBlogUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-wb-accent mt-2 block truncate text-xs hover:underline"
+                className="focus-visible:ring-wb-accent text-wb-accent mt-2 block truncate rounded text-xs hover:underline focus-visible:ring-1 focus-visible:outline-none"
               >
                 {user.profileBlogUrl}
               </a>
@@ -79,7 +79,7 @@ export default function UserMenu() {
                 href={user.githubProfileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-wb-accent mt-1 block truncate text-xs hover:underline"
+                className="focus-visible:ring-wb-accent text-wb-accent mt-1 block truncate rounded text-xs hover:underline focus-visible:ring-1 focus-visible:outline-none"
               >
                 GitHub 主页
               </a>

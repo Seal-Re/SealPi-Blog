@@ -35,7 +35,7 @@ export default function Comments({ slug }: { slug: string }) {
           <button
             type="button"
             onClick={() => setLoadComments(true)}
-            className="border-wb-accent text-wb-accent hover:bg-wb-paper dark:hover:bg-wb-paper/10 rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-200"
+            className="border-wb-accent text-wb-accent hover:bg-wb-paper focus-visible:ring-wb-accent dark:hover:bg-wb-paper/10 rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
           >
             加载评论
           </button>
