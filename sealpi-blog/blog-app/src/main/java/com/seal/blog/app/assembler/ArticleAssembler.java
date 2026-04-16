@@ -48,7 +48,9 @@ public interface ArticleAssembler {
     }
 
     /**
-     * 分页转换 (public — strips draft fields)
+     * 分页转换 (public — strips draft fields and large body/content fields not used on list pages).
+     * bodyMd and contentJson are omitted here because list consumers only need title/summary/tags/cover.
+     * The full fields remain available on the individual article detail endpoint.
      */
     default PageResponse<ArticleVO> toPublicPageResponse(PageResponse<Article> pages) {
         if (pages == null) {
@@ -57,7 +59,14 @@ public interface ArticleAssembler {
 
         Collection<ArticleVO> voList = pages.getData() == null ? java.util.Collections.emptyList()
                 : pages.getData().stream()
-                        .map(this::toPublicVO)
+                        .map(article -> {
+                            ArticleVO vo = toPublicVO(article);
+                            if (vo != null) {
+                                vo.setBodyMd(null);
+                                vo.setContentJson(null);
+                            }
+                            return vo;
+                        })
                         .collect(java.util.stream.Collectors.toList());
 
         return PageResponse.of(
