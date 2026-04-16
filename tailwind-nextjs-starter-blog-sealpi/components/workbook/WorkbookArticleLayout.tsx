@@ -8,6 +8,7 @@ import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
+import WbToc from './WbToc'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import Comments from '@/components/Comments'
 import siteMetadata from '@/data/siteMetadata'
@@ -94,6 +95,7 @@ export default function WorkbookArticleLayout({
 
       {bodyMd ? (
         <div data-reveal>
+          <WbToc markdown={bodyMd} />
           <BodyMarkdown markdown={bodyMd} />
         </div>
       ) : null}
