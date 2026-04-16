@@ -11,7 +11,7 @@ export default function NotFound() {
         <p className="text-wb-meta mt-3 text-sm leading-7">别担心，可以从首页重新出发。</p>
         <Link
           href="/"
-          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition"
+          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none"
         >
           <span aria-hidden="true">←</span>
           返回首页

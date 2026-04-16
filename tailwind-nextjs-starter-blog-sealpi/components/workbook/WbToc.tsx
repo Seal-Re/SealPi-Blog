@@ -52,7 +52,7 @@ export default function WbToc({ markdown }: { markdown: string }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="font-inter text-wb-accent flex w-full items-center justify-between px-5 py-4 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors sm:pointer-events-none sm:cursor-default"
+        className="font-inter text-wb-accent focus-visible:ring-wb-accent flex w-full items-center justify-between rounded-t-xl px-5 py-4 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none sm:pointer-events-none sm:cursor-default"
       >
         <span>目录</span>
         {/* Chevron — only visible on small screens */}
@@ -97,7 +97,7 @@ export default function WbToc({ markdown }: { markdown: string }) {
                   onClick={() => {
                     if (typeof window !== 'undefined' && window.innerWidth < 640) setOpen(false)
                   }}
-                  className={`block leading-snug transition-colors duration-150 ${sizeClass} ${
+                  className={`focus-visible:ring-wb-accent block rounded leading-snug transition-colors duration-150 focus-visible:ring-1 focus-visible:outline-none ${sizeClass} ${
                     isActive
                       ? 'text-wb-accent pl-2 font-semibold'
                       : 'text-wb-meta hover:text-wb-accent pl-2'

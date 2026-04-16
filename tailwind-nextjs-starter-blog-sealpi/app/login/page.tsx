@@ -46,14 +46,14 @@ export default async function LoginPage(props: {
           >
             <button
               type="submit"
-              className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex w-full items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition"
+              className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex w-full items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none"
             >
               使用 GitHub 继续
             </button>
           </form>
           <Link
             href="/"
-            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none"
           >
             返回首页
           </Link>
