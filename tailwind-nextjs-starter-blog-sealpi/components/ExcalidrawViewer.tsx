@@ -51,7 +51,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
   if (!scene || !hasRenderableElements) {
     if (compact) return null
     return (
-      <section className="border-wb-rule-soft bg-wb-canvas/90 overflow-hidden rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)] backdrop-blur">
+      <section className="border-wb-rule-soft bg-wb-canvas/90 overflow-hidden rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)] backdrop-blur dark:shadow-[0_24px_80px_-42px_rgba(0,0,0,0.55)]">
         <div className="border-wb-rule-soft/60 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-6 py-5 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.12),rgba(26,19,13,0.95))]">
           <p className="text-wb-accent dark:text-wb-rule text-xs font-semibold tracking-[0.24em] uppercase">
             Excalidraw 画板
@@ -74,7 +74,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
 
   return (
     <section
-      className={`bg-wb-canvas/90 overflow-hidden backdrop-blur ${compact ? 'h-full w-full rounded-none border-0 shadow-none' : 'border-wb-rule-soft rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)]'}`}
+      className={`bg-wb-canvas/90 overflow-hidden backdrop-blur ${compact ? 'h-full w-full rounded-none border-0 shadow-none' : 'border-wb-rule-soft rounded-[2rem] border shadow-[0_24px_80px_-42px_rgba(31,26,21,0.30)] dark:shadow-[0_24px_80px_-42px_rgba(0,0,0,0.55)]'}`}
     >
       {!compact && (
         <div className="border-wb-rule-soft/60 flex flex-wrap items-start justify-between gap-4 border-b bg-[linear-gradient(135deg,rgba(166,88,43,0.06),rgba(251,245,236,0.95))] px-6 py-5 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.12),rgba(26,19,13,0.95))]">

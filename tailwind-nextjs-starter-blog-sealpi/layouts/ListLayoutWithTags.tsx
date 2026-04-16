@@ -120,7 +120,7 @@ export default function ListLayoutWithTags({
           </div>
         )}
         <div className="flex sm:space-x-24">
-          <div className="border-wb-rule-soft bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-2xl border pt-5 shadow-[0_4px_20px_-6px_rgba(31,26,21,0.10)] sm:flex">
+          <div className="border-wb-rule-soft bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-2xl border pt-5 shadow-[0_4px_20px_-6px_rgba(31,26,21,0.10)] sm:flex dark:shadow-[0_4px_20px_-6px_rgba(0,0,0,0.35)]">
             <div className="px-4 py-4">
               {pathname.startsWith('/blog') ? (
                 <span className="bg-wb-accent/10 text-wb-accent inline-block w-full rounded-lg px-3 py-2 text-sm font-bold uppercase">
