@@ -4,6 +4,10 @@
 @source '../node_modules/pliny';
 @custom-variant dark (&:where(.dark, .dark *));
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Core theme configuration */
 @theme {
   /* Font families */
@@ -235,6 +239,7 @@ input:-webkit-autofill:focus {
 /* Heading anchor links */
 .wb-heading {
   position: relative;
+  scroll-margin-top: 5rem; /* clear sticky header when jumping via ToC / anchor links */
 }
 .wb-heading-anchor {
   margin-left: 0.4em;
