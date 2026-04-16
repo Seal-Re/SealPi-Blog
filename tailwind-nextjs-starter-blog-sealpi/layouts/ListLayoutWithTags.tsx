@@ -175,71 +175,80 @@ export default function ListLayoutWithTags({
           <div>
             {displayPosts.length ? (
               <ul>
-                {displayPosts.map((post) => (
-                  <li key={post.path} className="py-3">
-                    <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]">
-                      {post.coverImageUrl ? (
-                        <div className="relative h-52 w-full overflow-hidden">
-                          <Image
-                            src={post.coverImageUrl}
-                            alt={post.title}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 1280px) 100vw, 60vw"
-                          />
-                        </div>
-                      ) : (
-                        <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
-                      )}
-                      <div className="p-6">
-                        <div className="mb-2 flex flex-wrap items-center gap-3">
-                          <time
-                            dateTime={post.date}
-                            className="text-wb-meta text-sm font-medium"
-                            suppressHydrationWarning
-                          >
-                            {formatDate(post.date, siteMetadata.locale)}
-                          </time>
-                          {post.viewCount != null && post.viewCount > 0 ? (
-                            <>
-                              <span className="text-wb-rule opacity-40">·</span>
-                              <span className="text-wb-meta text-xs">
-                                {post.viewCount.toLocaleString('zh-CN')} 次阅读
+                {displayPosts.map((post) => {
+                  const isUpdated =
+                    post.lastmod && post.lastmod.substring(0, 10) !== post.date?.substring(0, 10)
+                  return (
+                    <li key={post.path} className="py-3">
+                      <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]">
+                        {post.coverImageUrl ? (
+                          <div className="relative h-52 w-full overflow-hidden">
+                            <Image
+                              src={post.coverImageUrl}
+                              alt={post.title}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 1280px) 100vw, 60vw"
+                            />
+                          </div>
+                        ) : (
+                          <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
+                        )}
+                        <div className="p-6">
+                          <div className="mb-2 flex flex-wrap items-center gap-3">
+                            <time
+                              dateTime={post.date}
+                              className="text-wb-meta text-sm font-medium"
+                              suppressHydrationWarning
+                            >
+                              {formatDate(post.date, siteMetadata.locale)}
+                            </time>
+                            {isUpdated ? (
+                              <span className="border-wb-rule-soft font-inter text-wb-meta rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-[0.10em] uppercase opacity-75">
+                                已更新
                               </span>
-                            </>
-                          ) : null}
-                          {post.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {post.tags.map((tagName) => (
-                                <Tag key={tagName} text={tagName} />
-                              ))}
-                            </div>
-                          )}
+                            ) : null}
+                            {post.viewCount != null && post.viewCount > 0 ? (
+                              <>
+                                <span className="text-wb-rule opacity-40">·</span>
+                                <span className="text-wb-meta text-xs">
+                                  {post.viewCount.toLocaleString('zh-CN')} 次阅读
+                                </span>
+                              </>
+                            ) : null}
+                            {post.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {post.tags.map((tagName) => (
+                                  <Tag key={tagName} text={tagName} />
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <h2 className="font-fraunces text-wb-ink text-[22px] leading-snug font-semibold tracking-tight italic">
+                            <Link
+                              href={`/${post.path}`}
+                              className="hover:text-wb-accent transition-colors duration-200"
+                            >
+                              {post.title}
+                            </Link>
+                          </h2>
+                          <p className="text-wb-meta mt-2 line-clamp-2 text-sm leading-6">
+                            {post.summary}
+                          </p>
+                          <div className="mt-3">
+                            <Link
+                              href={`/${post.path}`}
+                              className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
+                              aria-label={`阅读全文：${post.title}`}
+                            >
+                              阅读全文 &rarr;
+                            </Link>
+                          </div>
                         </div>
-                        <h2 className="font-fraunces text-wb-ink text-[22px] leading-snug font-semibold tracking-tight italic">
-                          <Link
-                            href={`/${post.path}`}
-                            className="hover:text-wb-accent transition-colors duration-200"
-                          >
-                            {post.title}
-                          </Link>
-                        </h2>
-                        <p className="text-wb-meta mt-2 line-clamp-2 text-sm leading-6">
-                          {post.summary}
-                        </p>
-                        <div className="mt-3">
-                          <Link
-                            href={`/${post.path}`}
-                            className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
-                            aria-label={`阅读全文：${post.title}`}
-                          >
-                            阅读全文 &rarr;
-                          </Link>
-                        </div>
-                      </div>
-                    </article>
-                  </li>
-                ))}
+                      </article>
+                    </li>
+                  )
+                })}
               </ul>
             ) : (
               <div className="border-wb-rule bg-wb-paper/80 rounded-[2rem] border border-dashed px-6 py-12 text-center">

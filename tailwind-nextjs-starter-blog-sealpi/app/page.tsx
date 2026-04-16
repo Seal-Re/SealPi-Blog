@@ -36,7 +36,7 @@ export default function Page() {
   return (
     <>
       {/* Hero */}
-      <div className="border-wb-rule-soft border-b pt-10 pb-12 md:pt-14">
+      <div className="wb-page-enter border-wb-rule-soft border-b pt-10 pb-12 md:pt-14">
         <p className="font-inter text-wb-accent mb-4 text-[11px] font-semibold tracking-[0.26em] uppercase">
           随笔 · 技术 · 日常
         </p>
