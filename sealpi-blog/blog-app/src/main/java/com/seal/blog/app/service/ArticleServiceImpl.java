@@ -16,6 +16,7 @@ import com.seal.blog.client.common.Response;
 import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.domain.article.gateway.ArticleGateway;
 import com.seal.blog.domain.article.model.Article;
+import com.seal.blog.domain.article.model.ArticleStatus;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -183,7 +184,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
     public SingleResponse<ArticleVO> getSingleById(ArticleByIdQry qry) {
         Article article = articleGateway.findById(qry.getArticleId());
 
-        if (article == null) {
+        if (article == null || article.getDraft() != ArticleStatus.PUBLISHED) {
             return SingleResponse.buildSingleFailure("404", "文章不存在");
         }
 
@@ -194,7 +195,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
     public SingleResponse<ArticleVO> getSingleBySlug(ArticleBySlugQry qry) {
         Article article = articleGateway.findBySlug(qry.getSlug());
 
-        if (article == null) {
+        if (article == null || article.getDraft() != ArticleStatus.PUBLISHED) {
             return SingleResponse.buildSingleFailure("404", "文章不存在");
         }
 

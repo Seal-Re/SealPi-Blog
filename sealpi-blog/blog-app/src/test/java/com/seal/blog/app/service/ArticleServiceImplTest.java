@@ -218,6 +218,52 @@ class ArticleServiceImplTest {
     }
 
     @Test
+    void getSingleBySlug_draftArticle_returns404() {
+        Article draft = Article.reconstruct(
+                12,
+                "draft title", "summary", "draft-slug",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.DRAFT, 0,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findBySlug("draft-slug")).thenReturn(draft);
+
+        com.seal.blog.client.article.dto.qry.ArticleBySlugQry qry =
+                new com.seal.blog.client.article.dto.qry.ArticleBySlugQry();
+        qry.setSlug("draft-slug");
+        com.seal.blog.client.common.SingleResponse<?> result = service.getSingleBySlug(qry);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+        verify(articleAssembler, never()).toVO(any());
+    }
+
+    @Test
+    void getSingleById_draftArticle_returns404() {
+        Article draft = Article.reconstruct(
+                13,
+                "draft title", "summary", "draft-slug-2",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.DRAFT, 0,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findById(13)).thenReturn(draft);
+
+        com.seal.blog.client.article.dto.qry.ArticleByIdQry qry =
+                new com.seal.blog.client.article.dto.qry.ArticleByIdQry();
+        qry.setArticleId(13);
+        com.seal.blog.client.common.SingleResponse<?> result = service.getSingleById(qry);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+        verify(articleAssembler, never()).toVO(any());
+    }
+
+    @Test
     void adminUpdate_publishAction_rejectsEmptyTitle() {
         Article article = Article.reconstruct(
                 10,
