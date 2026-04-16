@@ -195,3 +195,9 @@ export async function offlineAdminArticle(articleId: number) {
     method: 'POST',
   })
 }
+
+export async function publishAdminArticle(articleId: number) {
+  return adminFetch<ApiEnvelope>(`/api/admin/articles/${articleId}/publish`, {
+    method: 'POST',
+  })
+}

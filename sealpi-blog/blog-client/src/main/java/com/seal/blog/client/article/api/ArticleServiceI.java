@@ -32,6 +32,14 @@ public interface ArticleServiceI {
 
     Response adminOffline(Integer id);
 
+    /**
+     * Promotes a draft article to published status without a full payload update.
+     * Copies draftJson→contentJson, draftBodyMd→bodyMd, and sets status=PUBLISHED.
+     * Returns 400 if the article has no real title or no URL set.
+     * Returns 404 if the article does not exist.
+     */
+    Response adminPublish(Integer id);
+
     SingleResponse<ArticleVO> getSingleById(ArticleByIdQry articleByIdQry);
 
     /** Admin-only: returns any article regardless of status, with full draft fields. */

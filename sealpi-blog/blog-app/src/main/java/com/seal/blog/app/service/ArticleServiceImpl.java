@@ -159,6 +159,26 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public Response adminPublish(Integer id) {
+        Article article = articleGateway.findById(id);
+        if (article == null) {
+            return Response.buildFailure("404", "文章不存在");
+        }
+        String title = article.getTitle();
+        if (title == null || title.isBlank() || DRAFT_PLACEHOLDER_TITLE.equals(title.trim())) {
+            return Response.buildFailure("400", "发布失败：请先在编辑器中设置标题");
+        }
+        String url = article.getUrl();
+        if (url == null || url.isBlank()) {
+            return Response.buildFailure("400", "发布失败：请先在编辑器中设置文章 slug");
+        }
+        article.publishFromDraft(null);
+        articleGateway.save(article);
+        return Response.buildSuccess();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public Response update(ArticleUpdateCmd articleUpdateCmd){
         Article article = articleGateway.findById(articleUpdateCmd.getArticleId());
         if(article == null){

@@ -207,4 +207,9 @@ public class ArticleAdminController {
     public Response offline(@PathVariable("id") Integer id) {
         return articleService.adminOffline(id);
     }
+
+    @PostMapping("/articles/{id}/publish")
+    public Response publish(@PathVariable("id") Integer id) {
+        return articleService.adminPublish(id);
+    }
 }
