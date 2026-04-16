@@ -296,6 +296,8 @@ export default async function AdminArticlesPage(props: {
         <div className="flex gap-3">
           <Link
             href={buildAdminArticlesPageHref(pageIndex - 1, q, status, tag)}
+            aria-disabled={pageIndex <= 1}
+            tabIndex={pageIndex <= 1 ? -1 : undefined}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex <= 1
                 ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
@@ -306,6 +308,8 @@ export default async function AdminArticlesPage(props: {
           </Link>
           <Link
             href={buildAdminArticlesPageHref(Math.min(pageIndex + 1, totalPages), q, status, tag)}
+            aria-disabled={pageIndex >= totalPages}
+            tabIndex={pageIndex >= totalPages ? -1 : undefined}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex >= totalPages
                 ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
