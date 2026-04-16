@@ -477,8 +477,8 @@ class ArticleServiceImplTest {
         assertNull(result.getData().getPrev());
         assertNull(result.getData().getNext());
         assertThat(result.getData().getRelated()).isEmpty();
-        verify(articleGateway, never()).findPrevPublished(any());
-        verify(articleGateway, never()).findNextPublished(any());
+        verify(articleGateway, never()).findPrevPublished(any(), any());
+        verify(articleGateway, never()).findNextPublished(any(), any());
     }
 
     @Test
@@ -493,7 +493,7 @@ class ArticleServiceImplTest {
         assertTrue(result.isSuccess());
         assertNull(result.getData().getPrev());
         assertNull(result.getData().getNext());
-        verify(articleGateway, never()).findPrevPublished(any());
+        verify(articleGateway, never()).findPrevPublished(any(), any());
     }
 
     @Test
@@ -509,8 +509,8 @@ class ArticleServiceImplTest {
                 ArticleStatus.PUBLISHED, 0, null, null, null, 0, null, null, null);
 
         when(articleGateway.findBySlug("current-adj")).thenReturn(current);
-        when(articleGateway.findPrevPublished("2026-03-01")).thenReturn(prev);
-        when(articleGateway.findNextPublished("2026-03-01")).thenReturn(next);
+        when(articleGateway.findPrevPublished(eq("2026-03-01"), eq(21))).thenReturn(prev);
+        when(articleGateway.findNextPublished(eq("2026-03-01"), eq(21))).thenReturn(next);
         when(articleGateway.findRelatedPublished(any(), any(), anyInt())).thenReturn(Collections.emptyList());
 
         SingleResponse<ArticleAdjacentVO> result = service.getAdjacentBySlug("current-adj", List.of("tag1"));
@@ -532,8 +532,8 @@ class ArticleServiceImplTest {
                 24, "current2", "s", "current-adj2", "2026-03-01", "2026-03-01",
                 ArticleStatus.PUBLISHED, 0, null, null, null, 0, null, null, null);
         when(articleGateway.findBySlug("current-adj2")).thenReturn(current);
-        when(articleGateway.findPrevPublished(any())).thenReturn(null);
-        when(articleGateway.findNextPublished(any())).thenReturn(null);
+        when(articleGateway.findPrevPublished(any(), any())).thenReturn(null);
+        when(articleGateway.findNextPublished(any(), any())).thenReturn(null);
 
         SingleResponse<ArticleAdjacentVO> result = service.getAdjacentBySlug("current-adj2", Collections.emptyList());
 

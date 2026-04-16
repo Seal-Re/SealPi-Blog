@@ -248,15 +248,21 @@ public class ArticleGatewayImpl implements ArticleGateway {
     }
 
     @Override
-    public Article findPrevPublished(String currentDate) {
-        if (currentDate == null || currentDate.isBlank()) {
+    public Article findPrevPublished(String currentDate, Integer currentArticleId) {
+        if (currentDate == null || currentDate.isBlank() || currentArticleId == null) {
             return null;
         }
-        // In descending-date list, "previous" = newer = date > currentDate; take the oldest of those (ASC LIMIT 1).
-        // Secondary sort by articleId ensures deterministic result when multiple articles share the same date.
+        // "Previous" = newer in descending list = (date > currentDate) OR (date = currentDate AND articleId > currentArticleId).
+        // Order by (date ASC, articleId ASC) and take the first row, giving the closest newer article.
         LambdaQueryWrapper<ArticlePO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ArticlePO::getDraft, 1)
-               .gt(ArticlePO::getDate, currentDate)
+               .and(w -> w
+                   .gt(ArticlePO::getDate, currentDate)
+                   .or(inner -> inner
+                       .eq(ArticlePO::getDate, currentDate)
+                       .gt(ArticlePO::getArticleId, currentArticleId)
+                   )
+               )
                .orderByAsc(ArticlePO::getDate)
                .orderByAsc(ArticlePO::getArticleId)
                .last("LIMIT 1");
@@ -264,15 +270,21 @@ public class ArticleGatewayImpl implements ArticleGateway {
     }
 
     @Override
-    public Article findNextPublished(String currentDate) {
-        if (currentDate == null || currentDate.isBlank()) {
+    public Article findNextPublished(String currentDate, Integer currentArticleId) {
+        if (currentDate == null || currentDate.isBlank() || currentArticleId == null) {
             return null;
         }
-        // In descending-date list, "next" = older = date < currentDate; take the newest of those (DESC LIMIT 1).
-        // Secondary sort by articleId ensures deterministic result when multiple articles share the same date.
+        // "Next" = older in descending list = (date < currentDate) OR (date = currentDate AND articleId < currentArticleId).
+        // Order by (date DESC, articleId DESC) and take the first row, giving the closest older article.
         LambdaQueryWrapper<ArticlePO> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ArticlePO::getDraft, 1)
-               .lt(ArticlePO::getDate, currentDate)
+               .and(w -> w
+                   .lt(ArticlePO::getDate, currentDate)
+                   .or(inner -> inner
+                       .eq(ArticlePO::getDate, currentDate)
+                       .lt(ArticlePO::getArticleId, currentArticleId)
+                   )
+               )
                .orderByDesc(ArticlePO::getDate)
                .orderByDesc(ArticlePO::getArticleId)
                .last("LIMIT 1");

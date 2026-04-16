@@ -259,8 +259,9 @@ public class ArticleServiceImpl implements ArticleServiceI {
         }
 
         String currentDate = current.getDate();
-        Article prevArticle = articleGateway.findPrevPublished(currentDate);
-        Article nextArticle = articleGateway.findNextPublished(currentDate);
+        Integer currentId = current.getArticleId();
+        Article prevArticle = articleGateway.findPrevPublished(currentDate, currentId);
+        Article nextArticle = articleGateway.findNextPublished(currentDate, currentId);
 
         Set<Integer> excludeIds = new HashSet<>();
         excludeIds.add(current.getArticleId());
