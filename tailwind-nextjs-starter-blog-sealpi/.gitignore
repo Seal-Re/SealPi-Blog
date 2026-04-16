@@ -49,3 +49,6 @@ yarn-error.log*
 
 # Contentlayer
 .contentlayer
+
+# Contentlayer build artifacts (regenerated each build; content served dynamically)
+/app/tag-data.json
