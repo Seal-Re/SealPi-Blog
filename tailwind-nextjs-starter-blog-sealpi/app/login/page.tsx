@@ -32,7 +32,7 @@ export default async function LoginPage(props: {
         </h1>
         <p className="text-wb-meta mt-3 text-sm leading-relaxed">使用 GitHub 账号登录。</p>
         {err ? (
-          <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+          <p className="border-wb-accent/40 bg-wb-accent/10 text-wb-accent mt-4 rounded-lg border px-3 py-2 text-sm">
             {err}
           </p>
         ) : null}
