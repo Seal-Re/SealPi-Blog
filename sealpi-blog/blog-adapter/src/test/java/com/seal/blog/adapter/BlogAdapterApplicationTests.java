@@ -163,6 +163,27 @@ class BlogAdapterApplicationTests {
     }
 
     @Test
+    void adminCreateMultipart_forwardsTags() throws Exception {
+        when(articleService.adminCreate(any(), anyString(), any())).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                multipart("/api/v1/admin/articles")
+                        .header("Authorization", bearerToken("123"))
+                        .param("title", "t")
+                        .param("url", "u")
+                        .param("draftJson", "{}")
+                        .param("tags", "spring, ddd, java")
+                        .param("action", "draft")
+        ).andExpect(status().isOk());
+
+        ArgumentCaptor<ArticleDraftSaveCmd> cmdCaptor = ArgumentCaptor.forClass(ArticleDraftSaveCmd.class);
+        verify(articleService).adminCreate(cmdCaptor.capture(), anyString(), any());
+        ArticleDraftSaveCmd captured = cmdCaptor.getValue();
+        org.assertj.core.api.Assertions.assertThat(captured.getTags())
+                .containsExactly("spring", "ddd", "java");
+    }
+
+    @Test
     void adminUsers_withoutAuth_returns401() throws Exception {
         mvc.perform(get("/api/v1/admin/users"))
                 .andExpect(status().isUnauthorized());
