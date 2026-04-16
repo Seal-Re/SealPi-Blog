@@ -20,6 +20,8 @@ type AdjacentPost = {
   title: string
   path: string
   date?: string
+  coverImageUrl?: string
+  summary?: string
 }
 
 type RelatedPost = {
@@ -182,23 +184,33 @@ export default function WorkbookArticleLayout({
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-1.5 rounded-xl border px-4 py-3 transition-colors"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors"
             >
-              <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
-                ← 上一篇
-              </span>
-              <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
-                {prevPost.title}
-              </span>
-              {prevPost.date ? (
-                <span className="text-wb-meta font-inter text-[11px]">
-                  {new Date(prevPost.date).toLocaleDateString('zh-CN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
+              {prevPost.coverImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={prevPost.coverImageUrl}
+                  alt={prevPost.title}
+                  className="h-20 w-full object-cover"
+                />
               ) : null}
+              <div className="flex flex-col gap-1.5 px-4 pb-3 pt-2">
+                <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
+                  ← 上一篇
+                </span>
+                <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
+                  {prevPost.title}
+                </span>
+                {prevPost.date ? (
+                  <span className="text-wb-meta font-inter text-[11px]">
+                    {new Date(prevPost.date).toLocaleDateString('zh-CN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                ) : null}
+              </div>
             </Link>
           ) : (
             <div />
@@ -206,23 +218,33 @@ export default function WorkbookArticleLayout({
           {nextPost ? (
             <Link
               href={`/${nextPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-1.5 rounded-xl border px-4 py-3 text-right transition-colors sm:items-end"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors sm:items-end"
             >
-              <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
-                下一篇 →
-              </span>
-              <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
-                {nextPost.title}
-              </span>
-              {nextPost.date ? (
-                <span className="text-wb-meta font-inter text-[11px]">
-                  {new Date(nextPost.date).toLocaleDateString('zh-CN', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
+              {nextPost.coverImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={nextPost.coverImageUrl}
+                  alt={nextPost.title}
+                  className="h-20 w-full object-cover"
+                />
               ) : null}
+              <div className="flex w-full flex-col gap-1.5 px-4 pb-3 pt-2 sm:items-end sm:text-right">
+                <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
+                  下一篇 →
+                </span>
+                <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
+                  {nextPost.title}
+                </span>
+                {nextPost.date ? (
+                  <span className="text-wb-meta font-inter text-[11px]">
+                    {new Date(nextPost.date).toLocaleDateString('zh-CN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                ) : null}
+              </div>
             </Link>
           ) : null}
         </div>
