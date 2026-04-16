@@ -28,9 +28,7 @@ async function fetchArticleForOg(
   }
 }
 
-export default async function ArticleOgImage(props: {
-  params: Promise<{ slug: string[] }>
-}) {
+export default async function ArticleOgImage(props: { params: Promise<{ slug: string[] }> }) {
   const params = await props.params
   const slug = decodeURI(params.slug.join('/'))
   const article = await fetchArticleForOg(slug)
@@ -43,145 +41,143 @@ export default async function ArticleOgImage(props: {
   //  provides the fallback for text-only articles.)
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: 1200,
+        height: 630,
+        display: 'flex',
+        background: '#fdf6ef',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Warm texture overlay — subtle radial gradient */}
       <div
         style={{
-          width: 1200,
-          height: 630,
+          position: 'absolute',
+          inset: 0,
+          background:
+            'radial-gradient(ellipse 80% 60% at 10% 80%, rgba(196,155,92,0.14) 0%, transparent 70%)',
+        }}
+      />
+
+      {/* Left amber accent bar */}
+      <div
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 8,
+          background: 'linear-gradient(180deg, #c49b5c 0%, #a07840 100%)',
+        }}
+      />
+
+      {/* Main content */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          left: 32,
           display: 'flex',
-          background: '#fdf6ef',
-          position: 'relative',
-          overflow: 'hidden',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '60px 72px 60px 64px',
         }}
       >
-        {/* Warm texture overlay — subtle radial gradient */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(ellipse 80% 60% at 10% 80%, rgba(196,155,92,0.14) 0%, transparent 70%)',
-          }}
-        />
+        {/* Top: tag label */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {firstTag ? (
+            <div
+              style={{
+                background: 'rgba(196,155,92,0.15)',
+                border: '1px solid rgba(196,155,92,0.35)',
+                borderRadius: 100,
+                padding: '8px 20px',
+                fontSize: 18,
+                fontFamily: 'serif',
+                color: '#a07840',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {firstTag}
+            </div>
+          ) : (
+            <div style={{ display: 'flex' }} />
+          )}
+        </div>
 
-        {/* Left amber accent bar */}
+        {/* Middle: article title */}
         <div
           style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 8,
-            background: 'linear-gradient(180deg, #c49b5c 0%, #a07840 100%)',
-          }}
-        />
-
-        {/* Main content */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            left: 32,
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '60px 72px 60px 64px',
+            flex: 1,
+            alignItems: 'center',
+            paddingTop: 32,
+            paddingBottom: 32,
           }}
         >
-          {/* Top: tag label */}
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {firstTag ? (
-              <div
-                style={{
-                  background: 'rgba(196,155,92,0.15)',
-                  border: '1px solid rgba(196,155,92,0.35)',
-                  borderRadius: 100,
-                  padding: '8px 20px',
-                  fontSize: 18,
-                  fontFamily: 'serif',
-                  color: '#a07840',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {firstTag}
-              </div>
-            ) : (
-              <div style={{ display: 'flex' }} />
-            )}
-          </div>
-
-          {/* Middle: article title */}
           <div
             style={{
-              display: 'flex',
-              flex: 1,
-              alignItems: 'center',
-              paddingTop: 32,
-              paddingBottom: 32,
+              fontSize: title.length > 40 ? 54 : title.length > 20 ? 66 : 78,
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontStyle: 'italic',
+              fontWeight: 600,
+              color: '#1f1a15',
+              lineHeight: 1.15,
+              letterSpacing: '-0.02em',
+              maxWidth: 900,
             }}
           >
-            <div
-              style={{
-                fontSize: title.length > 40 ? 54 : title.length > 20 ? 66 : 78,
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                fontStyle: 'italic',
-                fontWeight: 600,
-                color: '#1f1a15',
-                lineHeight: 1.15,
-                letterSpacing: '-0.02em',
-                maxWidth: 900,
-              }}
-            >
-              {title}
-            </div>
-          </div>
-
-          {/* Bottom: site attribution */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div
-              style={{
-                fontSize: 22,
-                fontFamily: 'Georgia, serif',
-                color: '#8a7560',
-                letterSpacing: '0.01em',
-              }}
-            >
-              {siteMetadata.author} · {siteMetadata.title}
-            </div>
-            <div
-              style={{
-                fontSize: 20,
-                fontFamily: 'monospace',
-                color: '#c49b5c',
-                letterSpacing: '0.05em',
-              }}
-            >
-              {siteMetadata.siteUrl.replace('https://', '')}
-            </div>
+            {title}
           </div>
         </div>
 
-        {/* Decorative corner mark */}
+        {/* Bottom: site attribution */}
         <div
           style={{
-            position: 'absolute',
-            bottom: 52,
-            right: 64,
-            width: 48,
-            height: 48,
-            borderRadius: '50%',
-            border: '2px solid rgba(196,155,92,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
-        />
+        >
+          <div
+            style={{
+              fontSize: 22,
+              fontFamily: 'Georgia, serif',
+              color: '#8a7560',
+              letterSpacing: '0.01em',
+            }}
+          >
+            {siteMetadata.author} · {siteMetadata.title}
+          </div>
+          <div
+            style={{
+              fontSize: 20,
+              fontFamily: 'monospace',
+              color: '#c49b5c',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {siteMetadata.siteUrl.replace('https://', '')}
+          </div>
+        </div>
       </div>
-    ),
+
+      {/* Decorative corner mark */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 52,
+          right: 64,
+          width: 48,
+          height: 48,
+          borderRadius: '50%',
+          border: '2px solid rgba(196,155,92,0.3)',
+        }}
+      />
+    </div>,
     {
       ...size,
     }

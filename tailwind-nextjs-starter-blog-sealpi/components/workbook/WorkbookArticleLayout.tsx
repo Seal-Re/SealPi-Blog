@@ -193,7 +193,7 @@ export default function WorkbookArticleLayout({
                   className="h-20 w-full object-cover"
                 />
               ) : null}
-              <div className="flex flex-col gap-1.5 px-4 pb-3 pt-2">
+              <div className="flex flex-col gap-1.5 px-4 pt-2 pb-3">
                 <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
                   ← 上一篇
                 </span>
@@ -227,7 +227,7 @@ export default function WorkbookArticleLayout({
                   className="h-20 w-full object-cover"
                 />
               ) : null}
-              <div className="flex w-full flex-col gap-1.5 px-4 pb-3 pt-2 sm:items-end sm:text-right">
+              <div className="flex w-full flex-col gap-1.5 px-4 pt-2 pb-3 sm:items-end sm:text-right">
                 <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
                   下一篇 →
                 </span>
