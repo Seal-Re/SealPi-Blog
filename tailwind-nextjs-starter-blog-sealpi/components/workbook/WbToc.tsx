@@ -21,12 +21,20 @@ function plainText(raw: string): string {
 /**
  * Extract h2 / h3 headings from raw markdown, generating slugged IDs with
  * the same GithubSlugger logic that rehype-slug uses so anchor hrefs match.
+ * Skips lines inside fenced code blocks (``` or ~~~).
  */
 function extractHeadings(markdown: string): TocHeading[] {
   const slugger = new GithubSlugger()
   const headings: TocHeading[] = []
+  let inFence = false
 
   for (const line of markdown.split('\n')) {
+    if (/^(`{3,}|~{3,})/.test(line)) {
+      inFence = !inFence
+      continue
+    }
+    if (inFence) continue
+
     const match = line.match(/^(#{2,3}) +(.+?)$/)
     if (!match) continue
     const level = match[1].length
