@@ -5,8 +5,6 @@ import Image from 'next/image'
 import siteMetadata from '@/data/siteMetadata'
 import type { PublicBlogPost } from '@/lib/public-blog-api'
 
-const MAX_DISPLAY = 5
-
 export default function Home({ posts }: { posts: PublicBlogPost[] }) {
   return (
     <>
@@ -16,7 +14,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
             <p className="text-wb-meta text-sm">暂无已发布文章</p>
           </li>
         )}
-        {posts.slice(0, MAX_DISPLAY).map((post) => {
+        {posts.map((post) => {
           const { slug, date, title, summary, tags, coverImageUrl, viewCount } = post
           return (
             <li key={slug}>
@@ -80,7 +78,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
         })}
       </ul>
 
-      {posts.length > MAX_DISPLAY && (
+      {posts.length > 0 && (
         <div className="mt-6 flex justify-end text-base leading-6 font-medium">
           <Link
             href="/blog"
