@@ -9,6 +9,7 @@ import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
 import WbToc from './WbToc'
+import WbImageLightbox from './WbImageLightbox'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import Comments from '@/components/Comments'
 import siteMetadata from '@/data/siteMetadata'
@@ -69,6 +70,7 @@ export default function WorkbookArticleLayout({
       <WorkbookReadingProgress />
       <ScrollTopAndComment />
       <CopyCodeInit />
+      <WbImageLightbox />
 
       <p className="font-inter text-wb-accent mb-5 text-[11px] font-medium tracking-[0.18em] uppercase">
         {eyebrow}
