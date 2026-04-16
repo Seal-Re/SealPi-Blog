@@ -184,7 +184,12 @@ export default function AdminEditorWorkspace({
         ref={editorRef}
         article={article}
         onSubmitSuccess={handleSubmitSuccess}
-        onArticleIdResolved={(id) => setResolvedArticleId(String(id))}
+        onArticleIdResolved={(id) => {
+          setResolvedArticleId(String(id))
+          if (!articleId) {
+            window.history.replaceState(null, '', `/admin/editor?articleId=${id}`)
+          }
+        }}
       />
 
       {showDraftHint ? (
