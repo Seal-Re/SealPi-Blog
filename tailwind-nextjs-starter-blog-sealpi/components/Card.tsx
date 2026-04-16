@@ -27,7 +27,7 @@ const Card = ({ title, description, imgSrc, href }) => (
           />
         ))}
       <div className="p-6">
-        <h2 className="text-wb-ink mb-3 text-2xl leading-8 font-bold tracking-tight">
+        <h2 className="font-fraunces text-wb-ink mb-3 text-2xl leading-8 font-semibold tracking-tight italic">
           {href ? (
             <Link
               href={href}

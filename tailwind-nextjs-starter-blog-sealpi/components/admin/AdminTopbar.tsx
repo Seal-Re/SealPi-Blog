@@ -8,6 +8,15 @@ type AdminTopbarProps = {
   userName?: string | null
 }
 
+const mobileNavItems = [
+  { href: '/admin', label: '仪表盘' },
+  { href: '/admin/ops', label: '运维' },
+  { href: '/admin/editor', label: '新建' },
+  { href: '/admin/articles', label: '文章' },
+  { href: '/admin/drafts', label: '草稿' },
+  { href: '/admin/users', label: '用户' },
+]
+
 function getCrumb(pathname: string) {
   if (pathname.startsWith('/admin/articles')) return '文章管理'
   if (pathname.startsWith('/admin/drafts')) return '草稿库'
@@ -64,6 +73,27 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
           </details>
         </div>
       </div>
+
+      {/* Mobile nav — only visible when sidebar is hidden (< lg) */}
+      <nav className="no-scrollbar flex gap-1 overflow-x-auto border-t border-gray-800/50 px-4 pt-1 pb-1 lg:hidden">
+        {mobileNavItems.map((item) => {
+          const active =
+            pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors ${
+                active
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-400 hover:bg-white/6 hover:text-gray-200'
+              }`}
+            >
+              {item.label}
+            </Link>
+          )
+        })}
+      </nav>
     </header>
   )
 }

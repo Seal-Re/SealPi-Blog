@@ -16,6 +16,7 @@ interface PaginationProps {
 interface ListLayoutProps {
   posts: PublicBlogPost[]
   title: string
+  eyebrow?: string
   initialDisplayPosts?: PublicBlogPost[]
   pagination?: PaginationProps
   availableTags?: PublicTag[]
@@ -70,6 +71,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
 export default function ListLayoutWithTags({
   posts,
   title,
+  eyebrow,
   initialDisplayPosts = [],
   pagination,
   availableTags = [],
@@ -82,8 +84,13 @@ export default function ListLayoutWithTags({
   return (
     <>
       <div>
-        <div className="pt-6 pb-4">
-          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:hidden">
+        <div className="pt-8 pb-6 md:pt-10">
+          {eyebrow ? (
+            <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
+              {eyebrow}
+            </p>
+          ) : null}
+          <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl">
             {title}
           </h1>
         </div>
@@ -139,16 +146,18 @@ export default function ListLayoutWithTags({
                   <li key={tag.slug} className="mt-1">
                     {decodeURI(pathname.split('/tags/')[1] || '').split('/page/')[0] ===
                     tag.slug ? (
-                      <span className="bg-wb-accent/10 text-wb-accent inline-block w-full rounded-lg px-3 py-2 text-sm font-bold uppercase">
-                        {`${tag.name} (${tag.count})`}
+                      <span className="bg-wb-accent/10 text-wb-accent flex w-full items-center rounded-lg px-3 py-2 text-sm font-bold uppercase">
+                        <span className="flex-1">{tag.name}</span>
+                        <span className="text-wb-accent/60 text-xs">{tag.count}</span>
                       </span>
                     ) : (
                       <Link
                         href={`/tags/${tag.slug}`}
-                        className="hover:text-wb-accent hover:bg-wb-accent/5 text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
+                        className="hover:text-wb-accent hover:bg-wb-accent/5 text-wb-meta flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200"
                         aria-label={`查看标签：${tag.name}`}
                       >
-                        {`${tag.name} (${tag.count})`}
+                        <span className="flex-1">{tag.name}</span>
+                        <span className="text-wb-rule text-xs">{tag.count}</span>
                       </Link>
                     )}
                   </li>
@@ -163,7 +172,7 @@ export default function ListLayoutWithTags({
                   <li key={post.path} className="py-3">
                     <article className="bg-wb-canvas border-wb-rule-soft group overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]">
                       {post.coverImageUrl ? (
-                        <div className="relative h-48 w-full overflow-hidden">
+                        <div className="relative h-52 w-full overflow-hidden">
                           <Image
                             src={post.coverImageUrl}
                             alt={post.title}
@@ -175,7 +184,7 @@ export default function ListLayoutWithTags({
                       ) : (
                         <div className="from-wb-accent/30 via-wb-rule/40 h-1 w-full bg-gradient-to-r to-transparent" />
                       )}
-                      <div className="p-5">
+                      <div className="p-6">
                         <div className="mb-2 flex flex-wrap items-center gap-3">
                           <time
                             dateTime={post.date}
@@ -185,9 +194,12 @@ export default function ListLayoutWithTags({
                             {formatDate(post.date, siteMetadata.locale)}
                           </time>
                           {post.viewCount != null && post.viewCount > 0 ? (
-                            <span className="text-wb-meta text-xs">
-                              {post.viewCount.toLocaleString('zh-CN')} 次阅读
-                            </span>
+                            <>
+                              <span className="text-wb-rule opacity-40">·</span>
+                              <span className="text-wb-meta text-xs">
+                                {post.viewCount.toLocaleString('zh-CN')} 次阅读
+                              </span>
+                            </>
                           ) : null}
                           {post.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1">
@@ -197,7 +209,7 @@ export default function ListLayoutWithTags({
                             </div>
                           )}
                         </div>
-                        <h2 className="text-wb-ink text-xl font-bold tracking-tight">
+                        <h2 className="font-fraunces text-wb-ink text-[22px] leading-snug font-semibold tracking-tight italic">
                           <Link
                             href={`/${post.path}`}
                             className="hover:text-wb-accent transition-colors duration-200"
@@ -224,7 +236,9 @@ export default function ListLayoutWithTags({
               </ul>
             ) : (
               <div className="border-wb-rule bg-wb-paper/80 rounded-[2rem] border border-dashed px-6 py-12 text-center">
-                <h2 className="text-wb-ink text-2xl font-bold tracking-tight">{emptyTitle}</h2>
+                <h2 className="font-fraunces text-wb-ink text-2xl font-medium tracking-tight italic">
+                  {emptyTitle}
+                </h2>
                 {emptyDescription ? (
                   <p className="text-wb-meta mx-auto mt-4 max-w-2xl text-sm leading-7">
                     {emptyDescription}

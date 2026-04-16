@@ -43,7 +43,7 @@ export default function ExcalidrawHero({
         ) : (
           <div className="from-wb-rule-soft/30 via-wb-canvas to-wb-rule-soft/20 absolute inset-0 bg-gradient-to-br">
             <span className="text-wb-rule absolute right-4 bottom-4 font-mono text-[10px] tracking-[0.2em] uppercase opacity-50">
-              no cover
+              无封面
             </span>
           </div>
         )}

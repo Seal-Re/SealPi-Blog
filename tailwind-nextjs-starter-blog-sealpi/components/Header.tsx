@@ -4,6 +4,7 @@ import siteMetadata from '@/data/siteMetadata'
 import headerNavLinks from '@/data/headerNavLinks'
 import Logo from '@/data/logo.svg'
 import { signIn, useSession } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 import Link from './Link'
 import MobileNav from './MobileNav'
 import ThemeSwitch from './ThemeSwitch'
@@ -11,7 +12,8 @@ import SearchButton from './SearchButton'
 import UserMenu from '@/components/UserMenu'
 
 const Header = () => {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const pathname = usePathname()
 
   const headerClass = siteMetadata.stickyNav
     ? 'flex items-center w-full justify-between py-5 border-b border-wb-rule-soft sticky top-0 z-50 bg-wb-paper/90 backdrop-blur-md'
@@ -37,19 +39,24 @@ const Header = () => {
         <div className="no-scrollbar hidden max-w-40 items-center gap-x-4 overflow-x-auto sm:flex md:max-w-72 lg:max-w-96">
           {headerNavLinks
             .filter((link) => link.href !== '/')
-            .map((link) => (
-              <Link
-                key={link.title}
-                href={link.href}
-                className="text-wb-ink hover:text-wb-accent m-1 font-medium transition-colors duration-200"
-              >
-                {link.title}
-              </Link>
-            ))}
+            .map((link) => {
+              const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)
+              return (
+                <Link
+                  key={link.title}
+                  href={link.href}
+                  className={`m-1 font-medium transition-colors duration-200 ${isActive ? 'text-wb-accent' : 'text-wb-ink hover:text-wb-accent'}`}
+                >
+                  {link.title}
+                </Link>
+              )
+            })}
         </div>
         <SearchButton />
         <ThemeSwitch />
-        {session?.user?.githubUserId ? (
+        {status === 'loading' ? (
+          <div className="bg-wb-rule-soft hidden h-7 w-10 animate-pulse rounded-full sm:block" />
+        ) : session?.user?.githubUserId ? (
           <UserMenu />
         ) : (
           <button

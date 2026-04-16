@@ -249,6 +249,8 @@ input:-webkit-autofill:focus {
 .wb-body h2 { font-size: 1.6rem; }
 .wb-body h3 { font-size: 1.3rem; }
 .wb-body h4 { font-size: 1.1rem; }
+.wb-body h5 { font-size: 1rem; }
+.wb-body h6 { font-size: 0.9rem; }
 
 .wb-body p {
   margin-top: 0;
@@ -297,7 +299,7 @@ input:-webkit-autofill:focus {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9em;
-  margin-bottom: 1.5em;
+  /* margin-bottom handled by the overflow-x-auto wrapper div in BodyMarkdown */
 }
 .wb-body th,
 .wb-body td {
@@ -313,13 +315,20 @@ input:-webkit-autofill:focus {
 .wb-body img {
   max-width: 100%;
   border-radius: 0.5rem;
-  margin: 1.5em 0;
+  /* margin omitted: BodyImage wrapper (<span my-6>) handles vertical spacing */
   border: 1px solid var(--color-wb-rule-soft);
 }
 .wb-body strong { color: var(--color-wb-ink); font-weight: 700; }
 .wb-body em { font-style: italic; }
 .wb-body del,
 .wb-body s { color: var(--color-wb-meta); text-decoration: line-through; }
+.wb-body sup,
+.wb-body sub { font-size: 0.75em; line-height: 0; position: relative; vertical-align: baseline; }
+.wb-body sup { top: -0.5em; }
+.wb-body sub { bottom: -0.25em; }
+/* Footnote reference superscript links */
+.wb-body sup a { color: var(--color-wb-accent); text-decoration: none; }
+.wb-body sup a:hover { text-decoration: underline; }
 /* Task list: override @tailwindcss/forms blue accent with warm wb-accent */
 .wb-body input[type='checkbox'] {
   accent-color: var(--color-wb-accent);
@@ -365,6 +374,19 @@ input:-webkit-autofill:focus {
 .wb-copy-btn:hover {
   color: var(--color-wb-accent);
   border-color: var(--color-wb-rule);
+}
+/* Language label — injected by CopyCodeInit alongside each code block */
+.wb-lang-label {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.75rem;
+  font-family: var(--font-geist-mono);
+  font-size: 0.6rem;
+  color: var(--color-wb-rule);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  user-select: none;
 }
 .wb-body pre code {
   background: transparent;
@@ -451,4 +473,64 @@ input:-webkit-autofill:focus {
 .wb-frame > * {
   position: relative;
   z-index: 1;
+}
+
+/* ===== kbar search modal — warm palette override ===== */
+/*
+ * Pliny's KBarModal hardcodes Tailwind gray and primary-600 classes.
+ * Strategy:
+ *   1. Remap Tailwind gray CSS variables within the panel so all bg-gray-* / text-gray-*
+ *      classes resolve to warm tokens (variables are inherited, so descendants benefit).
+ *   2. Add a .dark counterpart for gray-100/200 which serve as "near-white readable text"
+ *      in dark mode (dark:text-gray-100 etc.) — they need different values than their
+ *      "subtle border" role in light mode.
+ *   3. Override bg-primary-600 on active items explicitly (not a gray token).
+ *   4. Non-layered CSS beats Tailwind's @layer utilities; !important not needed.
+ *   5. div:has(> #kbar-listbox) specificity ≈ (1,0,1), beats class selectors (0,1,0).
+ */
+div:has(> #kbar-listbox) {
+  --color-gray-50:  var(--color-wb-canvas);
+  --color-gray-100: var(--color-wb-rule-soft); /* borders in light mode */
+  --color-gray-200: var(--color-wb-rule);
+  --color-gray-300: var(--color-wb-meta);
+  --color-gray-400: var(--color-wb-meta);
+  --color-gray-500: var(--color-wb-meta);
+  --color-gray-600: var(--color-wb-ink-soft);
+  --color-gray-700: var(--color-wb-ink-soft);
+  --color-gray-800: var(--color-wb-rule-soft);
+  --color-gray-900: var(--color-wb-paper);
+  background-color: var(--color-wb-canvas);
+  border-color: var(--color-wb-rule-soft);
+  color: var(--color-wb-ink);
+}
+/* In dark mode gray-100/200/800/900 serve as readable near-white text / dark bg */
+.dark div:has(> #kbar-listbox) {
+  --color-gray-100: var(--color-wb-ink);
+  --color-gray-200: var(--color-wb-ink-soft);
+  --color-gray-800: var(--color-wb-rule);
+  --color-gray-900: var(--color-wb-paper);
+}
+/* Search input */
+div:has(> #kbar-listbox) input[role='combobox'] {
+  color: var(--color-wb-ink);
+}
+div:has(> #kbar-listbox) input[role='combobox']::placeholder {
+  color: var(--color-wb-meta);
+}
+/* Group section headers — pliny uses text-primary-600 */
+div:has(> #kbar-listbox) [class~="text-primary-600"] {
+  color: var(--color-wb-accent);
+}
+/* Regular result items */
+#kbar-listbox [role="option"] {
+  color: var(--color-wb-ink-soft);
+}
+/* Active/selected result item: override bg-primary-600 + all child text */
+#kbar-listbox [role="option"][aria-selected="true"] {
+  background-color: color-mix(in srgb, var(--color-wb-accent) 10%, var(--color-wb-canvas));
+  color: var(--color-wb-accent);
+}
+#kbar-listbox [role="option"][aria-selected="true"] * {
+  color: var(--color-wb-accent);
+  background-color: transparent;
 }

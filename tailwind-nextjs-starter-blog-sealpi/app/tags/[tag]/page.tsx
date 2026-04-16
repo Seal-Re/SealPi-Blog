@@ -10,10 +10,10 @@ import {
 } from '@/lib/public-blog-api'
 
 function normalizeTagLabel(tag: string) {
-  return tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
+  return tag.charAt(0).toUpperCase() + tag.slice(1)
 }
 
-function buildEmptyStateProps(tagName: string) {
+function buildEmptyStateProps() {
   return {
     emptyTitle: '该标签下暂时还没有文章',
     emptyDescription:
@@ -34,7 +34,7 @@ export async function generateMetadata(props: {
     title: tag,
     description: `${siteMetadata.title} — 标签「${tag}」相关文章`,
     alternates: {
-      canonical: './',
+      canonical: `${siteMetadata.siteUrl}/tags/${tagSlug}`,
       types: {
         'application/rss+xml': `${siteMetadata.siteUrl}/tags/${tagSlug}/feed.xml`,
       },
@@ -77,15 +77,12 @@ export default async function TagPage(props: { params: Promise<{ tag: string }> 
         totalPages: response.totalPages,
       }}
       title={normalizeTagLabel(currentTag?.name || fallbackTagName)}
+      eyebrow="标签"
       availableTags={availableTags}
-      emptyTitle={
-        hasTagCatalog
-          ? buildEmptyStateProps(currentTag?.name || fallbackTagName).emptyTitle
-          : '标签数据暂不可用'
-      }
+      emptyTitle={hasTagCatalog ? buildEmptyStateProps().emptyTitle : '标签数据暂不可用'}
       emptyDescription={
         hasTagCatalog
-          ? buildEmptyStateProps(currentTag?.name || fallbackTagName).emptyDescription
+          ? buildEmptyStateProps().emptyDescription
           : '暂时无法加载标签总表，已回退为按当前标签名直接拉取分页数据，可稍后刷新重试。'
       }
     />

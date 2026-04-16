@@ -8,11 +8,16 @@ export default function Projects() {
   return (
     <>
       <div className="divide-wb-rule-soft divide-y">
-        <div className="space-y-2 pt-6 pb-8 md:space-y-5">
+        <div className="pt-8 pb-10 md:pt-12">
+          <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
+            开源 · 实验
+          </p>
           <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
             项目
           </h1>
-          <p className="text-wb-meta text-lg leading-7">一些有趣的项目</p>
+          <p className="text-wb-meta mt-4 max-w-md text-base leading-7">
+            一些有趣的项目与实验性想法。
+          </p>
         </div>
         <div className="py-12">
           <div className="-m-4 flex flex-wrap">

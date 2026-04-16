@@ -6,12 +6,77 @@ const COPY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14
 
 const CHECK_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
 
-/** Attaches copy-to-clipboard buttons to every .wb-body pre block on mount. */
+/** Maps hljs language class suffix → human-readable display name. Empty string = no label. */
+const LANG_DISPLAY: Record<string, string> = {
+  typescript: 'TypeScript',
+  ts: 'TypeScript',
+  javascript: 'JavaScript',
+  js: 'JavaScript',
+  jsx: 'JSX',
+  tsx: 'TSX',
+  java: 'Java',
+  python: 'Python',
+  py: 'Python',
+  rust: 'Rust',
+  go: 'Go',
+  bash: 'Bash',
+  sh: 'Shell',
+  shell: 'Shell',
+  zsh: 'Shell',
+  html: 'HTML',
+  css: 'CSS',
+  scss: 'SCSS',
+  json: 'JSON',
+  yaml: 'YAML',
+  yml: 'YAML',
+  xml: 'XML',
+  sql: 'SQL',
+  markdown: 'Markdown',
+  md: 'Markdown',
+  toml: 'TOML',
+  dockerfile: 'Dockerfile',
+  makefile: 'Makefile',
+  diff: 'Diff',
+  kotlin: 'Kotlin',
+  swift: 'Swift',
+  ruby: 'Ruby',
+  rb: 'Ruby',
+  php: 'PHP',
+  csharp: 'C#',
+  cs: 'C#',
+  cpp: 'C++',
+  c: 'C',
+  plaintext: '',
+  text: '',
+  plain: '',
+}
+
+/** Attaches copy-to-clipboard buttons and language labels to every .wb-body pre block on mount. */
 export default function CopyCodeInit() {
   useEffect(() => {
     const blocks = document.querySelectorAll<HTMLPreElement>('.wb-body pre')
 
     blocks.forEach((pre) => {
+      // Language label — inject independently of copy button
+      if (!pre.querySelector('.wb-lang-label')) {
+        const codeEl = pre.querySelector('code')
+        const langClass = codeEl
+          ? Array.from(codeEl.classList).find((c) => c.startsWith('language-'))
+          : undefined
+        const rawLang = langClass?.slice('language-'.length) ?? ''
+        const displayLang = Object.prototype.hasOwnProperty.call(LANG_DISPLAY, rawLang)
+          ? LANG_DISPLAY[rawLang]
+          : rawLang
+
+        if (displayLang) {
+          const label = document.createElement('span')
+          label.className = 'wb-lang-label'
+          label.textContent = displayLang
+          pre.appendChild(label)
+        }
+      }
+
+      // Copy button
       if (pre.querySelector('.wb-copy-btn')) return
 
       const btn = document.createElement('button')

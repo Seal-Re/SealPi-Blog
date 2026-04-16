@@ -1,12 +1,19 @@
 import { genPageMetadata } from 'app/seo'
 import ListLayout from '@/layouts/ListLayoutWithTags'
+import siteMetadata from '@/data/siteMetadata'
 import {
   BLOG_POSTS_PER_PAGE,
   fetchPublishedArticlesPage,
   fetchPublishedTags,
 } from '@/lib/public-blog-api'
 
-export const metadata = genPageMetadata({ title: '文章' })
+export const metadata = genPageMetadata({
+  title: '文章',
+  alternates: {
+    canonical: `${siteMetadata.siteUrl}/blog`,
+    types: { 'application/rss+xml': `${siteMetadata.siteUrl}/feed.xml` },
+  },
+})
 export const revalidate = 300
 
 export default async function BlogPage() {
@@ -24,6 +31,7 @@ export default async function BlogPage() {
         totalPages: response.totalPages,
       }}
       title="全部文章"
+      eyebrow="随笔 · 技术"
       availableTags={availableTags}
     />
   )

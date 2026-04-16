@@ -40,9 +40,12 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                       {formatDate(date, siteMetadata.locale)}
                     </time>
                     {viewCount != null && viewCount > 0 ? (
-                      <span className="text-wb-meta text-xs">
-                        {viewCount.toLocaleString('zh-CN')} 次阅读
-                      </span>
+                      <>
+                        <span className="text-wb-rule opacity-40">·</span>
+                        <span className="text-wb-meta text-xs">
+                          {viewCount.toLocaleString('zh-CN')} 次阅读
+                        </span>
+                      </>
                     ) : null}
                     {tags.length > 0 && (
                       <div className="flex flex-wrap gap-1">
@@ -52,7 +55,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                       </div>
                     )}
                   </div>
-                  <h2 className="text-wb-ink mt-3 text-xl font-bold tracking-tight">
+                  <h2 className="font-fraunces text-wb-ink mt-3 text-[22px] leading-snug font-semibold tracking-tight italic">
                     <Link
                       href={`/blog/${slug}`}
                       className="hover:text-wb-accent transition-colors duration-200"

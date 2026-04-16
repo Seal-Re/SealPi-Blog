@@ -25,6 +25,8 @@ import {
   uploadAdminAsset,
 } from '@/lib/admin-api'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
+import { isPublishedStatus } from '@/lib/article-status'
+import BodyMarkdown from '@/components/workbook/BodyMarkdown'
 
 type SubmitAction = 'draft' | 'publish'
 type ExcalidrawModule = typeof import('@excalidraw/excalidraw')
@@ -224,6 +226,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const [isTextDirty, setIsTextDirty] = useState(false)
     const [isUploadingAssets, setIsUploadingAssets] = useState(false)
     const [lastSavedAt, setLastSavedAt] = useState<string>('')
+    const [showMdPreview, setShowMdPreview] = useState(false)
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
     const [snackbar, setSnackbar] = useState<{
       show: boolean
@@ -234,6 +237,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       message: '',
       tone: 'ok',
     })
+    const [isPublished, setIsPublished] = useState(() => isPublishedStatus(article?.draft))
+    const [existingTags, setExistingTags] = useState<string[]>([])
     useEffect(() => {
       isSceneDirtyRef.current = isSceneDirty
     }, [isSceneDirty])
@@ -253,6 +258,17 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     useEffect(() => {
       slugDetachedFromTitleRef.current = Boolean(article?.articleId)
     }, [article?.articleId])
+
+    useEffect(() => {
+      fetch('/api/tags')
+        .then((r) => r.json())
+        .then((data: { name?: string }[]) => {
+          if (Array.isArray(data)) {
+            setExistingTags(data.map((t) => t.name).filter((n): n is string => Boolean(n)))
+          }
+        })
+        .catch(() => {})
+    }, [])
 
     const [currentArticleId, setCurrentArticleId] = useState<number | null>(
       article?.articleId ? Number(article.articleId) : null
@@ -592,7 +608,9 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           q: payload.url,
           status: action === 'publish' ? 'published' : 'draft',
         })
-        const response = await adminFetch<PageResult<AdminArticle>>(`/api/v1/articles?${params}`)
+        // Use the admin BFF endpoint (not the public /api/v1/articles) so drafts are
+        // accessible and no draft metadata is leaked to unauthenticated public callers.
+        const response = await adminFetch<PageResult<AdminArticle>>(`/api/admin/articles?${params}`)
         const matched = (response?.data || []).find((item) => item.url === payload.url)
         const matchedId = matched?.articleId ? Number(matched.articleId) : NaN
         if (!Number.isFinite(matchedId) || matchedId <= 0) {
@@ -643,6 +661,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           setIsSceneDirty(false)
           setIsTextDirty(false)
           setSyncState('SUCCESS')
+          if (action === 'publish') setIsPublished(true)
           const draftSuccessText = source === 'auto' ? '草稿已自动保存。' : '草稿已保存。'
           setStatusMessage(action === 'publish' ? '文章已提交发布。' : draftSuccessText)
           setLastSavedAt(
@@ -807,7 +826,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${statusBadgeClass}`}
                     >
                       <StatusDot tone={syncState} />
-                      {syncState}
+                      {syncStateLabel[syncState]}
                     </span>
                   </div>
 
@@ -873,18 +892,55 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
                   </label>
 
-                  <label className="group block space-y-2.5">
-                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
+                  <div className="space-y-2.5">
+                    <label
+                      htmlFor="editor-tags-input"
+                      className="text-wb-ink text-sm font-semibold dark:text-gray-200"
+                    >
                       标签
-                    </span>
+                    </label>
                     <input
+                      id="editor-tags-input"
                       value={formState.tags}
                       onChange={(event) => updateField('tags', event.target.value)}
                       placeholder="spring, ddd, architecture"
                       className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
+                    {existingTags.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 pt-0.5">
+                        {existingTags.map((t) => {
+                          const active = formState.tags
+                            .split(',')
+                            .map((x) => x.trim())
+                            .includes(t)
+                          return (
+                            <button
+                              key={t}
+                              type="button"
+                              disabled={active}
+                              onClick={() => {
+                                const existing = formState.tags
+                                  .split(',')
+                                  .map((x) => x.trim())
+                                  .filter(Boolean)
+                                if (!existing.includes(t)) {
+                                  updateField('tags', [...existing, t].join(', '))
+                                }
+                              }}
+                              className={`rounded border px-2 py-0.5 font-mono text-[10px] font-medium transition-colors ${
+                                active
+                                  ? 'border-wb-accent/40 bg-wb-accent/10 text-wb-accent dark:border-wb-accent/30 dark:bg-wb-accent/10 cursor-default'
+                                  : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200'
+                              }`}
+                            >
+                              #{t}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    ) : null}
                     <FieldHint>多个标签用英文逗号分隔，保存时全量覆盖。</FieldHint>
-                  </label>
+                  </div>
 
                   <label className="group block space-y-2.5">
                     <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
@@ -932,6 +988,14 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                         </dd>
                       </div>
                       <div>
+                        <dt className="text-wb-meta text-xs dark:text-gray-400">正文字数</dt>
+                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
+                          {formState.draftBodyMd.trim()
+                            ? `${formState.draftBodyMd.replace(/\s+/g, '').length} 字`
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
                         <dt className="text-wb-meta text-xs dark:text-gray-400">文章模式</dt>
                         <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
                           {isEditMode ? '编辑' : '新建'}
@@ -941,12 +1005,6 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                         <dt className="text-wb-meta text-xs dark:text-gray-400">图片上传</dt>
                         <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
                           {isUploadingAssets ? '处理中' : '待命'}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt className="text-wb-meta text-xs dark:text-gray-400">快捷键</dt>
-                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
-                          Ctrl/Cmd + S
                         </dd>
                       </div>
                     </dl>
@@ -983,6 +1041,16 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
                     >
                       预览草稿 ↗
+                    </a>
+                  ) : null}
+                  {isPublished && formState.url ? (
+                    <a
+                      href={`/blog/${formState.url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="border-wb-rule text-wb-accent hover:border-wb-accent dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5"
+                    >
+                      查看前台 ↗
                     </a>
                   ) : null}
                 </div>
@@ -1034,20 +1102,58 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     {formState.coverCaption.length} / 200
                   </p>
                 </label>
-                <label className="block space-y-2.5">
-                  <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
-                    Markdown 正文
-                  </span>
-                  <textarea
-                    value={formState.draftBodyMd}
-                    onChange={(e) => {
-                      setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
-                      setIsTextDirty(true)
-                    }}
-                    placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
-                    className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y rounded-2xl border px-4 py-3 font-mono text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
-                  />
-                </label>
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-wb-meta text-xs font-semibold tracking-[0.2em] uppercase dark:text-gray-400">
+                      Markdown 正文
+                    </span>
+                    <div className="border-wb-rule-soft flex overflow-hidden rounded-full border text-[11px] font-semibold dark:border-gray-700">
+                      <button
+                        type="button"
+                        onClick={() => setShowMdPreview(false)}
+                        className={`px-3 py-1 transition-colors ${
+                          !showMdPreview
+                            ? 'bg-wb-ink text-wb-paper dark:bg-white dark:text-gray-950'
+                            : 'text-wb-meta hover:text-wb-ink dark:text-gray-400 dark:hover:text-gray-100'
+                        }`}
+                      >
+                        编辑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowMdPreview(true)}
+                        className={`px-3 py-1 transition-colors ${
+                          showMdPreview
+                            ? 'bg-wb-ink text-wb-paper dark:bg-white dark:text-gray-950'
+                            : 'text-wb-meta hover:text-wb-ink dark:text-gray-400 dark:hover:text-gray-100'
+                        }`}
+                      >
+                        预览
+                      </button>
+                    </div>
+                  </div>
+                  {showMdPreview ? (
+                    <div className="border-wb-rule-soft bg-wb-canvas min-h-[200px] rounded-2xl border px-4 py-3 dark:border-gray-700 dark:bg-gray-950">
+                      {formState.draftBodyMd.trim() ? (
+                        <BodyMarkdown markdown={formState.draftBodyMd} />
+                      ) : (
+                        <p className="text-wb-meta text-sm italic dark:text-gray-500">
+                          暂无正文内容。
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <textarea
+                      value={formState.draftBodyMd}
+                      onChange={(e) => {
+                        setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
+                        setIsTextDirty(true)
+                      }}
+                      placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
+                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y rounded-2xl border px-4 py-3 font-mono text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>

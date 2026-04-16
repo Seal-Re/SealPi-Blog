@@ -20,6 +20,11 @@ export async function GET() {
   const articles = await fetchAllPublishedArticles()
   const siteUrl = siteMetadata.siteUrl
 
+  const latestModified = articles.reduce((latest, post) => {
+    const modified = new Date(post.lastmod ?? post.date)
+    return modified > latest ? modified : latest
+  }, new Date(0))
+
   const items = articles
     .map((post) => {
       const url = `${siteUrl}/blog/${post.slug}`
@@ -45,6 +50,7 @@ export async function GET() {
     <link>${siteUrl}/blog</link>
     <description>${escapeXml(siteMetadata.description)}</description>
     <language>${siteMetadata.language}</language>
+    <lastBuildDate>${latestModified.toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>

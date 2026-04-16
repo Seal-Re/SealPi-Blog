@@ -49,6 +49,8 @@ npm install          # or: yarn
 npx next dev -p 13311   # dev server
 npx next build       # production build
 npx next lint --fix  # lint
+npm test             # run Vitest unit tests (once)
+npm run test:watch   # run Vitest in watch mode
 ```
 
 Package manager is **yarn 3.6.1** (declared in `packageManager`), but npm works too.
@@ -129,7 +131,7 @@ Next.js BFF routes (`app/api/admin/_utils.ts`) sign a **new HS256 JWT on every r
 
 ### Multipart Upload Field Names
 
-Admin create/update accepts `multipart/form-data` with fields: `title`, `url`, `draftJson`, `summary` (optional), `previewImage` (optional file). JSON body endpoints still exist but are `@Deprecated`.
+Admin create/update accepts `multipart/form-data` with fields: `title`, `url`, `draftJson`, `summary` (optional), `draftBodyMd` (optional), `coverCaption` (optional), `coverImageUrl` (optional URL), `previewImage` (optional file), `tags` (optional comma-separated string). JSON body endpoints still exist but are `@Deprecated`.
 
 ## Frontend Architecture
 
@@ -144,9 +146,10 @@ Based on [tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextj
 - `auth.ts` — NextAuth config, GitHub OAuth, admin whitelist check, user sync to backend
 - `middleware.ts` — Route protection for admin area
 - `lib/api-config.ts` — Backend API base URL resolution (`BLOG_API_BASE_URL` or `NEXT_PUBLIC_BLOG_API_BASE_URL`)
-- `lib/admin-api.ts` — Admin API client (multipart article CRUD, asset upload)
+- `lib/admin-api.ts` — Admin API client (multipart article CRUD, asset upload); use from client components / BFF route handlers
 - `lib/public-blog-api.ts` — Public article API client
 - `lib/server-github-token.ts` — Server-side GitHub token extraction from JWT
+- `app/api/admin/_utils.ts` — BFF helpers: `adminServerGet` (server components), `proxyAdminRequest` (BFF routes), `requireAdminBffContext`
 - `components/admin/AdminEditorClient.tsx` — Excalidraw editor component
 - `app/blog/[...slug]/page.tsx` — Article detail page
 - `next.config.js` — Contentlayer2 + bundle analyzer + CSP headers
@@ -159,6 +162,10 @@ Based on [tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextj
 4. `jwt` callback: stores `githubUserId`, `githubAccessToken`, checks admin permission
 5. Admin API calls from frontend go through Next.js BFF routes (`/api/admin/*`) which sign a short-lived JWT and proxy to the Java backend (see BFF Token Signing above)
 
+### Admin Server Component Pattern
+
+Server components must use `adminServerGet` from `app/api/admin/_utils.ts` to call the backend directly. **Do NOT** call `/api/admin/*` BFF routes from server components: Next.js server-side self-fetches don't forward cookies, so `auth()` inside the BFF handler sees no session and returns 401.
+
 ### Environment Variables (Frontend)
 
 - `NEXT_PUBLIC_BLOG_API_BASE_URL` — Blog API base URL (client-side, default `http://localhost:13310`)
@@ -169,15 +176,21 @@ Based on [tailwind-nextjs-starter-blog](https://github.com/timlrx/tailwind-nextj
 - `ADMIN_JWT_SECRET` — Shared HS256 key with backend (used to sign BFF JWTs)
 - `BLOG_INTERNAL_SYNC_SECRET` — Shared secret for `POST /api/v1/internal/users/oauth-sync`
 - `MINIO_PUBLIC_HOSTNAME` — Public base URL for MinIO assets (used in build)
+- `ADMIN_JWT_GITHUBUSERIDCLAIM` — JWT claim name for GitHub user ID (default `githubUserId`; must match backend `admin.jwt.githubUserIdClaim`)
 
 ## API Endpoints
 
 ### Public (no auth)
-- `GET /api/v1/articles` — Paginated article list
-- `GET /api/v1/articles/{id}` — Article by ID
-- `GET /api/v1/articles/slug/{slug}` — Article by slug
+- `GET /api/v1/articles` — Paginated article list (always published-only; `status` param overridden server-side)
+- `GET /api/v1/articles/{id}` — Article by ID (404 for non-published)
+- `GET /api/v1/articles/slug/{slug}` — Article by slug (404 for non-published)
+- `GET /api/v1/articles/adjacent?slug={slug}&tags={tag}&tags={tag}` — Prev/next/related articles by slug (returns `{ prev, next, related }` with title/url/summary/coverImageUrl/tags/date)
+- `GET /api/v1/tags` — Published tag list with counts (`[{ tagId, name, count }]`)
+- `POST /api/v1/articles/{id}/view` — Increment view count (no-op on error)
 
 ### Admin (requires JWT auth)
+- `GET /api/v1/admin/articles` — Paginated article list (any status, full VO)
+- `GET /api/v1/admin/articles/{id}` — Article by ID (any status, full VO including draftJson/draftBodyMd)
 - `POST /api/v1/admin/articles?action=draft|publish` — Create article (multipart preferred)
 - `PUT /api/v1/admin/articles/{id}?action=draft|publish` — Update article
 - `DELETE /api/v1/admin/articles/{id}` — Delete article
@@ -198,14 +211,18 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on push to `main` and PRs:
 
 Backend tests (`blog-adapter`) use `@SpringBootTest` + `@AutoConfigureMockMvc` with service/infra layers mocked via `@MockBean`. Tests generate HS256 JWT tokens inline (via `bearerToken()` helper) and assert via `jsonPath()`. To avoid loading `blog-infra` context, tests set `admin.auth.allowLegacyJwt=true` in `@SpringBootTest(properties = {...})`.
 
-Frontend CI runs `npx next lint` against `app/`, `components/`, `lib/`, `layouts/` only.
+Frontend unit tests use **Vitest 4.1.4** (`npm test`). Test files in `lib/__tests__/`: `public-blog-api.test.ts`, `admin-api.test.ts`, `article-status.test.ts`, `toc-utils.test.ts`. CI runs: `npm ci → npx next lint → npm test → npx next build`.
 
 ## Important Conventions
 
 - Backend field naming: `snake_case` for DB columns, `camelCase` for JSON
 - Article content is Excalidraw JSON stored in `content_json` (published) and `draft_json` (editing) as `LONGTEXT`
-- `ArticleStatus` enum: `DRAFT`, `PUBLISHED`, `ARCHIVED`
+- Workbook v2 fields: `body_md` (published Markdown), `draft_body_md` (draft Markdown), `cover_caption` (Excalidraw hero caption). Added via V3 Flyway migration. `publishFromDraft()` copies `draft_body_md → body_md`.
+- Public API strips draft fields: `draftJson` and `draftBodyMd` are nulled in public VO responses (`toPublicVO()`). Full data only via admin endpoints.
+- `ArticleStatus` enum: `DRAFT=0`, `PUBLISHED=1`, `ARCHIVED=2`
 - The `sealpi-blog/null/` directory contains legacy auto-generated code — ignore it
 - Docker builds may fail on Windows due to `exec format error`; use CI for Docker validation
 - Frontend admin API calls route through Next.js BFF (`/api/admin/*`) which proxies to the Java backend, injecting auth headers server-side
 - Validation happens before domain method calls in `ArticleServiceImpl`; domain methods trust their inputs
+- Frontend CSS: use `wb-*` token classes (`wb-paper`, `wb-canvas`, `wb-ink`, `wb-accent`, `wb-meta`, `wb-rule`, `wb-rule-soft`). Do NOT add `dark:bg-gray-*` / `dark:text-gray-*` outside the admin area.
+- `export const revalidate` must be a static number literal — Next.js 15 rejects variable references. Do NOT combine with `force-dynamic`.

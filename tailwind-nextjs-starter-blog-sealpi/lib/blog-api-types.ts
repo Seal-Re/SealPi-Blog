@@ -38,6 +38,21 @@ export type AdminUser = {
   lastLoginAt?: string
 }
 
+type ArticleAdjacentSummary = {
+  title: string
+  url: string
+  summary?: string
+  coverImageUrl?: string
+  tags?: string[]
+  date?: string
+}
+
+export type ArticleAdjacent = {
+  prev?: ArticleAdjacentSummary | null
+  next?: ArticleAdjacentSummary | null
+  related?: ArticleAdjacentSummary[]
+}
+
 export type AdminArticle = {
   articleId: string
   title: string

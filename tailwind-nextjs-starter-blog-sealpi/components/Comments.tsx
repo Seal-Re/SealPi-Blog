@@ -7,11 +7,18 @@ import siteMetadata from '@/data/siteMetadata'
 
 export default function Comments({ slug }: { slug: string }) {
   const [loadComments, setLoadComments] = useState(false)
-  const { data: session } = useSession()
-  const canComment = Boolean(session?.user?.canComment)
+  const { data: session, status } = useSession()
+  const canComment = status === 'authenticated' && Boolean(session?.user?.canComment)
 
   if (!siteMetadata.comments?.provider) {
     return null
+  }
+
+  // Avoid flash of incorrect permission banner while session resolves
+  if (status === 'loading') {
+    return (
+      <div className="border-wb-rule-soft bg-wb-paper/80 h-10 animate-pulse rounded-lg border" />
+    )
   }
 
   return (
@@ -19,7 +26,7 @@ export default function Comments({ slug }: { slug: string }) {
       <div className="border-wb-rule-soft bg-wb-paper text-wb-meta mb-4 rounded-lg border px-4 py-3 text-left text-sm">
         {canComment
           ? '你已登录且具备评论权限，可加载下方评论组件参与讨论。'
-          : '当前站点评论为只读模式：可浏览讨论，登录后暂不可发表评论（默认 commentPermission=READ_ONLY）。'}
+          : '评论区当前为只读模式，暂不支持发布新评论，可浏览已有讨论。'}
       </div>
       {canComment ? (
         loadComments ? (

@@ -1,5 +1,8 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { notFound } from 'next/navigation'
+import { type Metadata } from 'next'
+import siteMetadata from '@/data/siteMetadata'
+import { genPageMetadata } from 'app/seo'
 import {
   BLOG_POSTS_PER_PAGE,
   fetchPublishedArticlesPage,
@@ -7,7 +10,29 @@ import {
 } from '@/lib/public-blog-api'
 
 function normalizeTagLabel(tag: string) {
-  return tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
+  return tag.charAt(0).toUpperCase() + tag.slice(1)
+}
+
+export async function generateMetadata(props: {
+  params: Promise<{ tag: string; page: string }>
+}): Promise<Metadata> {
+  const params = await props.params
+  const tagSlug = decodeURI(params.tag)
+  const pageNumber = parseInt(params.page, 10)
+  const availableTags = await fetchPublishedTags()
+  const currentTag = availableTags.find((item) => item.slug === tagSlug)
+  const tagName = currentTag?.name || tagSlug.replace(/-/g, ' ')
+
+  return genPageMetadata({
+    title: `${tagName} — 第 ${pageNumber} 页`,
+    description: `${siteMetadata.title} — 标签「${tagName}」第 ${pageNumber} 页`,
+    alternates: {
+      canonical: `${siteMetadata.siteUrl}/tags/${tagSlug}/page/${pageNumber}`,
+      types: {
+        'application/rss+xml': `${siteMetadata.siteUrl}/tags/${tagSlug}/feed.xml`,
+      },
+    },
+  })
 }
 
 export const dynamicParams = true
@@ -62,6 +87,7 @@ export default async function TagPage(props: { params: Promise<{ tag: string; pa
         totalPages: response.totalPages,
       }}
       title={normalizeTagLabel(currentTag?.name || fallbackTagName)}
+      eyebrow="标签"
       availableTags={availableTags}
       emptyTitle={hasTagCatalog ? '该分页下暂时没有文章' : '标签数据暂不可用'}
       emptyDescription={

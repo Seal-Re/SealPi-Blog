@@ -1,5 +1,7 @@
 import { auth, signOut } from '@/auth'
 import Link from '@/components/Link'
+import { adminServerGet } from '@/app/api/admin/_utils'
+import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 
 function AdminQuickAction({
   href,
@@ -48,6 +50,20 @@ export default async function AdminPage() {
   const session = await auth()
   const user = session?.user
 
+  const [allResult, publishedResult, draftResult] = await Promise.all([
+    adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=PUBLISHED'
+    ),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=DRAFT'
+    ),
+  ])
+
+  const totalArticles = allResult?.totalCount ?? null
+  const publishedCount = publishedResult?.totalCount ?? null
+  const draftCount = draftResult?.totalCount ?? null
+
   return (
     <section className="space-y-8">
       <div className="space-y-10">
@@ -63,6 +79,43 @@ export default async function AdminPage() {
               通过 GitHub 登录与管理员校验后，可进行文章创建、草稿保存、发布与删除。
             </p>
           </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              label: '文章总数',
+              value: totalArticles,
+              hint: '所有状态的文章总数量。',
+              href: '/admin/articles',
+            },
+            {
+              label: '已发布',
+              value: publishedCount,
+              hint: '当前处于发布状态的文章数。',
+              href: '/admin/articles?status=published',
+            },
+            {
+              label: '草稿中',
+              value: draftCount,
+              hint: '当前保存为草稿的文章数量。',
+              href: '/admin/drafts',
+            },
+          ].map(({ label, value, hint, href }) => (
+            <Link
+              key={label}
+              href={href}
+              className="border-wb-rule-soft bg-wb-canvas group rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:border-gray-800 dark:bg-gray-950 dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]"
+            >
+              <p className="text-wb-accent text-xs font-semibold tracking-[0.28em] uppercase dark:text-gray-400">
+                {label}
+              </p>
+              <p className="text-wb-ink mt-3 text-3xl font-black tabular-nums dark:text-gray-50">
+                {value !== null ? value : '—'}
+              </p>
+              <p className="text-wb-meta mt-2 text-sm leading-6 dark:text-gray-300">{hint}</p>
+            </Link>
+          ))}
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

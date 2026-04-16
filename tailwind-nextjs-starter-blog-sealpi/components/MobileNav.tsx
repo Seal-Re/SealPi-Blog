@@ -6,9 +6,11 @@ import { Fragment, useState, useEffect, useRef } from 'react'
 import Link from './Link'
 import headerNavLinks from '@/data/headerNavLinks'
 import { signIn, signOut, useSession } from 'next-auth/react'
+import { usePathname } from 'next/navigation'
 
 const MobileNav = () => {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const pathname = usePathname()
   const [navShow, setNavShow] = useState(false)
   const navRef = useRef(null)
 
@@ -74,18 +76,24 @@ const MobileNav = () => {
                 ref={navRef}
                 className="mt-8 flex h-full basis-0 flex-col items-start overflow-y-auto pt-2 pl-12 text-left"
               >
-                {headerNavLinks.map((link) => (
-                  <Link
-                    key={link.title}
-                    href={link.href}
-                    className="hover:text-wb-accent text-wb-ink mb-4 py-2 pr-4 text-2xl font-bold tracking-widest outline outline-0"
-                    onClick={onToggleNav}
-                  >
-                    {link.title}
-                  </Link>
-                ))}
+                {headerNavLinks.map((link) => {
+                  const isActive =
+                    link.href === '/' ? pathname === '/' : pathname.startsWith(link.href)
+                  return (
+                    <Link
+                      key={link.title}
+                      href={link.href}
+                      className={`mb-4 py-2 pr-4 text-2xl font-bold tracking-widest outline outline-0 transition-colors ${isActive ? 'text-wb-accent' : 'text-wb-ink hover:text-wb-accent'}`}
+                      onClick={onToggleNav}
+                    >
+                      {link.title}
+                    </Link>
+                  )
+                })}
                 <div className="border-wb-rule-soft mt-8 w-full max-w-xs border-t pt-6">
-                  {session?.user?.githubUserId ? (
+                  {status === 'loading' ? (
+                    <div className="bg-wb-rule-soft h-7 w-20 animate-pulse rounded-full" />
+                  ) : session?.user?.githubUserId ? (
                     <div className="space-y-3">
                       <p className="text-wb-ink text-sm font-medium">
                         {session.user.displayName || session.user.name || session.user.githubLogin}

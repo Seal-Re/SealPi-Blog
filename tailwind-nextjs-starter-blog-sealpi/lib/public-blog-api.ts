@@ -1,6 +1,6 @@
 import { slug } from 'github-slugger'
 import { buildApiUrl } from '@/lib/api-config'
-import type { AdminArticle, ArticleTag, PageResult } from '@/lib/blog-api-types'
+import type { AdminArticle, ArticleAdjacent, ArticleTag, PageResult } from '@/lib/blog-api-types'
 
 export const BLOG_POSTS_PER_PAGE = 5
 export const PUBLIC_ARTICLE_PRELOAD_SIZE = 50
@@ -9,7 +9,15 @@ export const PUBLIC_FETCH_REVALIDATE_SECONDS = 300
 type PublishedArticleListItem = Omit<
   Pick<
     AdminArticle,
-    'articleId' | 'title' | 'url' | 'summary' | 'coverImageUrl' | 'viewCount' | 'date' | 'tags'
+    | 'articleId'
+    | 'title'
+    | 'url'
+    | 'summary'
+    | 'coverImageUrl'
+    | 'viewCount'
+    | 'date'
+    | 'lastmod'
+    | 'tags'
   >,
   'tags'
 > & {
@@ -21,6 +29,7 @@ export type PublicBlogPost = Omit<PublishedArticleListItem, 'summary' | 'date' |
   slug: string
   summary: string
   date: string
+  lastmod?: string
   tags: string[]
 }
 
@@ -70,7 +79,7 @@ function mergeTagCounts(tagMap: Map<string, PublicTag>, tags?: ArticleTag[]) {
       return
     }
 
-    const tagSlug = slug(name)
+    const tagSlug = slug(name) || name
     const current = tagMap.get(tagSlug)
     const nextCount =
       typeof tag.count === 'number' && tag.count > 0 ? tag.count : (current?.count || 0) + 1
@@ -94,6 +103,7 @@ function toPublicPost(article: PublishedArticleListItem): PublicBlogPost {
     slug: article.url,
     summary: article.summary?.trim() || '该文章暂无摘要。',
     date: normalizeDate(article.date),
+    lastmod: article.lastmod ? normalizeDate(article.lastmod) : undefined,
     tags: normalizeTags(article.tags),
   }
 }
@@ -180,6 +190,25 @@ export async function fetchAllPublishedArticles() {
   return allItems
 }
 
+export async function fetchAdjacentBySlug(
+  articleSlug: string,
+  tagNames: string[]
+): Promise<ArticleAdjacent> {
+  const params = new URLSearchParams({ slug: articleSlug })
+  tagNames.forEach((t) => params.append('tags', t))
+
+  try {
+    const response = await fetch(buildApiUrl(`/api/v1/articles/adjacent?${params.toString()}`), {
+      next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
+    })
+    if (!response.ok) return {}
+    const payload = (await response.json()) as { data?: ArticleAdjacent }
+    return payload.data ?? {}
+  } catch {
+    return {}
+  }
+}
+
 export async function fetchPublishedTags(): Promise<PublicTag[]> {
   try {
     const response = await fetch(buildApiUrl('/api/v1/tags'), {
@@ -192,7 +221,7 @@ export async function fetchPublishedTags(): Promise<PublicTag[]> {
         .filter((t) => t.name)
         .map((t) => ({
           name: normalizeTagName(t.name)!,
-          slug: slug(normalizeTagName(t.name)!),
+          slug: slug(normalizeTagName(t.name)!) || normalizeTagName(t.name)!,
           count: t.count ?? 0,
         }))
     }

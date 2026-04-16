@@ -11,10 +11,21 @@ export default function WbImageLightbox() {
 
   useEffect(() => {
     const imgs = document.querySelectorAll<HTMLImageElement>('.wb-body img')
+    const handlers = new Map<HTMLImageElement, () => void>()
+
     imgs.forEach((img) => {
       img.style.cursor = 'zoom-in'
-      img.addEventListener('click', () => setLightbox({ src: img.src, alt: img.alt }))
+      const handler = () => setLightbox({ src: img.src, alt: img.alt })
+      handlers.set(img, handler)
+      img.addEventListener('click', handler)
     })
+
+    return () => {
+      handlers.forEach((handler, img) => {
+        img.removeEventListener('click', handler)
+        img.style.cursor = ''
+      })
+    }
   }, [])
 
   useEffect(() => {

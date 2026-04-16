@@ -7,7 +7,7 @@ import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
 import { isPublishedStatus } from '@/lib/article-status'
 import {
   PUBLIC_FETCH_REVALIDATE_SECONDS,
-  fetchAllPublishedArticles,
+  fetchAdjacentBySlug,
   fetchPublishedArticlesForStaticPaths,
 } from '@/lib/public-blog-api'
 
@@ -42,8 +42,12 @@ function estimateReadMinutes(markdown?: string | null): number | undefined {
   if (!markdown?.trim()) {
     return undefined
   }
-  const words = markdown.trim().split(/\s+/).length
-  const minutes = Math.max(1, Math.round(words / 220))
+  // Count CJK characters and Latin words separately for accurate mixed-content estimates.
+  // CJK reading speed ~300 chars/min; English ~220 words/min.
+  const cjk = (markdown.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g) || []).length
+  const latin = markdown.replace(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g, ' ').trim()
+  const latinWords = latin ? latin.split(/\s+/).filter(Boolean).length : 0
+  const minutes = Math.max(1, Math.round(cjk / 300 + latinWords / 220))
   return minutes
 }
 
@@ -53,35 +57,7 @@ type RelatedPost = {
   summary: string
   coverImageUrl?: string
   tags: string[]
-}
-
-async function fetchAdjacentAndRelated(currentUrl: string, currentTags: string[]) {
-  const allArticles = await fetchAllPublishedArticles()
-  const idx = allArticles.findIndex((a) => a.url === currentUrl)
-
-  const prevRaw = idx > 0 ? allArticles[idx - 1] : null
-  const nextRaw = idx < allArticles.length - 1 ? allArticles[idx + 1] : null
-
-  const excludeUrls = new Set([currentUrl, prevRaw?.url, nextRaw?.url].filter(Boolean) as string[])
-  const related: RelatedPost[] =
-    currentTags.length > 0
-      ? allArticles
-          .filter((a) => !excludeUrls.has(a.url) && a.tags.some((t) => currentTags.includes(t)))
-          .slice(0, 3)
-          .map((a) => ({
-            title: a.title,
-            path: a.path,
-            summary: a.summary,
-            coverImageUrl: a.coverImageUrl,
-            tags: a.tags,
-          }))
-      : []
-
-  return {
-    prev: prevRaw ? { title: prevRaw.title, path: prevRaw.path } : null,
-    next: nextRaw ? { title: nextRaw.title, path: nextRaw.path } : null,
-    related,
-  }
+  date?: string
 }
 
 function normalizeDate(value?: string) {
@@ -120,6 +96,9 @@ export async function generateMetadata(props: PageProps): Promise<Metadata | und
   return {
     title: article.title,
     description: article.summary,
+    alternates: {
+      canonical: `${siteMetadata.siteUrl}/blog/${article.url}`,
+    },
     openGraph: {
       title: article.title,
       description: article.summary,
@@ -128,7 +107,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata | und
       type: 'article',
       publishedTime: publishedAt,
       modifiedTime: modifiedAt,
-      url: `/blog/${article.url}`,
+      url: `${siteMetadata.siteUrl}/blog/${article.url}`,
       images: resolveOgImages(article),
       authors: authors.length > 0 ? authors : [siteMetadata.author],
     },
@@ -159,9 +138,33 @@ export default async function Page(props: PageProps) {
 
   const authorDetails = getAuthorDetails()
   const date = normalizeDate(article.date)
+  const lastmodIso = article.lastmod ? normalizeDate(article.lastmod) : null
+  // Only surface lastmod when it's a meaningfully different day from the publish date
+  const formattedLastmod =
+    lastmodIso && lastmodIso.substring(0, 10) !== date.substring(0, 10)
+      ? new Date(lastmodIso).toLocaleDateString('zh-CN', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : undefined
   const summary = article.summary?.trim()
   const currentTags = article.tags?.map((t) => t.name).filter((n): n is string => Boolean(n)) ?? []
-  const { prev, next, related } = await fetchAdjacentAndRelated(article.url, currentTags)
+  const adjacent = await fetchAdjacentBySlug(article.url, currentTags)
+  const prev = adjacent.prev
+    ? { title: adjacent.prev.title, path: `blog/${adjacent.prev.url}`, date: adjacent.prev.date }
+    : null
+  const next = adjacent.next
+    ? { title: adjacent.next.title, path: `blog/${adjacent.next.url}`, date: adjacent.next.date }
+    : null
+  const related: RelatedPost[] = (adjacent.related ?? []).map((r) => ({
+    title: r.title,
+    path: `blog/${r.url}`,
+    summary: r.summary ?? '该文章暂无摘要。',
+    coverImageUrl: r.coverImageUrl,
+    tags: r.tags ?? [],
+    date: r.date,
+  }))
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -195,6 +198,7 @@ export default async function Page(props: PageProps) {
           month: 'long',
           day: 'numeric',
         })}
+        lastmod={formattedLastmod}
         tags={currentTags}
         readMinutes={estimateReadMinutes(article.bodyMd)}
         viewCount={article.viewCount}

@@ -13,7 +13,10 @@ export default async function Page() {
   const maxCount = sorted[0]?.count ?? 1
 
   return (
-    <div className="pt-6 pb-16">
+    <div className="pt-8 pb-16 md:pt-12">
+      <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
+        探索 · 分类
+      </p>
       <h1 className="font-fraunces text-wb-ink mb-2 text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
         标签
       </h1>

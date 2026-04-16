@@ -8,6 +8,7 @@ import WorkbookRevealInit from './WorkbookRevealInit'
 import WorkbookReadingProgress from './WorkbookReadingProgress'
 import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
+import WbShareButton from './WbShareButton'
 import WbToc from './WbToc'
 import WbImageLightbox from './WbImageLightbox'
 import ViewTracker from './ViewTracker'
@@ -18,6 +19,7 @@ import siteMetadata from '@/data/siteMetadata'
 type AdjacentPost = {
   title: string
   path: string
+  date?: string
 }
 
 type RelatedPost = {
@@ -26,11 +28,13 @@ type RelatedPost = {
   summary: string
   coverImageUrl?: string
   tags: string[]
+  date?: string
 }
 
 type WorkbookArticleLayoutProps = {
   title: string
   date: string
+  lastmod?: string
   tags?: string[]
   readMinutes?: number
   viewCount?: number
@@ -50,6 +54,7 @@ type WorkbookArticleLayoutProps = {
 export default function WorkbookArticleLayout({
   title,
   date,
+  lastmod,
   tags,
   readMinutes,
   viewCount,
@@ -80,6 +85,7 @@ export default function WorkbookArticleLayout({
         href="/blog"
         className="font-inter text-wb-accent hover:text-wb-ink mb-5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200"
       >
+        <span aria-hidden="true">←</span>
         {eyebrow}
       </Link>
 
@@ -99,7 +105,13 @@ export default function WorkbookArticleLayout({
         {title}
       </h1>
 
-      <WbMeta date={date} readMinutes={readMinutes} viewCount={viewCount} tags={tags} />
+      <WbMeta
+        date={date}
+        lastmod={lastmod}
+        readMinutes={readMinutes}
+        viewCount={viewCount}
+        tags={tags}
+      />
       <WbDivider />
 
       {bodyMd ? (
@@ -134,9 +146,30 @@ export default function WorkbookArticleLayout({
                 <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-semibold transition-colors">
                   {post.title}
                 </span>
+                {post.date ? (
+                  <span className="text-wb-meta font-inter text-[11px]">
+                    {new Date(post.date).toLocaleDateString('zh-CN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                ) : null}
                 <span className="text-wb-meta line-clamp-2 text-xs leading-relaxed">
                   {post.summary}
                 </span>
+                {post.tags.length > 0 ? (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {post.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="border-wb-rule-soft text-wb-meta font-geist-mono rounded border px-1.5 py-0.5 text-[10px]"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </Link>
             ))}
           </div>
@@ -156,6 +189,15 @@ export default function WorkbookArticleLayout({
               <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
                 {prevPost.title}
               </span>
+              {prevPost.date ? (
+                <span className="text-wb-meta font-inter text-[11px]">
+                  {new Date(prevPost.date).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              ) : null}
             </Link>
           ) : (
             <div />
@@ -171,6 +213,15 @@ export default function WorkbookArticleLayout({
               <span className="text-wb-ink group-hover:text-wb-accent line-clamp-2 text-sm leading-snug font-medium transition-colors">
                 {nextPost.title}
               </span>
+              {nextPost.date ? (
+                <span className="text-wb-meta font-inter text-[11px]">
+                  {new Date(nextPost.date).toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </span>
+              ) : null}
             </Link>
           ) : null}
         </div>
@@ -190,7 +241,10 @@ export default function WorkbookArticleLayout({
           <span aria-hidden="true">←</span>
           所有文章
         </Link>
-        <CopyLinkButton />
+        <div className="flex items-center gap-2">
+          <WbShareButton title={title} />
+          <CopyLinkButton />
+        </div>
       </div>
     </article>
   )

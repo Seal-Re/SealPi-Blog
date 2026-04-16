@@ -56,7 +56,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
           <p className="text-wb-accent dark:text-wb-rule text-xs font-semibold tracking-[0.24em] uppercase">
             Excalidraw 画板
           </p>
-          <h2 className="text-wb-ink mt-2 text-xl font-semibold">{title}</h2>
+          <h2 className="font-fraunces text-wb-ink mt-2 text-xl font-semibold italic">{title}</h2>
           <p className="text-wb-meta mt-2 text-sm leading-6">当前文章尚未生成可渲染的画板内容。</p>
         </div>
       </section>
@@ -82,7 +82,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
             <p className="text-wb-accent dark:text-wb-rule text-xs font-semibold tracking-[0.24em] uppercase">
               Excalidraw 画板
             </p>
-            <h2 className="text-wb-ink mt-2 text-xl font-semibold">{title}</h2>
+            <h2 className="font-fraunces text-wb-ink mt-2 text-xl font-semibold italic">{title}</h2>
             <p className="text-wb-meta mt-2 text-sm leading-6">
               只读渲染已启用，保留原始画板视觉并支持本地导出查看。
             </p>

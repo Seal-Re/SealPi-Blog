@@ -1,6 +1,4 @@
 import 'css/tailwind.css'
-import 'pliny/search/algolia.css'
-import 'remark-github-blockquote-alert/alert.css'
 
 import { Space_Grotesk, Fraunces, Inter, Caveat, Geist_Mono } from 'next/font/google'
 import { Analytics, AnalyticsConfig } from 'pliny/analytics'

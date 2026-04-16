@@ -29,6 +29,29 @@ const remarkNoteDirective: Plugin<[], Root> = () => (tree) => {
   })
 }
 
+/** Markdown images: lazy-loaded, responsive, rounded, with optional caption. */
+function BodyImage({ src, alt }: ComponentPropsWithoutRef<'img'>) {
+  if (!src) return null
+  return (
+    <span className="my-6 block">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt || ''} loading="lazy" className="mx-auto max-w-full" />
+      {alt ? (
+        <span className="font-inter text-wb-meta mt-2 block text-center text-xs">{alt}</span>
+      ) : null}
+    </span>
+  )
+}
+
+/** Markdown tables: horizontally scrollable on narrow screens. */
+function BodyTable({ children, ...rest }: ComponentPropsWithoutRef<'table'>) {
+  return (
+    <div className="my-6 overflow-x-auto">
+      <table {...rest}>{children}</table>
+    </div>
+  )
+}
+
 /** External links open in a new tab; internal links navigate normally. */
 function BodyLink({ href, children, ...rest }: ComponentPropsWithoutRef<'a'>) {
   const isExternal = href?.startsWith('http') || href?.startsWith('//')
@@ -81,6 +104,9 @@ export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
         components={
           {
             'margin-note': ({ children }) => <MarginNote>{children}</MarginNote>,
+            img: ({ src, alt }: ComponentPropsWithoutRef<'img'>) => (
+              <BodyImage src={src} alt={alt} />
+            ),
             a: ({ href, children, ...rest }: ComponentPropsWithoutRef<'a'>) => (
               <BodyLink href={href} {...rest}>
                 {children}
@@ -105,6 +131,19 @@ export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
               <HeadingAnchor id={id} as="h4">
                 {children}
               </HeadingAnchor>
+            ),
+            h5: ({ id, children }: ComponentPropsWithoutRef<'h5'>) => (
+              <HeadingAnchor id={id} as="h5">
+                {children}
+              </HeadingAnchor>
+            ),
+            h6: ({ id, children }: ComponentPropsWithoutRef<'h6'>) => (
+              <HeadingAnchor id={id} as="h6">
+                {children}
+              </HeadingAnchor>
+            ),
+            table: ({ children, ...rest }: ComponentPropsWithoutRef<'table'>) => (
+              <BodyTable {...rest}>{children}</BodyTable>
             ),
           } as never
         }

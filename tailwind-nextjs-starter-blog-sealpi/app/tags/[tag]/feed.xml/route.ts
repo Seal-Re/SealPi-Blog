@@ -27,6 +27,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tag: st
     .map((post) => {
       const url = `${siteUrl}/blog/${post.slug}`
       const pubDate = new Date(post.date).toUTCString()
+      const tags = post.tags.map((t) => `<category>${escapeXml(t)}</category>`).join('')
       return `
     <item>
       <title>${escapeXml(post.title)}</title>
@@ -34,9 +35,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tag: st
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pubDate}</pubDate>
       <description>${escapeXml(post.summary)}</description>
+      ${tags}
     </item>`
     })
     .join('')
+
+  const latestModified = response.items.reduce((latest, post) => {
+    const modified = new Date(post.lastmod ?? post.date)
+    return modified > latest ? modified : latest
+  }, new Date(0))
 
   const feedUrl = `${siteUrl}/tags/${decodedSlug}/feed.xml`
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -46,6 +53,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tag: st
     <link>${siteUrl}/tags/${decodedSlug}</link>
     <description>${escapeXml(`${siteMetadata.title} posts tagged "${tagName}"`)}</description>
     <language>${siteMetadata.language}</language>
+    <lastBuildDate>${latestModified.toUTCString()}</lastBuildDate>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>

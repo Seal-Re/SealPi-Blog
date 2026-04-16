@@ -76,19 +76,34 @@ function DraftCard({ article }: { article: AdminArticle }) {
   )
 }
 
-export default async function AdminDraftsPage() {
+const PAGE_SIZE = 12
+
+function buildDraftsHref(pageIndex: number) {
+  if (pageIndex <= 1) return '/admin/drafts'
+  return `/admin/drafts?pageIndex=${pageIndex}`
+}
+
+export default async function AdminDraftsPage(props: {
+  searchParams?: Promise<{ pageIndex?: string }>
+}) {
   await auth()
+  const searchParams = await props.searchParams
+  const pageIndex = Math.max(Number(searchParams?.pageIndex || '1') || 1, 1)
 
   let drafts: AdminArticle[] = []
+  let totalCount = 0
+  let totalPages = 1
   let loadError = ''
 
   const response = await adminServerGet<PageResult<AdminArticle>>(
-    '/api/v1/admin/articles?status=draft&pageSize=50&pageIndex=1'
+    `/api/v1/admin/articles?status=draft&pageSize=${PAGE_SIZE}&pageIndex=${pageIndex}`
   )
   if (response === null) {
     loadError = '读取草稿列表失败，请检查登录态后重试。'
   } else {
     drafts = response?.data || []
+    totalCount = response?.totalCount || 0
+    totalPages = response?.totalPage || Math.max(Math.ceil(totalCount / PAGE_SIZE), 1)
   }
 
   return (
@@ -102,7 +117,7 @@ export default async function AdminDraftsPage() {
             草稿库
           </h1>
           <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
-            所有已保存的草稿，点击卡片可继续编辑。
+            所有已保存的草稿，点击卡片可继续编辑。共 {totalCount} 篇。
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
@@ -134,11 +149,43 @@ export default async function AdminDraftsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {drafts.map((article) => (
-            <DraftCard key={article.articleId} article={article} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {drafts.map((article) => (
+              <DraftCard key={article.articleId} article={article} />
+            ))}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-3 rounded-[2rem] border p-6 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800 dark:bg-gray-950">
+              <p className="text-wb-meta text-sm leading-7 dark:text-gray-200">
+                共 {totalCount} 篇 · 第 {pageIndex} / {totalPages} 页
+              </p>
+              <div className="flex gap-3">
+                <Link
+                  href={buildDraftsHref(pageIndex - 1)}
+                  className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    pageIndex <= 1
+                      ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
+                      : 'border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper border dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950'
+                  }`}
+                >
+                  上一页
+                </Link>
+                <Link
+                  href={buildDraftsHref(Math.min(pageIndex + 1, totalPages))}
+                  className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    pageIndex >= totalPages
+                      ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
+                      : 'border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper border dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950'
+                  }`}
+                >
+                  下一页
+                </Link>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </section>
   )

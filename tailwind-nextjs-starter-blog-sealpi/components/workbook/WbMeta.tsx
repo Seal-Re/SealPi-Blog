@@ -3,15 +3,22 @@ import Link from 'next/link'
 
 type WbMetaProps = {
   date: string
+  lastmod?: string
   readMinutes?: number
   viewCount?: number
   tags?: string[]
 }
 
-export default function WbMeta({ date, readMinutes, viewCount, tags = [] }: WbMetaProps) {
+export default function WbMeta({ date, lastmod, readMinutes, viewCount, tags = [] }: WbMetaProps) {
   return (
     <div className="font-inter text-wb-meta mb-7 flex flex-wrap items-center gap-3.5 text-[13px]">
       <span>{date}</span>
+      {lastmod ? (
+        <>
+          <span className="opacity-40">·</span>
+          <span className="text-[12px] opacity-70">更新于 {lastmod}</span>
+        </>
+      ) : null}
       {readMinutes != null ? (
         <>
           <span className="opacity-40">·</span>
@@ -27,8 +34,8 @@ export default function WbMeta({ date, readMinutes, viewCount, tags = [] }: WbMe
       {tags.map((tag) => (
         <Link
           key={tag}
-          href={`/tags/${slug(tag)}`}
-          className="border-wb-rule text-wb-meta font-geist-mono hover:border-wb-accent hover:text-wb-accent rounded border px-2.5 py-0.5 text-[11.5px] transition-colors"
+          href={`/tags/${slug(tag) || tag}`}
+          className="border-wb-rule-soft text-wb-meta font-geist-mono hover:border-wb-accent hover:text-wb-accent rounded border px-2 py-0.5 text-[11px] transition-colors duration-200"
         >
           #{tag}
         </Link>
