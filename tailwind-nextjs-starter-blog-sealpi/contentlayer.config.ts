@@ -80,17 +80,10 @@ async function createTagCount(allBlogs) {
   writeFileSync('./app/tag-data.json', formatted)
 }
 
-function createSearchIndex(allBlogs) {
-  if (
-    siteMetadata?.search?.provider === 'kbar' &&
-    siteMetadata.search.kbarConfig.searchDocumentsPath
-  ) {
-    writeFileSync(
-      `public/${path.basename(siteMetadata.search.kbarConfig.searchDocumentsPath)}`,
-      JSON.stringify(allCoreContent(sortPosts(allBlogs)))
-    )
-    console.log('Local search index generated...')
-  }
+function createSearchIndex(_allBlogs) {
+  // Search index is now served dynamically by app/search.json/route.ts from the
+  // backend API — skip writing the static public/search.json to avoid serving
+  // stale contentlayer demo content when the dynamic route is unavailable.
 }
 
 export const Blog = defineDocumentType(() => ({
