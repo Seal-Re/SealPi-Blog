@@ -46,6 +46,9 @@ jobs:
       - name: Lint
         run: npx next lint --dir app --dir components --dir lib --dir layouts
 
+      - name: Unit tests
+        run: npm test
+
       - name: Build
         # Provide minimal env vars so Next.js build does not crash on missing
         # required values. Real secrets are not needed for a type/compile check.
