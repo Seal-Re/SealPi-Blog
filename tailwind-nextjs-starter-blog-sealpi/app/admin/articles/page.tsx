@@ -5,7 +5,7 @@ import AdminErrorToast from '@/components/admin/AdminErrorToast'
 import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
 import PageTitle from '@/components/PageTitle'
 import { adminServerGet } from '@/app/api/admin/_utils'
-import { isDraftStatus, isPublishedStatus } from '@/lib/article-status'
+import { isArchivedStatus, isDraftStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -34,14 +34,20 @@ function formatDateLabel(value?: string) {
 }
 
 function DraftBadge({ draft }: { draft?: number }) {
+  const isArchived = isArchivedStatus(draft)
   const isDraft = isDraftStatus(draft)
+
+  const dotClass = isArchived
+    ? 'bg-amber-500'
+    : isDraft
+      ? 'bg-gray-400 dark:bg-gray-500'
+      : 'bg-emerald-500'
+  const label = isArchived ? '已归档' : isDraft ? '草稿中' : '已发布'
 
   return (
     <span className="border-wb-rule-soft inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase dark:border-gray-700">
-      <span
-        className={`h-2 w-2 rounded-full ${isDraft ? 'bg-gray-400 dark:bg-gray-500' : 'bg-emerald-500'}`}
-      />
-      {isDraft ? '草稿中' : '已发布'}
+      <span className={`h-2 w-2 rounded-full ${dotClass}`} />
+      {label}
     </span>
   )
 }

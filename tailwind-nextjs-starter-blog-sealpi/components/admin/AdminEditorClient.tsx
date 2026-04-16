@@ -1086,8 +1086,9 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     <div className="border-wb-rule-soft flex overflow-hidden rounded-full border text-[11px] font-semibold dark:border-gray-700">
                       <button
                         type="button"
+                        aria-pressed={!showMdPreview}
                         onClick={() => setShowMdPreview(false)}
-                        className={`px-3 py-1 transition-colors ${
+                        className={`px-3 py-1 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none focus-visible:ring-inset dark:focus-visible:ring-gray-500 ${
                           !showMdPreview
                             ? 'bg-wb-ink text-wb-paper dark:bg-white dark:text-gray-950'
                             : 'text-wb-meta hover:text-wb-ink dark:text-gray-400 dark:hover:text-gray-100'
@@ -1097,8 +1098,9 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       </button>
                       <button
                         type="button"
+                        aria-pressed={showMdPreview}
                         onClick={() => setShowMdPreview(true)}
-                        className={`px-3 py-1 transition-colors ${
+                        className={`px-3 py-1 transition-colors focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none focus-visible:ring-inset dark:focus-visible:ring-gray-500 ${
                           showMdPreview
                             ? 'bg-wb-ink text-wb-paper dark:bg-white dark:text-gray-950'
                             : 'text-wb-meta hover:text-wb-ink dark:text-gray-400 dark:hover:text-gray-100'

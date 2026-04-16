@@ -11,3 +11,7 @@ export function isDraftStatus(status?: number | null) {
 export function isPublishedStatus(status?: number | null) {
   return status === ARTICLE_STATUS.PUBLISHED
 }
+
+export function isArchivedStatus(status?: number | null) {
+  return status === ARTICLE_STATUS.ARCHIVED
+}
