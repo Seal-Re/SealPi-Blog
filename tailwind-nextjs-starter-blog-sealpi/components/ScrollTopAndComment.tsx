@@ -28,7 +28,7 @@ const ScrollTopAndComment = () => {
     >
       {siteMetadata.comments?.provider && (
         <button
-          aria-label="Scroll To Comment"
+          aria-label="跳转到评论区"
           onClick={handleScrollToComment}
           className="border-wb-rule-soft bg-wb-canvas/80 text-wb-meta hover:bg-wb-paper hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all"
         >
@@ -42,7 +42,7 @@ const ScrollTopAndComment = () => {
         </button>
       )}
       <button
-        aria-label="Scroll To Top"
+        aria-label="回到顶部"
         onClick={handleScrollTop}
         className="border-wb-rule-soft bg-wb-paper/90 text-wb-meta hover:bg-wb-canvas hover:text-wb-accent rounded-full border p-2 shadow-sm backdrop-blur transition-all"
       >
