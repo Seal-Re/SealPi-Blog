@@ -14,7 +14,7 @@ async function ArticleFeed() {
 function ArticleFeedSkeleton() {
   return (
     <ul className="space-y-6">
-      {Array.from({ length: 3 }).map((_, i) => (
+      {Array.from({ length: BLOG_POSTS_PER_PAGE }).map((_, i) => (
         <li
           key={i}
           className="border-wb-rule-soft bg-wb-canvas animate-pulse overflow-hidden rounded-2xl border"

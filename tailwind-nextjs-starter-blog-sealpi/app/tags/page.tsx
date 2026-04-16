@@ -9,7 +9,7 @@ export default async function Page() {
   const tags = await fetchPublishedTags()
 
   // Sort by count descending
-  const sorted = [...tags].sort((a, b) => b.count - a.count)
+  const sorted = [...tags].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'))
   const maxCount = sorted[0]?.count ?? 1
 
   return (
