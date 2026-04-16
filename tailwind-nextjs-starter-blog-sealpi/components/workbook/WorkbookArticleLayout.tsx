@@ -68,7 +68,7 @@ export default function WorkbookArticleLayout({
   const hasRelated = relatedPosts && relatedPosts.length > 0
 
   return (
-    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-10 max-w-[820px] rounded-2xl px-8 py-12 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] md:px-16 md:py-14 dark:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.55)]">
+    <article className="wb-frame wb-page-enter bg-wb-paper text-wb-ink-soft relative mx-auto my-4 max-w-[820px] rounded-2xl px-6 py-10 shadow-[0_12px_48px_-12px_rgba(31,26,21,0.18)] sm:my-10 sm:px-8 sm:py-12 md:px-16 md:py-14 dark:shadow-[0_12px_48px_-12px_rgba(0,0,0,0.55)]">
       <WorkbookRevealInit />
       <WorkbookReadingProgress />
       <ScrollTopAndComment />
@@ -94,7 +94,7 @@ export default function WorkbookArticleLayout({
 
       <h1
         data-reveal
-        className="font-fraunces text-wb-ink mt-12 mb-5 text-[34px] leading-[1.1] font-medium tracking-[-0.02em] italic sm:text-[42px] sm:leading-[1.08] md:text-[48px]"
+        className="font-fraunces text-wb-ink mt-10 mb-5 text-[28px] leading-[1.12] font-medium tracking-[-0.02em] italic sm:mt-12 sm:text-[38px] sm:leading-[1.1] md:text-[48px] md:leading-[1.08]"
       >
         {title}
       </h1>
