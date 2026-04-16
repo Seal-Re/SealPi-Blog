@@ -1,8 +1,7 @@
 import { fetchAllPublishedArticles } from '@/lib/public-blog-api'
 import siteMetadata from '@/data/siteMetadata'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 3600 // 1-hour edge cache
+export const revalidate = 3600 // 1-hour ISR cache
 
 function escapeXml(str: string): string {
   return str

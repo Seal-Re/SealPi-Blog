@@ -1,7 +1,6 @@
 import { fetchPublishedArticlesPage, fetchPublishedTags } from '@/lib/public-blog-api'
 import siteMetadata from '@/data/siteMetadata'
 
-export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 function escapeXml(str: string): string {

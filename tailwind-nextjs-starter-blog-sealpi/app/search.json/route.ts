@@ -1,8 +1,7 @@
 import { fetchAllPublishedArticles } from '@/lib/public-blog-api'
 import { NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 300 // 5-minute edge cache
+export const revalidate = 300 // 5-minute ISR cache
 
 /**
  * Serves the kbar search index from backend articles.
