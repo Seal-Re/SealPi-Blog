@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: '/blog', label: '文章' },
   { href: '/tags', label: '标签' },
   { href: '/archive', label: '归档' },
+  { href: '/projects', label: '项目' },
   { href: '/about', label: '关于' },
 ]
 
