@@ -91,7 +91,7 @@ export default function WorkbookArticleLayout({
 
       <h1
         data-reveal
-        className="font-fraunces text-wb-ink mt-12 mb-5 text-[48px] leading-[1.08] font-medium tracking-[-0.02em] italic"
+        className="font-fraunces text-wb-ink mt-12 mb-5 text-[34px] leading-[1.1] font-medium tracking-[-0.02em] italic sm:text-[42px] sm:leading-[1.08] md:text-[48px]"
       >
         {title}
       </h1>

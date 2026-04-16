@@ -169,6 +169,12 @@ input:-webkit-autofill:focus {
   margin: 4px 6px 0 0;
   color: var(--color-wb-accent);
 }
+/* Reduce drop cap on narrow screens so text wraps cleanly */
+@media (max-width: 479px) {
+  .wb-body > p:first-of-type::first-letter {
+    font-size: 36px;
+  }
+}
 /* Heading anchor links */
 .wb-heading {
   position: relative;

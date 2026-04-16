@@ -3,10 +3,11 @@ import Tag from '@/components/Tag'
 import { formatDate } from 'pliny/utils/formatDate'
 import Image from 'next/image'
 import siteMetadata from '@/data/siteMetadata'
+import type { PublicBlogPost } from '@/lib/public-blog-api'
 
 const MAX_DISPLAY = 5
 
-export default function Home({ posts }) {
+export default function Home({ posts }: { posts: PublicBlogPost[] }) {
   return (
     <>
       <ul className="space-y-6">
