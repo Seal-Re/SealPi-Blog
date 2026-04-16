@@ -62,9 +62,13 @@ public class AdminJwtVerifier {
         }
 
         // Token shape routing:
-        // - If it looks like a JWT (3 parts), verify signature with admin.jwt.secret.
+        // - If it looks like a JWT (3 parts) and allowLegacyJwt is enabled, verify HS256 signature.
+        // - If it looks like a JWT but allowLegacyJwt is disabled, reject (force GitHub OAuth path).
         // - Otherwise, treat it as GitHub OAuth access token and validate via GitHub API.
         if (looksLikeJwt(token)) {
+            if (!allowLegacyJwt) {
+                throw new AdminAuthException(401, "401", "JWT认证未启用，请使用GitHub OAuth token");
+            }
             verifyLegacyJwt(token);
             return;
         }
