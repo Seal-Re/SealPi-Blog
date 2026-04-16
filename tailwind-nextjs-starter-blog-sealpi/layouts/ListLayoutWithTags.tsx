@@ -208,6 +208,15 @@ export default function ListLayoutWithTags({
                         <p className="text-wb-meta mt-2 line-clamp-2 text-sm leading-6">
                           {post.summary}
                         </p>
+                        <div className="mt-3">
+                          <Link
+                            href={`/${post.path}`}
+                            className="text-wb-accent hover:text-wb-ink text-sm font-medium transition-colors duration-200"
+                            aria-label={`阅读全文：${post.title}`}
+                          >
+                            阅读全文 &rarr;
+                          </Link>
+                        </div>
                       </div>
                     </article>
                   </li>
