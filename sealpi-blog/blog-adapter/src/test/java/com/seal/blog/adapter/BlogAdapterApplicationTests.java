@@ -222,6 +222,37 @@ class BlogAdapterApplicationTests {
         verify(articleService).adminOffline(7);
     }
 
+    @Test
+    void publicArticles_withoutStatusParam_defaultsToPublishedOnly() throws Exception {
+        when(articleService.getPage(any(com.seal.blog.client.article.dto.qry.ArticlePageQry.class)))
+                .thenReturn(com.seal.blog.client.common.PageResponse.empty());
+
+        mvc.perform(get("/api/v1/articles"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticlePageQry> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticlePageQry.class);
+        verify(articleService).getPage(captor.capture());
+        // Without an explicit status= param the controller must default to "published"
+        // so that draft articles are not exposed to unauthenticated callers.
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getStatus()).isEqualTo("published");
+    }
+
+    @Test
+    void publicArticles_withExplicitStatusAll_doesNotOverride() throws Exception {
+        when(articleService.getPage(any(com.seal.blog.client.article.dto.qry.ArticlePageQry.class)))
+                .thenReturn(com.seal.blog.client.common.PageResponse.empty());
+
+        mvc.perform(get("/api/v1/articles").param("status", "all"))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticlePageQry> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticlePageQry.class);
+        verify(articleService).getPage(captor.capture());
+        // Explicit status=all must be preserved — this is used by the admin listing pages.
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getStatus()).isEqualTo("all");
+    }
+
     private static String bearerToken(String githubUserId) throws Exception {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
         String payloadJson = "{\"githubUserId\":\"" + githubUserId + "\"}";

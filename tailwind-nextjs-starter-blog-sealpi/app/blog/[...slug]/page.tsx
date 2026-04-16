@@ -4,6 +4,7 @@ import WorkbookArticleLayout from '@/components/workbook/WorkbookArticleLayout'
 import siteMetadata from '@/data/siteMetadata'
 import { buildApiUrl } from '@/lib/api-config'
 import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
+import { isPublishedStatus } from '@/lib/article-status'
 import {
   PUBLIC_FETCH_REVALIDATE_SECONDS,
   fetchAllPublishedArticles,
@@ -106,7 +107,7 @@ export async function generateMetadata(props: PageProps): Promise<Metadata | und
   const slug = decodeURI(params.slug.join('/'))
   const article = await fetchArticleBySlug(slug)
 
-  if (!article) {
+  if (!article || !isPublishedStatus(article.draft)) {
     return
   }
 
@@ -152,7 +153,7 @@ export default async function Page(props: PageProps) {
   const slug = decodeURI(params.slug.join('/'))
   const article = await fetchArticleBySlug(slug)
 
-  if (!article) {
+  if (!article || !isPublishedStatus(article.draft)) {
     return notFound()
   }
 

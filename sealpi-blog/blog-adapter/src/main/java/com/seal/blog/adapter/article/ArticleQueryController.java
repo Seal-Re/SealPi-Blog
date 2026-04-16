@@ -10,7 +10,7 @@ import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.Response;
 import com.seal.blog.client.common.SingleResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,10 +21,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
+@RequiredArgsConstructor
 public class ArticleQueryController {
 
-    @Autowired
-    private ArticleServiceI articleService;
+    private final ArticleServiceI articleService;
 
     @GetMapping("/articles/{id}")
     public SingleResponse<ArticleVO> getById(@PathVariable("id") Integer id) {
@@ -42,6 +42,11 @@ public class ArticleQueryController {
 
     @GetMapping("/articles")
     public PageResponse<ArticleVO> page(@Valid ArticlePageQry qry) {
+        // Public endpoint defaults to published-only when no explicit status or draft filter is set.
+        // This prevents unauthenticated callers from enumerating draft articles.
+        if (qry.getStatus() == null && qry.getDraft() == null) {
+            qry.setStatus("published");
+        }
         return articleService.getPage(qry);
     }
 
