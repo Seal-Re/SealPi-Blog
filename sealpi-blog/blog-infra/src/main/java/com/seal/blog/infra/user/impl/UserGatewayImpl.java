@@ -56,4 +56,10 @@ public class UserGatewayImpl implements UserGateway {
     public long countAll() {
         return userMapper.selectCount(null);
     }
+
+    @Override
+    public BlogUser findById(Long userId) {
+        UserPO po = userMapper.selectById(userId);
+        return converter.toDomain(po);
+    }
 }

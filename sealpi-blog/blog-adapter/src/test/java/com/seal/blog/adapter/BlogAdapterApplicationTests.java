@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -544,5 +545,38 @@ class BlogAdapterApplicationTests {
     void adminPublish_withoutAuth_returns401() throws Exception {
         mvc.perform(post("/api/v1/admin/articles/9/publish"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void adminUpdateUser_withWhitelistedUser_callsService() throws Exception {
+        com.seal.blog.client.user.dto.vo.UserProfileVO profile =
+                new com.seal.blog.client.user.dto.vo.UserProfileVO();
+        profile.setUserId(5L);
+        profile.setCommentPermission("ALLOWED");
+        when(userService.updateUserAdmin(any())).thenReturn(SingleResponse.of(profile));
+
+        mvc.perform(
+                patch("/api/v1/admin/users/5")
+                        .header("Authorization", bearerToken("123"))
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"commentPermission\":\"ALLOWED\"}")
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.success").value(true))
+         .andExpect(jsonPath("$.data.commentPermission").value("ALLOWED"));
+
+        ArgumentCaptor<com.seal.blog.client.user.dto.cmd.UpdateUserAdminCmd> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.user.dto.cmd.UpdateUserAdminCmd.class);
+        verify(userService).updateUserAdmin(captor.capture());
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getUserId()).isEqualTo(5L);
+        org.assertj.core.api.Assertions.assertThat(captor.getValue().getCommentPermission()).isEqualTo("ALLOWED");
+    }
+
+    @Test
+    void adminUpdateUser_withoutAuth_returns401() throws Exception {
+        mvc.perform(
+                patch("/api/v1/admin/users/5")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("{\"commentPermission\":\"ALLOWED\"}")
+        ).andExpect(status().isUnauthorized());
     }
 }

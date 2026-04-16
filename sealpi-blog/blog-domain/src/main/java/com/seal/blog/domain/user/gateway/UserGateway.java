@@ -13,4 +13,6 @@ public interface UserGateway {
     List<BlogUser> findPage(int pageIndex, int pageSize);
 
     long countAll();
+
+    BlogUser findById(Long userId);
 }

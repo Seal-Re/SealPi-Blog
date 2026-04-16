@@ -6,6 +6,7 @@ import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.client.user.api.UserServiceI;
 import com.seal.blog.client.user.dto.cmd.OauthUserSyncCmd;
+import com.seal.blog.client.user.dto.cmd.UpdateUserAdminCmd;
 import com.seal.blog.client.user.dto.qry.UserPageQry;
 import com.seal.blog.client.user.dto.vo.UserProfileVO;
 import com.seal.blog.domain.user.gateway.UserGateway;
@@ -65,6 +66,23 @@ public class UserServiceImpl implements UserServiceI {
         long total = userGateway.countAll();
         List<UserProfileVO> vos = users.stream().map(this::toVo).collect(Collectors.toList());
         return PageResponse.of(vos, (int) total, pageSize, pageIndex);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public SingleResponse<UserProfileVO> updateUserAdmin(UpdateUserAdminCmd cmd) {
+        BlogUser user = userGateway.findById(cmd.getUserId());
+        if (user == null) {
+            return SingleResponse.buildSingleFailure("NOT_FOUND", "用户不存在");
+        }
+        if (cmd.getCommentPermission() != null) {
+            user.setCommentPermission(cmd.getCommentPermission());
+        }
+        if (cmd.getBanned() != null) {
+            user.setBanned(cmd.getBanned());
+        }
+        userGateway.save(user);
+        return SingleResponse.of(toVo(user));
     }
 
     private BlogUser newUserFromOauth(OauthUserSyncCmd cmd) {
