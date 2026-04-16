@@ -184,7 +184,7 @@ export default function ListLayoutWithTags({
               </ul>
             </div>
           </div>
-          <div>
+          <div data-reveal>
             {displayPosts.length ? (
               <ul>
                 {displayPosts.map((post) => {

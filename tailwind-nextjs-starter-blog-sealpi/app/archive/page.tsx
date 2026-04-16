@@ -46,7 +46,7 @@ export default async function ArchivePage() {
           {years.map((year) => {
             const yearPosts = byYear.get(year)!
             return (
-              <section key={year}>
+              <section key={year} data-reveal>
                 <div className="mb-5 flex items-center gap-4">
                   <h2 className="font-fraunces text-wb-ink shrink-0 text-2xl font-semibold italic">
                     {year}

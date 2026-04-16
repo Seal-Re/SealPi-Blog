@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import Header from '@/components/Header'
 import SectionContainer from '@/components/SectionContainer'
 import Footer from '@/components/Footer'
+import WorkbookRevealInit from '@/components/workbook/WorkbookRevealInit'
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -15,6 +16,7 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <SectionContainer>
+      <WorkbookRevealInit />
       <Header />
       <main className="mb-auto">{children}</main>
       <Footer />

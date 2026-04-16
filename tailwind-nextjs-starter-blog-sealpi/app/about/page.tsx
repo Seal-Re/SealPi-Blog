@@ -17,7 +17,10 @@ export default function Page() {
         <p className="text-wb-meta max-w-2xl text-base leading-8">{siteMetadata.description}</p>
       </div>
 
-      <div className="border-wb-rule-soft bg-wb-canvas grid gap-6 rounded-2xl border p-6 sm:grid-cols-2 sm:p-8">
+      <div
+        data-reveal
+        className="border-wb-rule-soft bg-wb-canvas grid gap-6 rounded-2xl border p-6 sm:grid-cols-2 sm:p-8"
+      >
         <div className="space-y-2">
           <p className="font-inter text-wb-accent text-[11px] font-semibold tracking-[0.2em] uppercase">
             作者
@@ -74,7 +77,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div data-reveal className="space-y-4">
         <h2 className="font-fraunces text-wb-ink text-xl font-semibold italic">平台特性</h2>
         <ul className="text-wb-meta space-y-2 text-sm leading-7">
           <li>· Excalidraw JSON 作为文章内容格式，支持手绘图表渲染</li>

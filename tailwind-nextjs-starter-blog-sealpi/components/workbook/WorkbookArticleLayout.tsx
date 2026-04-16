@@ -142,6 +142,7 @@ export default function WorkbookArticleLayout({
                   <img
                     src={post.coverImageUrl}
                     alt={post.title}
+                    loading="lazy"
                     className="border-wb-rule-soft h-28 w-full rounded-lg border object-cover"
                   />
                 ) : null}
@@ -193,6 +194,7 @@ export default function WorkbookArticleLayout({
                 <img
                   src={prevPost.coverImageUrl}
                   alt={prevPost.title}
+                  loading="lazy"
                   className="h-20 w-full object-cover"
                 />
               ) : null}
@@ -227,6 +229,7 @@ export default function WorkbookArticleLayout({
                 <img
                   src={nextPost.coverImageUrl}
                   alt={nextPost.title}
+                  loading="lazy"
                   className="h-20 w-full object-cover"
                 />
               ) : null}
