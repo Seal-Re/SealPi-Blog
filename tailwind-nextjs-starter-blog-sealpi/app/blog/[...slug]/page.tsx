@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { slug as toSlug } from 'github-slugger'
 import WorkbookArticleLayout from '@/components/workbook/WorkbookArticleLayout'
 import siteMetadata from '@/data/siteMetadata'
 import { buildApiUrl } from '@/lib/api-config'
@@ -198,6 +199,8 @@ export default async function Page(props: PageProps) {
         bodyMd={article.bodyMd}
         articleId={article.articleId}
         slug={slug}
+        eyebrow={currentTags[0] || '随笔'}
+        eyebrowHref={currentTags[0] ? `/tags/${toSlug(currentTags[0]) || currentTags[0]}` : '/blog'}
         prevPost={prev}
         nextPost={next}
         relatedPosts={related}
