@@ -201,3 +201,14 @@ export async function publishAdminArticle(articleId: number) {
     method: 'POST',
   })
 }
+
+export async function patchAdminUser(
+  userId: number,
+  payload: { commentPermission?: string; banned?: boolean }
+) {
+  return adminFetch<ApiEnvelope>(`/api/admin/users/${userId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+}

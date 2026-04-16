@@ -105,12 +105,21 @@ export async function proxyAdminRequest(
   const nextHeaders = new Headers()
   nextHeaders.set('Authorization', `Bearer ${token}`)
 
-  const backendResponse = await fetch(buildApiUrl(backendPath), {
-    method,
-    headers: nextHeaders,
-    body,
-    cache: 'no-store',
-  })
+  let backendResponse: Response
+  try {
+    backendResponse = await fetch(buildApiUrl(backendPath), {
+      method,
+      headers: nextHeaders,
+      body,
+      cache: 'no-store',
+    })
+  } catch (err) {
+    const detail = err instanceof Error && err.message ? err.message : '连接后端失败'
+    return Response.json(
+      { success: false, errCode: '503', errMessage: `BFF 无法连接后端服务：${detail}` },
+      { status: 503 }
+    )
+  }
 
   const contentType = backendResponse.headers.get('content-type') || ''
   const payload = contentType.includes('application/json')

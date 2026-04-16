@@ -2,6 +2,7 @@ import { auth } from '@/auth'
 import Link from '@/components/Link'
 import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminUser, PageResult } from '@/lib/blog-api-types'
+import UserPermissionsActions from '@/components/admin/UserPermissionsActions'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
@@ -81,6 +82,11 @@ function UserRow({ user }: { user: AdminUser }) {
         <div className="flex flex-col gap-2">
           <CommentBadge permission={user.commentPermission} />
           <BannedBadge banned={user.banned} />
+          <UserPermissionsActions
+            userId={user.userId}
+            commentPermission={user.commentPermission}
+            banned={user.banned}
+          />
         </div>
       </td>
       <td className="text-wb-meta px-4 py-5 text-xs dark:text-gray-300">
