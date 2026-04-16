@@ -16,11 +16,9 @@ import com.seal.blog.infra.article.po.ArticlePO;
 import com.seal.blog.infra.article.po.RelyPO;
 import com.seal.blog.infra.article.po.TagPO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,17 +29,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArticleGatewayImpl implements ArticleGateway {
 
-    @Autowired
-    ArticleInfraConverter converter;
+    private final ArticleInfraConverter converter;
 
-    @Autowired
-    ArticleMapper articleMapper;
+    private final ArticleMapper articleMapper;
 
-    @Autowired
-    RelyMapper relyMapper;
+    private final RelyMapper relyMapper;
 
-    @Autowired
-    TagMapper tagMapper;
+    private final TagMapper tagMapper;
 
     @Override
     public void save(Article article) {

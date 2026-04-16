@@ -143,8 +143,8 @@ public class Article {
     }
 
     private void initValidation() {
-        if (title == null || title.length() < 2) {
-            throw new IllegalArgumentException("标题不能少于2个字");
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("标题不能为空");
         }
     }
 }
