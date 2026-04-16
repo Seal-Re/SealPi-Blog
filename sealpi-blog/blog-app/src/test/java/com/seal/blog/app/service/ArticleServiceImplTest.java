@@ -143,6 +143,54 @@ class ArticleServiceImplTest {
         verify(articleGateway).save(article);
     }
 
+    // --- incrementViewCount tests ---
+
+    @Test
+    void incrementViewCount_nullId_returnsFailure() {
+        Response result = service.incrementViewCount(null);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        verify(articleGateway, never()).incrementViewCount(any());
+    }
+
+    @Test
+    void incrementViewCount_zeroId_returnsFailure() {
+        Response result = service.incrementViewCount(0);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        verify(articleGateway, never()).incrementViewCount(any());
+    }
+
+    @Test
+    void incrementViewCount_negativeId_returnsFailure() {
+        Response result = service.incrementViewCount(-1);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        verify(articleGateway, never()).incrementViewCount(any());
+    }
+
+    @Test
+    void incrementViewCount_validId_callsGatewayAndReturnsSuccess() {
+        doNothing().when(articleGateway).incrementViewCount(42);
+
+        Response result = service.incrementViewCount(42);
+
+        assertTrue(result.isSuccess());
+        verify(articleGateway).incrementViewCount(42);
+    }
+
+    @Test
+    void incrementViewCount_gatewayThrows_stillReturnsSuccess() {
+        doThrow(new RuntimeException("DB error")).when(articleGateway).incrementViewCount(7);
+
+        Response result = service.incrementViewCount(7);
+
+        assertTrue(result.isSuccess());
+    }
+
     @Test
     void adminUpdate_publishAction_rejectsEmptyTitle() {
         Article article = Article.reconstruct(
