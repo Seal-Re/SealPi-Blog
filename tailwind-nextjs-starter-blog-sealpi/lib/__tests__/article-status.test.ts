@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ARTICLE_STATUS, isDraftStatus, isPublishedStatus } from '../article-status'
+import { ARTICLE_STATUS, isArchivedStatus, isDraftStatus, isPublishedStatus } from '../article-status'
 
 describe('ARTICLE_STATUS constants', () => {
   it('DRAFT is 0', () => {
@@ -56,5 +56,27 @@ describe('isPublishedStatus', () => {
 
   it('returns false for undefined', () => {
     expect(isPublishedStatus(undefined)).toBe(false)
+  })
+})
+
+describe('isArchivedStatus', () => {
+  it('returns true for 2', () => {
+    expect(isArchivedStatus(2)).toBe(true)
+  })
+
+  it('returns false for 0 (draft)', () => {
+    expect(isArchivedStatus(0)).toBe(false)
+  })
+
+  it('returns false for 1 (published)', () => {
+    expect(isArchivedStatus(1)).toBe(false)
+  })
+
+  it('returns false for null', () => {
+    expect(isArchivedStatus(null)).toBe(false)
+  })
+
+  it('returns false for undefined', () => {
+    expect(isArchivedStatus(undefined)).toBe(false)
   })
 })
