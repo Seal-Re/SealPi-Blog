@@ -6,9 +6,14 @@ import { useEffect, useState } from 'react'
 type AdminArticlesTopbarPortalProps = {
   q?: string
   status?: string
+  tag?: string
 }
 
-export default function AdminArticlesTopbarPortal({ q, status }: AdminArticlesTopbarPortalProps) {
+export default function AdminArticlesTopbarPortal({
+  q,
+  status,
+  tag,
+}: AdminArticlesTopbarPortalProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
@@ -38,12 +43,18 @@ export default function AdminArticlesTopbarPortal({ q, status }: AdminArticlesTo
         leftExtraAnchor
       )}
       {createPortal(
-        <form action="/admin/articles" method="get" className="flex items-center gap-2">
+        <form action="/admin/articles" method="get" className="flex flex-wrap items-center gap-2">
           <input
             name="q"
             defaultValue={q || ''}
             placeholder="搜索标题/slug"
-            className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta focus:border-wb-ink w-44 rounded-full border px-3 py-2 text-xs transition-all duration-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta focus:border-wb-ink w-36 rounded-full border px-3 py-2 text-xs transition-all duration-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+          />
+          <input
+            name="tag"
+            defaultValue={tag || ''}
+            placeholder="标签"
+            className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta focus:border-wb-ink w-24 rounded-full border px-3 py-2 text-xs transition-all duration-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
           />
           <select
             name="status"

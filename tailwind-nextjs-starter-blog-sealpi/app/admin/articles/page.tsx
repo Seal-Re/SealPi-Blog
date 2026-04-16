@@ -104,7 +104,7 @@ function ArticleRow({ article }: { article: AdminArticle }) {
   )
 }
 
-async function fetchArticles(pageIndex: number, q?: string, status?: string) {
+async function fetchArticles(pageIndex: number, q?: string, status?: string, tag?: string) {
   const params = new URLSearchParams({
     pageIndex: String(pageIndex),
     pageSize: '10',
@@ -115,11 +115,14 @@ async function fetchArticles(pageIndex: number, q?: string, status?: string) {
   if (status && status !== 'all') {
     params.set('status', status)
   }
+  if (tag) {
+    params.set('tag', tag)
+  }
 
   return adminFetch<PageResult<AdminArticle>>(`/api/v1/articles?${params.toString()}`)
 }
 
-function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: string) {
+function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: string, tag?: string) {
   const params = new URLSearchParams({
     pageIndex: String(Math.max(pageIndex, 1)),
   })
@@ -129,17 +132,21 @@ function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: stri
   if (status && status !== 'all') {
     params.set('status', status)
   }
+  if (tag?.trim()) {
+    params.set('tag', tag.trim())
+  }
   return `/admin/articles?${params.toString()}`
 }
 
 export default async function AdminArticlesPage(props: {
-  searchParams?: Promise<{ pageIndex?: string; q?: string; status?: string }>
+  searchParams?: Promise<{ pageIndex?: string; q?: string; status?: string; tag?: string }>
 }) {
   await auth()
   const searchParams = await props.searchParams
   const pageIndex = Math.max(Number(searchParams?.pageIndex || '1') || 1, 1)
   const q = searchParams?.q?.trim() || ''
   const status = searchParams?.status || 'all'
+  const tag = searchParams?.tag?.trim() || ''
   let articles: AdminArticle[] = []
   let pageSize = 10
   let totalCount = 0
@@ -147,7 +154,7 @@ export default async function AdminArticlesPage(props: {
   let loadError = ''
 
   try {
-    const response = await fetchArticles(pageIndex, q, status)
+    const response = await fetchArticles(pageIndex, q, status, tag)
     articles = response?.data || []
     pageSize = response?.pageSize || 10
     totalCount = response?.totalCount || 0
@@ -162,7 +169,7 @@ export default async function AdminArticlesPage(props: {
 
   return (
     <section className="space-y-8">
-      <AdminArticlesTopbarPortal q={q} status={status} />
+      <AdminArticlesTopbarPortal q={q} status={status} tag={tag} />
       <AdminErrorToast message={loadError} />
       <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
@@ -268,7 +275,7 @@ export default async function AdminArticlesPage(props: {
         </p>
         <div className="flex gap-3">
           <Link
-            href={buildAdminArticlesPageHref(pageIndex - 1, q, status)}
+            href={buildAdminArticlesPageHref(pageIndex - 1, q, status, tag)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex <= 1
                 ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
@@ -278,7 +285,7 @@ export default async function AdminArticlesPage(props: {
             上一页
           </Link>
           <Link
-            href={buildAdminArticlesPageHref(Math.min(pageIndex + 1, totalPages), q, status)}
+            href={buildAdminArticlesPageHref(Math.min(pageIndex + 1, totalPages), q, status, tag)}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
               pageIndex >= totalPages
                 ? 'border-wb-rule-soft bg-wb-paper text-wb-meta pointer-events-none border dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600'
