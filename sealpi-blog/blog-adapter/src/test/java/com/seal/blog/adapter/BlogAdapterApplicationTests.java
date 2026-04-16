@@ -38,7 +38,14 @@ import org.springframework.test.web.servlet.MockMvc;
                 "admin.jwt.githubUserIdClaim=githubUserId",
                 // Tests still assert legacy self-signed JWT behavior.
                 "admin.auth.allowLegacyJwt=true",
-                "blog.internal.sync.secret=test-internal"
+                "blog.internal.sync.secret=test-internal",
+                // Use H2 in-memory DB so blog-infra beans can load without MySQL.
+                "spring.datasource.url=jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1",
+                "spring.datasource.driver-class-name=org.h2.Driver",
+                "spring.datasource.username=sa",
+                "spring.datasource.password=",
+                // Flyway migrations use MySQL-specific DDL — skip in unit tests.
+                "spring.flyway.enabled=false"
         }
 )
 @AutoConfigureMockMvc
