@@ -12,7 +12,7 @@ export default function Error({
   return (
     <div className="flex flex-col items-start justify-center space-y-6 py-16">
       <div className="space-y-3">
-        <span className="inline-flex rounded-full border border-rose-200 bg-rose-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-rose-700 uppercase dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300">
+        <span className="border-wb-accent/40 bg-wb-accent/10 text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase">
           加载失败
         </span>
         <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic">

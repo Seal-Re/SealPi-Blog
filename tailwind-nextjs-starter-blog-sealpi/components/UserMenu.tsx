@@ -121,7 +121,7 @@ export default function UserMenu() {
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className={`${focus ? 'bg-red-50' : ''} w-full px-4 py-3 text-left text-sm font-medium text-red-600`}
+                  className={`${focus ? 'bg-red-50 dark:bg-red-950/30' : ''} w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400`}
                 >
                   退出登录
                 </button>
