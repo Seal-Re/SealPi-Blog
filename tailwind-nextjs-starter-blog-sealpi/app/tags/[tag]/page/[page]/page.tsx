@@ -88,6 +88,7 @@ export default async function TagPage(props: { params: Promise<{ tag: string; pa
       }}
       title={normalizeTagLabel(currentTag?.name || fallbackTagName)}
       eyebrow="标签"
+      eyebrowHref="/tags"
       availableTags={availableTags}
       totalCount={response.totalCount}
       emptyTitle={hasTagCatalog ? '该分页下暂时没有文章' : '标签数据暂不可用'}

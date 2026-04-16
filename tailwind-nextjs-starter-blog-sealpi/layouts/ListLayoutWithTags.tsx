@@ -17,6 +17,7 @@ interface ListLayoutProps {
   posts: PublicBlogPost[]
   title: string
   eyebrow?: string
+  eyebrowHref?: string
   initialDisplayPosts?: PublicBlogPost[]
   pagination?: PaginationProps
   availableTags?: PublicTag[]
@@ -73,6 +74,7 @@ export default function ListLayoutWithTags({
   posts,
   title,
   eyebrow,
+  eyebrowHref,
   initialDisplayPosts = [],
   pagination,
   availableTags = [],
@@ -88,9 +90,19 @@ export default function ListLayoutWithTags({
       <div className="wb-page-enter">
         <div className="pt-8 pb-6 md:pt-10">
           {eyebrow ? (
-            <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
-              {eyebrow}
-            </p>
+            eyebrowHref ? (
+              <Link
+                href={eyebrowHref}
+                className="font-inter text-wb-accent hover:text-wb-ink mb-3 inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.26em] uppercase transition-colors duration-200"
+              >
+                <span aria-hidden="true">←</span>
+                {eyebrow}
+              </Link>
+            ) : (
+              <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
+                {eyebrow}
+              </p>
+            )
           ) : null}
           <div className="flex items-baseline gap-3">
             <h1 className="font-fraunces text-wb-ink text-3xl font-medium tracking-tight italic sm:text-4xl">
