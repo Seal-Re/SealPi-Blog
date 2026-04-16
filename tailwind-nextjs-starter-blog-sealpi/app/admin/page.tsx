@@ -1,6 +1,7 @@
 import { auth, signOut } from '@/auth'
 import Link from '@/components/Link'
 import { adminServerGet } from '@/app/api/admin/_utils'
+import { isPublishedStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 
 function AdminQuickAction({
@@ -50,7 +51,7 @@ export default async function AdminPage() {
   const session = await auth()
   const user = session?.user
 
-  const [allResult, publishedResult, draftResult] = await Promise.all([
+  const [allResult, publishedResult, draftResult, recentResult] = await Promise.all([
     adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=PUBLISHED'
@@ -58,11 +59,15 @@ export default async function AdminPage() {
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=DRAFT'
     ),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=5&sort=lastmod'
+    ),
   ])
 
   const totalArticles = allResult?.totalCount ?? null
   const publishedCount = publishedResult?.totalCount ?? null
   const draftCount = draftResult?.totalCount ?? null
+  const recentArticles = recentResult?.data ?? []
 
   return (
     <section className="space-y-8">
@@ -130,6 +135,52 @@ export default async function AdminPage() {
             hint="用于识别管理员身份的 GitHub 用户编号。"
           />
         </div>
+
+        {recentArticles.length > 0 && (
+          <div className="border-wb-rule-soft bg-wb-canvas rounded-[2rem] border p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">
+            <div className="flex items-center justify-between">
+              <h2 className="text-wb-ink text-base font-black tracking-tight dark:text-white">
+                最近修改
+              </h2>
+              <Link
+                href="/admin/articles"
+                className="text-wb-meta hover:text-wb-accent text-xs transition-colors dark:text-gray-400 dark:hover:text-gray-100"
+              >
+                查看全部 →
+              </Link>
+            </div>
+            <ul className="mt-4 divide-y divide-[var(--color-wb-rule-soft)] dark:divide-gray-800">
+              {recentArticles.map((article) => (
+                <li key={article.articleId} className="flex items-start gap-3 py-3">
+                  <span
+                    className={`mt-1 h-2 w-2 shrink-0 rounded-full ${
+                      isPublishedStatus(article.draft)
+                        ? 'bg-emerald-500'
+                        : 'bg-gray-400 dark:bg-gray-600'
+                    }`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/admin/editor?articleId=${article.articleId}`}
+                      className="text-wb-ink hover:text-wb-accent block truncate text-sm font-medium transition-colors dark:text-gray-50 dark:hover:text-gray-300"
+                    >
+                      {article.title || '未命名草稿'}
+                    </Link>
+                    <p className="text-wb-meta mt-0.5 text-xs dark:text-gray-500">
+                      {article.lastmod
+                        ? new Intl.DateTimeFormat('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                          }).format(new Date(article.lastmod))
+                        : '—'}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.9fr)]">
           <div className="border-wb-rule-soft bg-wb-canvas rounded-[2rem] border p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-950">

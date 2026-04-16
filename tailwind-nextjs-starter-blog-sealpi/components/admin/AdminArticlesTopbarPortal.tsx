@@ -60,6 +60,7 @@ export default function AdminArticlesTopbarPortal({
             name="status"
             defaultValue={status || 'all'}
             className="border-wb-rule-soft bg-wb-canvas text-wb-ink focus:border-wb-ink rounded-full border px-3 py-2 text-xs transition-all duration-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            onChange={(e) => e.currentTarget.form?.requestSubmit()}
           >
             <option value="all">全部</option>
             <option value="draft">草稿</option>

@@ -3,6 +3,7 @@ import Link from '@/components/Link'
 import Image from 'next/image'
 import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
+import DraftPublishButton from '@/components/admin/DraftPublishButton'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
@@ -70,6 +71,10 @@ function DraftCard({ article }: { article: AdminArticle }) {
           >
             预览 ↗
           </Link>
+          <DraftPublishButton
+            articleId={String(article.articleId)}
+            canPublish={Boolean(article.title && article.title !== '未命名草稿' && article.url)}
+          />
         </div>
       </div>
     </div>

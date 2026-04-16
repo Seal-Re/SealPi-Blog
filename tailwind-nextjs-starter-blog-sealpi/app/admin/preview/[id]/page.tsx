@@ -19,9 +19,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
   const article = await fetchArticleForPreview(id)
   if (!article) return notFound()
 
-  const dateIso = article.date
-    ? new Date(article.date).toISOString()
-    : new Date().toISOString()
+  const dateIso = article.date ? new Date(article.date).toISOString() : new Date().toISOString()
 
   return (
     <WorkbookArticleLayout
