@@ -1,13 +1,9 @@
 import { Suspense } from 'react'
 import Main from './Main'
 import siteMetadata from '@/data/siteMetadata'
-import {
-  BLOG_POSTS_PER_PAGE,
-  PUBLIC_FETCH_REVALIDATE_SECONDS,
-  fetchPublishedArticles,
-} from '@/lib/public-blog-api'
+import { BLOG_POSTS_PER_PAGE, fetchPublishedArticles } from '@/lib/public-blog-api'
 
-export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
+export const revalidate = 300
 
 async function ArticleFeed() {
   const posts = await fetchPublishedArticles({ pageSize: BLOG_POSTS_PER_PAGE })

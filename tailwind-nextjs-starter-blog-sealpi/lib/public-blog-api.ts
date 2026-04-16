@@ -114,9 +114,14 @@ export async function fetchPublishedArticlesPage(
     searchParams.set('tag', normalizedTag)
   }
 
-  const response = await fetch(buildApiUrl(`/api/v1/articles?${searchParams.toString()}`), {
-    next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
-  })
+  let response: Response
+  try {
+    response = await fetch(buildApiUrl(`/api/v1/articles?${searchParams.toString()}`), {
+      next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
+    })
+  } catch {
+    return { items: [] as PublicBlogPost[], totalCount: 0, pageIndex, pageSize, totalPages: 1 }
+  }
 
   if (!response.ok) {
     return {

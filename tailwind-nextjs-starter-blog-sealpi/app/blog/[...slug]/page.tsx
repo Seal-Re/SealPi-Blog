@@ -14,14 +14,17 @@ type PageProps = {
   params: Promise<{ slug: string[] }>
 }
 
-export const revalidate = PUBLIC_FETCH_REVALIDATE_SECONDS
+export const revalidate = 300
 
 async function fetchArticleBySlug(slug: string): Promise<AdminArticle | null> {
-  const detailResponse = await fetch(
-    buildApiUrl(`/api/v1/articles/slug/${encodeURIComponent(slug)}`),
-    { next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS } }
-  )
-
+  let detailResponse: Response
+  try {
+    detailResponse = await fetch(buildApiUrl(`/api/v1/articles/slug/${encodeURIComponent(slug)}`), {
+      next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
+    })
+  } catch {
+    return null
+  }
   if (!detailResponse.ok) {
     return null
   }
