@@ -1,6 +1,6 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
-import { AdminApiError, adminFetch } from '@/lib/admin-api'
+import { adminServerGet } from '@/app/api/admin/_utils'
 import type { AdminUser, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -100,7 +100,7 @@ async function fetchUsers(pageIndex: number) {
     pageIndex: String(pageIndex),
     pageSize: '20',
   })
-  return adminFetch<PageResult<AdminUser>>(`/api/admin/users?${params.toString()}`)
+  return adminServerGet<PageResult<AdminUser>>(`/api/v1/admin/users?${params.toString()}`)
 }
 
 function buildPageHref(pageIndex: number) {
@@ -119,18 +119,14 @@ export default async function AdminUsersPage(props: {
   let totalPages = 1
   let loadError = ''
 
-  try {
-    const response = await fetchUsers(pageIndex)
+  const response = await fetchUsers(pageIndex)
+  if (response === null) {
+    loadError = '读取用户列表失败，请检查登录态后重试。'
+  } else {
     users = response?.data || []
     pageSize = response?.pageSize || 20
     totalCount = response?.totalCount || 0
     totalPages = Math.max(Math.ceil(totalCount / pageSize), 1)
-  } catch (error) {
-    if (error instanceof AdminApiError) {
-      loadError = `${error.message} (HTTP ${error.status})`
-    } else {
-      loadError = '读取用户列表失败，请稍后重试。'
-    }
   }
 
   return (
