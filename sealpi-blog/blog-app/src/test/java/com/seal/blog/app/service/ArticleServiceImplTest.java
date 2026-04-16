@@ -620,4 +620,64 @@ class ArticleServiceImplTest {
         assertEquals("new title", article.getTitle());
         assertEquals("new-slug", article.getUrl());
     }
+
+    // --- adminPublish tests ---
+
+    private Article buildDraftArticle(String title, String url) {
+        Article article = Article.reconstruct(
+                5, title, "summary", url,
+                "2024-01-01", "2024-01-01",
+                ArticleStatus.DRAFT, 0,
+                null, "{\"elements\":[]}", null, 0,
+                null, "draft body", null
+        );
+        return article;
+    }
+
+    @Test
+    void adminPublish_articleNotFound_returns404() {
+        when(articleGateway.findById(99)).thenReturn(null);
+
+        Response result = service.adminPublish(99);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+    }
+
+    @Test
+    void adminPublish_placeholderTitle_returns400() {
+        Article article = buildDraftArticle("未命名草稿", "some-slug");
+        when(articleGateway.findById(5)).thenReturn(article);
+
+        Response result = service.adminPublish(5);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        verify(articleGateway, never()).save(any());
+    }
+
+    @Test
+    void adminPublish_emptyUrl_returns400() {
+        Article article = buildDraftArticle("A Real Title", "");
+        when(articleGateway.findById(5)).thenReturn(article);
+
+        Response result = service.adminPublish(5);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        verify(articleGateway, never()).save(any());
+    }
+
+    @Test
+    void adminPublish_validDraft_publishesAndSaves() {
+        Article article = buildDraftArticle("My Article", "my-article");
+        when(articleGateway.findById(5)).thenReturn(article);
+        doNothing().when(articleGateway).save(any());
+
+        Response result = service.adminPublish(5);
+
+        assertTrue(result.isSuccess());
+        assertEquals(ArticleStatus.PUBLISHED, article.getDraft());
+        verify(articleGateway).save(article);
+    }
 }

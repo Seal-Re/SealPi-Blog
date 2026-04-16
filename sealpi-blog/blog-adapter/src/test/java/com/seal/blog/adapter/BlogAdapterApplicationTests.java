@@ -526,4 +526,23 @@ class BlogAdapterApplicationTests {
     private static String base64UrlEncode(byte[] bytes) {
         return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
+
+    @Test
+    void adminPublish_withWhitelistedUser_callsService() throws Exception {
+        when(articleService.adminPublish(9)).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                post("/api/v1/admin/articles/9/publish")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.success").value(true));
+
+        verify(articleService).adminPublish(9);
+    }
+
+    @Test
+    void adminPublish_withoutAuth_returns401() throws Exception {
+        mvc.perform(post("/api/v1/admin/articles/9/publish"))
+                .andExpect(status().isUnauthorized());
+    }
 }
