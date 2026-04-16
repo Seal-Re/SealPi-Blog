@@ -277,6 +277,67 @@ class ArticleServiceImplTest {
     }
 
     @Test
+    void getSingleBySlug_archivedArticle_returns404() {
+        Article archived = Article.reconstruct(
+                15,
+                "archived title", "summary", "archived-slug",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.ARCHIVED, 0,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findBySlug("archived-slug")).thenReturn(archived);
+
+        com.seal.blog.client.article.dto.qry.ArticleBySlugQry qry =
+                new com.seal.blog.client.article.dto.qry.ArticleBySlugQry();
+        qry.setSlug("archived-slug");
+        com.seal.blog.client.common.SingleResponse<?> result = service.getSingleBySlug(qry);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+        verify(articleAssembler, never()).toVO(any());
+    }
+
+    @Test
+    void getSingleById_archivedArticle_returns404() {
+        Article archived = Article.reconstruct(
+                16,
+                "archived title", "summary", "archived-slug-2",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.ARCHIVED, 0,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findById(16)).thenReturn(archived);
+
+        com.seal.blog.client.article.dto.qry.ArticleByIdQry qry =
+                new com.seal.blog.client.article.dto.qry.ArticleByIdQry();
+        qry.setArticleId(16);
+        com.seal.blog.client.common.SingleResponse<?> result = service.getSingleById(qry);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+        verify(articleAssembler, never()).toVO(any());
+    }
+
+    @Test
+    void getAdjacentBySlug_archivedArticle_returnsEmptyVO() {
+        Article archived = Article.reconstruct(
+                17, "archived", "s", "archived-adj", "2026-01-01", "2026-01-01",
+                ArticleStatus.ARCHIVED, 0, null, null, null, 0, null, null, null);
+        when(articleGateway.findBySlug("archived-adj")).thenReturn(archived);
+
+        SingleResponse<ArticleAdjacentVO> result = service.getAdjacentBySlug("archived-adj", null);
+
+        assertTrue(result.isSuccess());
+        assertNull(result.getData().getPrev());
+        assertNull(result.getData().getNext());
+        verify(articleGateway, never()).findPrevPublished(any(), any());
+    }
+
+    @Test
     void adminGetSingleById_draftArticle_returnsSuccessWithFullVO() {
         Article draft = Article.reconstruct(
                 14,
