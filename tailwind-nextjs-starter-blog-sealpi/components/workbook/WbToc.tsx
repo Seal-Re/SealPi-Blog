@@ -94,6 +94,9 @@ export default function WbToc({ markdown }: { markdown: string }) {
                 ) : null}
                 <a
                   href={`#${h.id}`}
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.innerWidth < 640) setOpen(false)
+                  }}
                   className={`block leading-snug transition-colors duration-150 ${sizeClass} ${
                     isActive
                       ? 'text-wb-accent pl-2 font-semibold'
