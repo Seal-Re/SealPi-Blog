@@ -9,14 +9,17 @@ import {
   offlineAdminArticle,
   publishAdminArticle,
 } from '@/lib/admin-api'
+import { isArchivedStatus, isPublishedStatus } from '@/lib/article-status'
 
 type Props = {
   articleId: string
   articleUrl: string
-  isPublished: boolean
+  draft?: number
 }
 
-export default function AdminArticleRowActions({ articleId, articleUrl, isPublished }: Props) {
+export default function AdminArticleRowActions({ articleId, articleUrl, draft }: Props) {
+  const isPublished = isPublishedStatus(draft)
+  const isArchived = isArchivedStatus(draft)
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
@@ -126,7 +129,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, isPublis
           查看前台 ↗
         </Link>
       ) : null}
-      {!isPublished ? (
+      {!isPublished && !isArchived ? (
         <button
           type="button"
           onClick={() => void handlePublish()}
@@ -136,14 +139,20 @@ export default function AdminArticleRowActions({ articleId, articleUrl, isPublis
           {loading ? '处理中...' : '发布'}
         </button>
       ) : null}
-      <button
-        type="button"
-        onClick={() => void handleOffline()}
-        disabled={loading || !isPublished}
-        className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
-      >
-        {loading && isPublished ? '处理中...' : '下线'}
-      </button>
+      {!isArchived ? (
+        <button
+          type="button"
+          onClick={() => void handleOffline()}
+          disabled={loading || !isPublished}
+          className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
+        >
+          {loading && isPublished ? '处理中...' : '下线'}
+        </button>
+      ) : (
+        <span className="text-wb-meta inline-flex items-center rounded-full border border-gray-200 px-4 py-2 text-xs font-medium dark:border-gray-700 dark:text-gray-500">
+          已归档
+        </span>
+      )}
       <button
         type="button"
         onClick={() => void handleDelete()}

@@ -5,7 +5,7 @@ import AdminErrorToast from '@/components/admin/AdminErrorToast'
 import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
 import PageTitle from '@/components/PageTitle'
 import { adminServerGet } from '@/app/api/admin/_utils'
-import { isArchivedStatus, isDraftStatus } from '@/lib/article-status'
+import { isDraftStatus, isArchivedStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
@@ -102,7 +102,7 @@ function ArticleRow({ article }: { article: AdminArticle }) {
           <AdminArticleRowActions
             articleId={String(article.articleId)}
             articleUrl={article.url}
-            isPublished={isPublishedStatus(article.draft)}
+            draft={article.draft}
           />
         </div>
       </td>

@@ -1,7 +1,7 @@
 import { auth, signOut } from '@/auth'
 import Link from '@/components/Link'
 import { adminServerGet } from '@/app/api/admin/_utils'
-import { isPublishedStatus } from '@/lib/article-status'
+import { isArchivedStatus, isPublishedStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
 
 function AdminQuickAction({
@@ -154,9 +154,11 @@ export default async function AdminPage() {
                 <li key={article.articleId} className="flex items-start gap-3 py-3">
                   <span
                     className={`mt-1 h-2 w-2 shrink-0 rounded-full ${
-                      isPublishedStatus(article.draft)
-                        ? 'bg-emerald-500'
-                        : 'bg-gray-400 dark:bg-gray-600'
+                      isArchivedStatus(article.draft)
+                        ? 'bg-amber-500'
+                        : isPublishedStatus(article.draft)
+                          ? 'bg-emerald-500'
+                          : 'bg-gray-400 dark:bg-gray-600'
                     }`}
                   />
                   <div className="min-w-0 flex-1">
