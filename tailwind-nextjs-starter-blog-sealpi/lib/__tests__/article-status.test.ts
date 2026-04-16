@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { ARTICLE_STATUS, isArchivedStatus, isDraftStatus, isPublishedStatus } from '../article-status'
+import {
+  ARTICLE_STATUS,
+  isArchivedStatus,
+  isDraftStatus,
+  isPublishedStatus,
+} from '../article-status'
 
 describe('ARTICLE_STATUS constants', () => {
   it('DRAFT is 0', () => {
