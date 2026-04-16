@@ -126,7 +126,7 @@ export default function WorkbookArticleLayout({
       {children}
 
       {hasRelated ? (
-        <div className="border-wb-rule-soft mt-16 border-t pt-10">
+        <div data-reveal className="border-wb-rule-soft mt-16 border-t pt-10">
           <p className="font-inter text-wb-meta mb-6 text-[11px] font-semibold tracking-[0.22em] uppercase">
             相关文章
           </p>
@@ -179,7 +179,10 @@ export default function WorkbookArticleLayout({
       ) : null}
 
       {(prevPost || nextPost) && (
-        <div className="border-wb-rule-soft mt-12 grid grid-cols-1 gap-4 border-t pt-8 sm:grid-cols-2">
+        <div
+          data-reveal
+          className="border-wb-rule-soft mt-12 grid grid-cols-1 gap-4 border-t pt-8 sm:grid-cols-2"
+        >
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
