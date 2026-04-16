@@ -191,6 +191,32 @@ class ArticleServiceImplTest {
         assertTrue(result.isSuccess());
     }
 
+    // --- getSingleBySlug tests ---
+
+    @Test
+    void getSingleBySlug_existingSlug_doesNotIncrementViewCount() {
+        Article article = Article.reconstruct(
+                11,
+                "title", "summary", "slug-e",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.PUBLISHED, 5,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findBySlug("slug-e")).thenReturn(article);
+        when(articleAssembler.toVO(article)).thenReturn(new com.seal.blog.client.article.dto.vo.ArticleVO());
+
+        com.seal.blog.client.article.dto.qry.ArticleBySlugQry qry =
+                new com.seal.blog.client.article.dto.qry.ArticleBySlugQry();
+        qry.setSlug("slug-e");
+        service.getSingleBySlug(qry);
+
+        // View count must NOT be incremented during a read-only slug lookup;
+        // it is the caller's responsibility to POST /articles/{id}/view explicitly.
+        verify(articleGateway, never()).incrementViewCount(any());
+    }
+
     @Test
     void adminUpdate_publishAction_rejectsEmptyTitle() {
         Article article = Article.reconstruct(
