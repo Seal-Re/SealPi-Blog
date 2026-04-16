@@ -92,7 +92,7 @@ function ArticleRow({ article }: { article: AdminArticle }) {
         <div className="mt-2">封面: {article.coverImageUrl ? '已配置' : '未配置'}</div>
       </td>
       <td className="px-4 py-5">
-        <div className="opacity-100 transition-all duration-300 group-hover:opacity-100">
+        <div>
           <AdminArticleRowActions
             articleId={String(article.articleId)}
             articleUrl={article.url}
