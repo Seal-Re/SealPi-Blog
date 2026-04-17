@@ -55,6 +55,7 @@ export default function WbToc({ markdown }: { markdown: string }) {
           setOpen((v) => !v)
         }}
         aria-expanded={open}
+        aria-label={open ? '折叠目录' : '展开目录'}
         className="font-inter text-wb-accent focus-visible:ring-wb-accent flex w-full items-center justify-between rounded-t-xl px-5 py-4 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none sm:pointer-events-none sm:cursor-default"
       >
         <span>目录</span>

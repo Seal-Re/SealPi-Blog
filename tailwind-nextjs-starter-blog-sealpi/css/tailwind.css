@@ -591,7 +591,8 @@ div:has(> #kbar-listbox) [class~="text-primary-600"] {
   .wb-lang-label,
   [data-kbar-portal],
   [id^="kbar"],
-  [aria-label="Table of contents toggle"],
+  [aria-label="折叠目录"],
+  [aria-label="展开目录"],
   button:not([type="submit"]) {
     display: none !important;
   }
