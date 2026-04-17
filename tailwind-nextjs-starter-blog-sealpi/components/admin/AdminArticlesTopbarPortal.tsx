@@ -7,15 +7,17 @@ type AdminArticlesTopbarPortalProps = {
   q?: string
   status?: string
   tag?: string
+  sort?: string
 }
 
 export default function AdminArticlesTopbarPortal({
   q,
   status,
   tag,
+  sort,
 }: AdminArticlesTopbarPortalProps) {
   const [mounted, setMounted] = useState(false)
-  const hasFilter = Boolean(q || (status && status !== 'all') || tag)
+  const hasFilter = Boolean(q || (status && status !== 'all') || tag || (sort && sort !== 'date'))
 
   useEffect(() => {
     setMounted(true)
@@ -69,6 +71,15 @@ export default function AdminArticlesTopbarPortal({
             <option value="draft">草稿</option>
             <option value="published">发布</option>
             <option value="archived">归档</option>
+          </select>
+          <select
+            name="sort"
+            defaultValue={sort || 'date'}
+            className="border-wb-rule-soft bg-wb-canvas text-wb-ink focus:border-wb-ink rounded-full border px-3 py-2 text-xs transition-all duration-300 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+            onChange={(e) => e.currentTarget.form?.requestSubmit()}
+          >
+            <option value="date">按创建时间</option>
+            <option value="lastmod">按更新时间</option>
           </select>
           <button
             type="submit"

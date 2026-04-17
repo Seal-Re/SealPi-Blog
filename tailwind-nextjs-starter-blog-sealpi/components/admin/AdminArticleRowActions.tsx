@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from '@/components/Link'
 import {
   AdminApiError,
@@ -27,6 +27,19 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
   )
   const [message, setMessage] = useState('')
   const [tone, setTone] = useState<'ok' | 'error'>('ok')
+  const [moreOpen, setMoreOpen] = useState(false)
+  const moreRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!moreOpen) return
+    const handler = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [moreOpen])
 
   useEffect(() => {
     if (!message) return
@@ -133,12 +146,12 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
   }
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="flex flex-wrap items-center gap-2">
       <Link
         href={`/admin/editor?articleId=${articleId}`}
         className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
       >
-        编辑文章
+        编辑
       </Link>
       <Link
         href={`/admin/preview/${articleId}`}
@@ -146,7 +159,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
         rel="noopener noreferrer"
         className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-medium transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
       >
-        草稿预览 ↗
+        预览 ↗
       </Link>
       {isPublished ? (
         <Link
@@ -155,7 +168,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           rel="noopener noreferrer"
           className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
         >
-          查看前台 ↗
+          前台 ↗
         </Link>
       ) : null}
       {!isPublished && !isArchived ? (
@@ -168,29 +181,50 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           {runningOp === 'publish' ? '发布中...' : '发布'}
         </button>
       ) : null}
-      {isPublished ? (
-        <button
-          type="button"
-          onClick={() => void handleOffline()}
-          disabled={runningOp !== null}
-          className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
-        >
-          {runningOp === 'offline' ? '处理中...' : '下线'}
-        </button>
-      ) : isArchived ? (
-        <span className="text-wb-meta inline-flex items-center rounded-full border border-gray-200 px-4 py-2 text-xs font-medium dark:border-gray-700 dark:text-gray-500">
+      {isArchived ? (
+        <span className="text-wb-meta inline-flex items-center rounded-full border border-gray-200 px-3 py-2 text-xs font-medium dark:border-gray-700 dark:text-gray-500">
           已归档
         </span>
       ) : null}
+      {/* More menu: groups offline + archive for published articles */}
       {isPublished ? (
-        <button
-          type="button"
-          onClick={() => void handleArchive()}
-          disabled={runningOp !== null}
-          className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
-        >
-          {runningOp === 'archive' ? '处理中...' : '归档'}
-        </button>
+        <div ref={moreRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setMoreOpen((prev) => !prev)}
+            disabled={runningOp !== null}
+            className="border-wb-rule text-wb-meta hover:border-wb-ink hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-400 dark:hover:text-gray-200"
+            title="更多操作"
+          >
+            •••
+          </button>
+          {moreOpen && (
+            <div className="border-wb-rule-soft bg-wb-canvas absolute right-0 z-50 mt-2 w-28 overflow-hidden rounded-xl border shadow-lg dark:border-gray-700 dark:bg-gray-900">
+              <button
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false)
+                  void handleOffline()
+                }}
+                disabled={runningOp !== null}
+                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-amber-300 dark:hover:bg-amber-500/10"
+              >
+                {runningOp === 'offline' ? '处理中...' : '下线为草稿'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false)
+                  void handleArchive()
+                }}
+                disabled={runningOp !== null}
+                className="w-full px-4 py-2.5 text-left text-xs font-semibold text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-gray-400 dark:hover:bg-gray-800"
+              >
+                {runningOp === 'archive' ? '处理中...' : '归档'}
+              </button>
+            </div>
+          )}
+        </div>
       ) : null}
       <button
         type="button"

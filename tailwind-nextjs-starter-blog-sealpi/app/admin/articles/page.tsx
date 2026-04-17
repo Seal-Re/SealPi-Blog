@@ -109,7 +109,13 @@ function ArticleRow({ article }: { article: AdminArticle }) {
   )
 }
 
-async function fetchArticles(pageIndex: number, q?: string, status?: string, tag?: string) {
+async function fetchArticles(
+  pageIndex: number,
+  q?: string,
+  status?: string,
+  tag?: string,
+  sort?: string
+) {
   const params = new URLSearchParams({
     pageIndex: String(pageIndex),
     pageSize: '10',
@@ -123,11 +129,20 @@ async function fetchArticles(pageIndex: number, q?: string, status?: string, tag
   if (tag) {
     params.set('tag', tag)
   }
+  if (sort && sort !== 'date') {
+    params.set('sort', sort)
+  }
 
   return adminServerGet<PageResult<AdminArticle>>(`/api/v1/admin/articles?${params.toString()}`)
 }
 
-function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: string, tag?: string) {
+function buildAdminArticlesPageHref(
+  pageIndex: number,
+  q?: string,
+  status?: string,
+  tag?: string,
+  sort?: string
+) {
   const params = new URLSearchParams({
     pageIndex: String(Math.max(pageIndex, 1)),
   })
@@ -140,11 +155,20 @@ function buildAdminArticlesPageHref(pageIndex: number, q?: string, status?: stri
   if (tag?.trim()) {
     params.set('tag', tag.trim())
   }
+  if (sort && sort !== 'date') {
+    params.set('sort', sort)
+  }
   return `/admin/articles?${params.toString()}`
 }
 
 export default async function AdminArticlesPage(props: {
-  searchParams?: Promise<{ pageIndex?: string; q?: string; status?: string; tag?: string }>
+  searchParams?: Promise<{
+    pageIndex?: string
+    q?: string
+    status?: string
+    tag?: string
+    sort?: string
+  }>
 }) {
   await auth()
   const searchParams = await props.searchParams
@@ -152,7 +176,8 @@ export default async function AdminArticlesPage(props: {
   const q = searchParams?.q?.trim() || ''
   const status = searchParams?.status || 'all'
   const tag = searchParams?.tag?.trim() || ''
-  const hasFilter = Boolean(q || (status && status !== 'all') || tag)
+  const sort = searchParams?.sort?.trim() || ''
+  const hasFilter = Boolean(q || (status && status !== 'all') || tag || (sort && sort !== 'date'))
   let articles: AdminArticle[] = []
   let pageSize = 10
   let totalCount = 0
@@ -160,7 +185,7 @@ export default async function AdminArticlesPage(props: {
   let loadError = ''
 
   try {
-    const response = await fetchArticles(pageIndex, q, status, tag)
+    const response = await fetchArticles(pageIndex, q, status, tag, sort)
     if (response === null) {
       loadError = '读取文章列表失败，请检查登录态后重试。'
     } else {
@@ -175,7 +200,7 @@ export default async function AdminArticlesPage(props: {
 
   return (
     <section className="space-y-8">
-      <AdminArticlesTopbarPortal q={q} status={status} tag={tag} />
+      <AdminArticlesTopbarPortal q={q} status={status} tag={tag} sort={sort} />
       <AdminErrorToast message={loadError} />
       <div className="border-wb-rule-soft bg-wb-canvas flex flex-col gap-5 rounded-[2rem] border p-8 lg:flex-row lg:items-end lg:justify-between dark:border-gray-800 dark:bg-gray-950">
         <div className="space-y-3">
@@ -196,6 +221,7 @@ export default async function AdminArticlesPage(props: {
                     : null,
                   q ? `关键词「${q}」` : null,
                   tag ? `标签「${tag}」` : null,
+                  sort && sort !== 'date' ? `排序：最近更新` : null,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
@@ -306,7 +332,7 @@ export default async function AdminArticlesPage(props: {
         </p>
         <div className="flex gap-3">
           <Link
-            href={buildAdminArticlesPageHref(pageIndex - 1, q, status, tag)}
+            href={buildAdminArticlesPageHref(pageIndex - 1, q, status, tag, sort)}
             aria-disabled={pageIndex <= 1}
             tabIndex={pageIndex <= 1 ? -1 : undefined}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
@@ -318,7 +344,13 @@ export default async function AdminArticlesPage(props: {
             上一页
           </Link>
           <Link
-            href={buildAdminArticlesPageHref(Math.min(pageIndex + 1, totalPages), q, status, tag)}
+            href={buildAdminArticlesPageHref(
+              Math.min(pageIndex + 1, totalPages),
+              q,
+              status,
+              tag,
+              sort
+            )}
             aria-disabled={pageIndex >= totalPages}
             tabIndex={pageIndex >= totalPages ? -1 : undefined}
             className={`inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
