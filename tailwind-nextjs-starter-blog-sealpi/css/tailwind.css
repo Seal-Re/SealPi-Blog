@@ -551,6 +551,22 @@ div:has(> #kbar-listbox) [class~="text-primary-600"] {
   background-color: transparent;
 }
 
+/* Login page ambient background — uses CSS variable tokens so it adapts to dark mode automatically */
+.login-bg {
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      color-mix(in srgb, var(--color-wb-accent) 12%, transparent),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      color-mix(in srgb, var(--color-wb-rule) 12%, transparent),
+      transparent 38%
+    ),
+    linear-gradient(160deg, var(--color-wb-paper) 0%, var(--color-wb-canvas) 50%, var(--color-wb-paper) 100%);
+}
+
 /* ===== Print styles ===== */
 @media print {
   /* Reset page */
