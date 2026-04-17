@@ -11,7 +11,6 @@ export default function AdminEasterEgg({ children }: { children: React.ReactNode
     <button
       type="button"
       className="cursor-default"
-      aria-label="Footer hidden admin trigger"
       onClick={() => {
         const next = count + 1
         if (next >= 5) {
