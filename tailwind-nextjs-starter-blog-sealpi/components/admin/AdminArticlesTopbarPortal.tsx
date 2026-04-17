@@ -17,7 +17,9 @@ export default function AdminArticlesTopbarPortal({
   sort,
 }: AdminArticlesTopbarPortalProps) {
   const [mounted, setMounted] = useState(false)
-  const hasFilter = Boolean(q || (status && status !== 'all') || tag || (sort && sort !== 'date'))
+  const hasFilter = Boolean(
+    q || (status && status !== 'all') || tag || (sort && sort !== 'date' && sort !== '')
+  )
 
   useEffect(() => {
     setMounted(true)
@@ -80,6 +82,7 @@ export default function AdminArticlesTopbarPortal({
           >
             <option value="date">按创建时间</option>
             <option value="lastmod">按更新时间</option>
+            <option value="views">按浏览量</option>
           </select>
           <button
             type="submit"
