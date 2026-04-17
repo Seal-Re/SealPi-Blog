@@ -39,10 +39,13 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
   // Estimate visual character width: CJK characters are roughly 2× the width of ASCII.
   // This gives a more accurate threshold for font-size scaling in mixed-language titles.
   const effectiveLength = [...title].reduce(
-    (acc, ch) => acc + (/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\u30a0-\u30ff]/.test(ch) ? 2 : 1),
+    (acc, ch) =>
+      acc +
+      (/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff\u3040-\u309f\u30a0-\u30ff]/.test(ch) ? 2 : 1),
     0
   )
-  const titleFontSize = effectiveLength > 60 ? 48 : effectiveLength > 36 ? 60 : effectiveLength > 22 ? 72 : 84
+  const titleFontSize =
+    effectiveLength > 60 ? 48 : effectiveLength > 36 ? 60 : effectiveLength > 22 ? 72 : 84
 
   return new ImageResponse(
     <div

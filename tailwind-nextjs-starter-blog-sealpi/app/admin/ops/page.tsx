@@ -127,7 +127,11 @@ export default async function OpsPage() {
         <StatCard label="已发布" value={stats.published} accent />
         <StatCard label="草稿中" value={stats.draft} />
         <StatCard label="已归档" value={stats.archived} />
-        <StatCard label="累计浏览量" value={(stats.totalViews ?? 0).toLocaleString('zh-CN')} accent />
+        <StatCard
+          label="累计浏览量"
+          value={(stats.totalViews ?? 0).toLocaleString('zh-CN')}
+          accent
+        />
         <StatCard label="注册用户" value={stats.users} />
         <StatCard label="页面生成" value={buildTime} />
       </div>

@@ -38,74 +38,74 @@ export default async function ArchivePage() {
 
   return (
     <>
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-    />
-    <div className="wb-page-enter pt-8 pb-16 md:pt-12">
-      <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
-        时间 · 记录
-      </p>
-      <h1 className="font-fraunces text-wb-ink mb-2 text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
-        归档
-      </h1>
-      <p className="text-wb-meta mb-10 text-sm">
-        共 {posts.length} 篇文章 · {years.length} 个年份
-      </p>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <div className="wb-page-enter pt-8 pb-16 md:pt-12">
+        <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
+          时间 · 记录
+        </p>
+        <h1 className="font-fraunces text-wb-ink mb-2 text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
+          归档
+        </h1>
+        <p className="text-wb-meta mb-10 text-sm">
+          共 {posts.length} 篇文章 · {years.length} 个年份
+        </p>
 
-      {posts.length === 0 ? (
-        <p className="text-wb-meta text-sm">暂无已发布文章。</p>
-      ) : (
-        <div className="space-y-12">
-          {years.map((year) => {
-            const yearPosts = byYear.get(year)!
-            return (
-              <section key={year} data-reveal>
-                <div className="mb-5 flex items-center gap-4">
-                  <h2 className="font-fraunces text-wb-ink shrink-0 text-2xl font-semibold italic">
-                    {year}
-                  </h2>
-                  <span className="font-inter text-wb-meta shrink-0 text-xs">
-                    {yearPosts.length} 篇
-                  </span>
-                  <div className="border-wb-rule-soft flex-1 border-t" />
-                </div>
-                <ul className="space-y-1">
-                  {yearPosts.map((post) => {
-                    const dateObj = new Date(post.date)
-                    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
-                    const day = String(dateObj.getDate()).padStart(2, '0')
-                    return (
-                      <li key={post.slug}>
-                        <Link
-                          href={`/${post.path}`}
-                          className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                        >
-                          <time
-                            dateTime={post.date}
-                            className="font-geist-mono text-wb-meta w-10 shrink-0 text-xs tabular-nums"
+        {posts.length === 0 ? (
+          <p className="text-wb-meta text-sm">暂无已发布文章。</p>
+        ) : (
+          <div className="space-y-12">
+            {years.map((year) => {
+              const yearPosts = byYear.get(year)!
+              return (
+                <section key={year} data-reveal>
+                  <div className="mb-5 flex items-center gap-4">
+                    <h2 className="font-fraunces text-wb-ink shrink-0 text-2xl font-semibold italic">
+                      {year}
+                    </h2>
+                    <span className="font-inter text-wb-meta shrink-0 text-xs">
+                      {yearPosts.length} 篇
+                    </span>
+                    <div className="border-wb-rule-soft flex-1 border-t" />
+                  </div>
+                  <ul className="space-y-1">
+                    {yearPosts.map((post) => {
+                      const dateObj = new Date(post.date)
+                      const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+                      const day = String(dateObj.getDate()).padStart(2, '0')
+                      return (
+                        <li key={post.slug}>
+                          <Link
+                            href={`/${post.path}`}
+                            className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                           >
-                            {month}/{day}
-                          </time>
-                          <span className="font-fraunces text-wb-ink group-hover:text-wb-accent min-w-0 flex-1 truncate text-base font-medium italic transition-colors">
-                            {post.title}
-                          </span>
-                          {post.tags.length > 0 ? (
-                            <span className="font-inter text-wb-meta hidden shrink-0 text-xs sm:block">
-                              {post.tags[0]}
+                            <time
+                              dateTime={post.date}
+                              className="font-geist-mono text-wb-meta w-10 shrink-0 text-xs tabular-nums"
+                            >
+                              {month}/{day}
+                            </time>
+                            <span className="font-fraunces text-wb-ink group-hover:text-wb-accent min-w-0 flex-1 truncate text-base font-medium italic transition-colors">
+                              {post.title}
                             </span>
-                          ) : null}
-                        </Link>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </section>
-            )
-          })}
-        </div>
-      )}
-    </div>
+                            {post.tags.length > 0 ? (
+                              <span className="font-inter text-wb-meta hidden shrink-0 text-xs sm:block">
+                                {post.tags[0]}
+                              </span>
+                            ) : null}
+                          </Link>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </section>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </>
   )
 }

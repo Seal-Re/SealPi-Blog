@@ -182,9 +182,7 @@ export async function fetchTopViewedArticles(pageSize = 5): Promise<PublicBlogPo
     })
     if (!response.ok) return []
     const payload = (await response.json()) as PageResult<PublishedArticleListItem>
-    return (payload.data || [])
-      .map(toPublicPost)
-      .filter((p) => (p.viewCount ?? 0) > 0)
+    return (payload.data || []).map(toPublicPost).filter((p) => (p.viewCount ?? 0) > 0)
   } catch {
     return []
   }

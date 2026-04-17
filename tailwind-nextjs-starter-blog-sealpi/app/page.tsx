@@ -2,7 +2,11 @@ import { Suspense } from 'react'
 import Link from '@/components/Link'
 import Main from './Main'
 import siteMetadata from '@/data/siteMetadata'
-import { BLOG_POSTS_PER_PAGE, fetchPublishedArticles, fetchTopViewedArticles } from '@/lib/public-blog-api'
+import {
+  BLOG_POSTS_PER_PAGE,
+  fetchPublishedArticles,
+  fetchTopViewedArticles,
+} from '@/lib/public-blog-api'
 import type { PublicBlogPost } from '@/lib/public-blog-api'
 
 const blogLd = {
