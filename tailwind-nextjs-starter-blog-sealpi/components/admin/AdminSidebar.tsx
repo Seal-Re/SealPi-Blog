@@ -29,7 +29,7 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`group relative flex items-center rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 ${
+              className={`group relative flex items-center rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:outline-none ${
                 active
                   ? 'bg-white/10 text-white'
                   : 'text-gray-300 hover:bg-white/6 hover:text-white'

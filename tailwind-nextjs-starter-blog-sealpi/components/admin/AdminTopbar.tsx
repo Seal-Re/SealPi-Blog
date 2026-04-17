@@ -62,7 +62,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
             {pathname !== '/admin/editor' ? (
               <Link
                 href="/admin/editor"
-                className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
               >
                 快速发布
               </Link>
@@ -75,7 +75,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
             <button
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
-              className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink cursor-pointer rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-500"
+              className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink focus-visible:ring-wb-accent cursor-pointer rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-500"
             >
               {userName || 'Admin'}
             </button>
@@ -83,7 +83,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
               <div className="border-wb-rule-soft bg-wb-canvas absolute right-0 z-50 mt-2 w-40 rounded-xl border p-2 shadow-lg dark:border-gray-800 dark:bg-gray-950">
                 <button
                   type="button"
-                  className="hover:bg-wb-paper w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 dark:hover:bg-gray-900"
+                  className="hover:bg-wb-paper focus-visible:ring-wb-accent w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none dark:hover:bg-gray-900"
                   onClick={() => {
                     setMenuOpen(false)
                     void signOut({ callbackUrl: '/login?next=/admin' })
@@ -106,7 +106,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`focus-visible:ring-wb-accent rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:outline-none ${
                 active
                   ? 'bg-wb-accent/10 text-wb-accent dark:bg-white/10 dark:text-white'
                   : 'text-wb-meta hover:bg-wb-paper/60 hover:text-wb-ink dark:text-gray-400 dark:hover:bg-white/6 dark:hover:text-gray-200'

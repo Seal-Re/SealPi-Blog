@@ -59,7 +59,7 @@ function DraftCard({ article }: { article: AdminArticle }) {
         <div className="mt-4 flex gap-2">
           <Link
             href={`/admin/editor?articleId=${article.articleId}`}
-            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex flex-1 items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex flex-1 items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             继续编辑
           </Link>
@@ -67,7 +67,7 @@ function DraftCard({ article }: { article: AdminArticle }) {
             href={`/admin/preview/${article.articleId}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-wb-rule text-wb-meta hover:text-wb-ink inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-100"
+            className="border-wb-rule text-wb-meta hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-3 py-2 text-xs font-medium transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-400 dark:hover:text-gray-100"
           >
             预览 ↗
           </Link>
@@ -128,13 +128,13 @@ export default async function AdminDraftsPage(props: {
         <div className="flex flex-wrap gap-3">
           <Link
             href="/admin"
-            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             返回后台首页
           </Link>
           <Link
             href="/admin/editor?mode=new"
-            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             新建文章
           </Link>

@@ -16,7 +16,7 @@ function AdminQuickAction({
   return (
     <Link
       href={href}
-      className="border-wb-rule-soft bg-wb-canvas group rounded-[2rem] border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:border-gray-800 dark:bg-gray-950 dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]"
+      className="border-wb-rule-soft bg-wb-canvas focus-visible:ring-wb-accent group rounded-[2rem] border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] focus-visible:ring-2 focus-visible:outline-none dark:border-gray-800 dark:bg-gray-950 dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]"
     >
       <p className="text-wb-accent text-xs font-semibold tracking-[0.24em] uppercase dark:text-gray-400">
         快捷操作
@@ -110,7 +110,7 @@ export default async function AdminPage() {
             <Link
               key={label}
               href={href}
-              className="border-wb-rule-soft bg-wb-canvas group rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] dark:border-gray-800 dark:bg-gray-950 dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]"
+              className="border-wb-rule-soft bg-wb-canvas focus-visible:ring-wb-accent group rounded-3xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(31,26,21,0.22)] focus-visible:ring-2 focus-visible:outline-none dark:border-gray-800 dark:bg-gray-950 dark:hover:shadow-[0_8px_32px_-8px_rgba(0,0,0,0.6)]"
             >
               <p className="text-wb-accent text-xs font-semibold tracking-[0.28em] uppercase dark:text-gray-400">
                 {label}
@@ -144,7 +144,7 @@ export default async function AdminPage() {
               </h2>
               <Link
                 href="/admin/articles"
-                className="text-wb-meta hover:text-wb-accent text-xs transition-colors dark:text-gray-400 dark:hover:text-gray-100"
+                className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none dark:text-gray-400 dark:hover:text-gray-100"
               >
                 查看全部 →
               </Link>
@@ -164,7 +164,7 @@ export default async function AdminPage() {
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/admin/editor?articleId=${article.articleId}`}
-                      className="text-wb-ink hover:text-wb-accent block truncate text-sm font-medium transition-colors dark:text-gray-50 dark:hover:text-gray-300"
+                      className="text-wb-ink hover:text-wb-accent focus-visible:ring-wb-accent block truncate rounded text-sm font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none dark:text-gray-50 dark:hover:text-gray-300"
                     >
                       {article.title || '未命名草稿'}
                     </Link>
@@ -242,7 +242,7 @@ export default async function AdminPage() {
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/"
-                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 返回前台首页
               </Link>
@@ -254,7 +254,7 @@ export default async function AdminPage() {
               >
                 <button
                   type="submit"
-                  className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                  className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
                 >
                   退出当前管理员会话
                 </button>

@@ -15,6 +15,7 @@ export default function AdminArticlesTopbarPortal({
   tag,
 }: AdminArticlesTopbarPortalProps) {
   const [mounted, setMounted] = useState(false)
+  const hasFilter = Boolean(q || (status && status !== 'all') || tag)
 
   useEffect(() => {
     setMounted(true)
@@ -33,13 +34,15 @@ export default function AdminArticlesTopbarPortal({
   return (
     <>
       {createPortal(
-        <a
-          href="/admin/articles"
-          className="border-wb-rule-soft bg-wb-canvas text-wb-meta hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper hidden rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-300 lg:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
-          title="点击快速清空筛选并刷新列表"
-        >
-          清空筛选
-        </a>,
+        hasFilter ? (
+          <a
+            href="/admin/articles"
+            className="border-wb-rule-soft bg-wb-canvas text-wb-meta hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper hidden rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-300 lg:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            title="点击快速清空筛选并刷新列表"
+          >
+            清空筛选
+          </a>
+        ) : null,
         leftExtraAnchor
       )}
       {createPortal(
