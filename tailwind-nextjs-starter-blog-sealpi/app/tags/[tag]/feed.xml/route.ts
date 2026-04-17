@@ -28,6 +28,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tag: st
       const url = `${siteUrl}/blog/${post.slug}`
       const pubDate = new Date(post.date).toUTCString()
       const tags = post.tags.map((t) => `<category>${escapeXml(t)}</category>`).join('')
+      const cover = post.coverImageUrl
+        ? `<media:content url="${escapeXml(post.coverImageUrl)}" medium="image"/>`
+        : ''
       return `
     <item>
       <title>${escapeXml(post.title)}</title>
@@ -36,6 +39,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tag: st
       <pubDate>${pubDate}</pubDate>
       <description>${escapeXml(post.summary)}</description>
       ${tags}
+      ${cover}
     </item>`
     })
     .join('')
@@ -47,7 +51,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ tag: st
 
   const feedUrl = `${siteUrl}/tags/${decodedSlug}/feed.xml`
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>${escapeXml(`${siteMetadata.title} — ${tagName}`)}</title>
     <link>${siteUrl}/tags/${decodedSlug}</link>

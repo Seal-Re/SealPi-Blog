@@ -30,6 +30,9 @@ export async function GET() {
       const url = `${siteUrl}/blog/${post.slug}`
       const pubDate = new Date(post.date).toUTCString()
       const tags = post.tags.map((t) => `<category>${escapeXml(t)}</category>`).join('')
+      const cover = post.coverImageUrl
+        ? `<media:content url="${escapeXml(post.coverImageUrl)}" medium="image"/>`
+        : ''
 
       return `
     <item>
@@ -39,12 +42,13 @@ export async function GET() {
       <pubDate>${pubDate}</pubDate>
       <description>${escapeXml(post.summary)}</description>
       ${tags}
+      ${cover}
     </item>`
     })
     .join('')
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>${escapeXml(siteMetadata.title)}</title>
     <link>${siteUrl}/blog</link>
