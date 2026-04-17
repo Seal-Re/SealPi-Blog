@@ -1014,7 +1014,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       href={`/admin/preview/${currentArticleId}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+                      className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
                     >
                       预览草稿 ↗
                     </a>
@@ -1024,7 +1024,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       href={`/blog/${formState.url}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="border-wb-rule text-wb-accent hover:border-wb-accent dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5"
+                      className="border-wb-rule text-wb-accent hover:border-wb-accent focus-visible:ring-wb-accent dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:outline-none"
                     >
                       查看前台 ↗
                     </a>
