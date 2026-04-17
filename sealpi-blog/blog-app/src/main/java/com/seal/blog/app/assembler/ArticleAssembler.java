@@ -42,9 +42,30 @@ public interface ArticleAssembler {
         if (vo == null) {
             return null;
         }
+        vo.setReadMinutes(computeReadMinutes(article.getBodyMd()));
         vo.setDraftJson(null);
         vo.setDraftBodyMd(null);
         return vo;
+    }
+
+    /**
+     * Estimates reading time in minutes from a Markdown string.
+     * Uses separate rates for CJK (~300 chars/min) and Latin (~220 words/min)
+     * to handle mixed Chinese/English content accurately. Returns null for blank input.
+     */
+    default Integer computeReadMinutes(String bodyMd) {
+        if (bodyMd == null || bodyMd.isBlank()) {
+            return null;
+        }
+        long cjk = bodyMd.chars()
+                .filter(c -> (c >= 0x4E00 && c <= 0x9FFF)
+                        || (c >= 0x3400 && c <= 0x4DBF)
+                        || (c >= 0xF900 && c <= 0xFAFF))
+                .count();
+        String stripped = bodyMd.replaceAll("[\\u4E00-\\u9FFF\\u3400-\\u4DBF\\uF900-\\uFAFF]", " ").trim();
+        long latinWords = stripped.isBlank() ? 0
+                : java.util.Arrays.stream(stripped.split("\\s+")).filter(w -> !w.isBlank()).count();
+        return (int) Math.max(1, Math.round(cjk / 300.0 + latinWords / 220.0));
     }
 
     /**

@@ -220,6 +220,14 @@ export default function ListLayoutWithTags({
                                 已更新
                               </span>
                             ) : null}
+                            {post.readMinutes != null ? (
+                              <>
+                                <span className="text-wb-rule opacity-40">·</span>
+                                <span className="text-wb-meta text-xs">
+                                  {post.readMinutes} 分钟阅读
+                                </span>
+                              </>
+                            ) : null}
                             {post.viewCount != null && post.viewCount > 0 ? (
                               <>
                                 <span className="text-wb-rule opacity-40">·</span>

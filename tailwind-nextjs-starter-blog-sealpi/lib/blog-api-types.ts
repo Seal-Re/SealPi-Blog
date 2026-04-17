@@ -78,4 +78,5 @@ export type AdminArticle = {
   bodyMd?: string
   draftBodyMd?: string
   coverCaption?: string
+  readMinutes?: number
 }

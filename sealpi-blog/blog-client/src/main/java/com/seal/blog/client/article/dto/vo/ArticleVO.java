@@ -32,6 +32,9 @@ public class ArticleVO {
     // Read count (explicit v1 field; may later replace/alias the existing count).
     private Integer viewCount;
 
+    // Estimated reading time in minutes, computed from bodyMd. Null when no Markdown body exists.
+    private Integer readMinutes;
+
     // v2: Markdown body + cover caption.
     private String bodyMd;
     private String draftBodyMd;

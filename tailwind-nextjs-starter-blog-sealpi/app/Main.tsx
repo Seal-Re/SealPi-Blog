@@ -15,7 +15,8 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
           </li>
         )}
         {posts.map((post) => {
-          const { slug, date, lastmod, title, summary, tags, coverImageUrl, viewCount } = post
+          const { slug, date, lastmod, title, summary, tags, coverImageUrl, viewCount, readMinutes } =
+            post
           const isUpdated = lastmod && lastmod.substring(0, 10) !== date.substring(0, 10)
           return (
             <li key={slug}>
@@ -42,6 +43,12 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                       <span className="border-wb-rule-soft font-inter text-wb-meta rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-[0.10em] uppercase opacity-75">
                         已更新
                       </span>
+                    ) : null}
+                    {readMinutes != null ? (
+                      <>
+                        <span className="text-wb-rule opacity-40">·</span>
+                        <span className="text-wb-meta text-xs">{readMinutes} 分钟阅读</span>
+                      </>
                     ) : null}
                     {viewCount != null && viewCount > 0 ? (
                       <>

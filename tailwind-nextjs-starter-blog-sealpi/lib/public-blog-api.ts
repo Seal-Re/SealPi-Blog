@@ -15,6 +15,7 @@ type PublishedArticleListItem = Omit<
     | 'summary'
     | 'coverImageUrl'
     | 'viewCount'
+    | 'readMinutes'
     | 'date'
     | 'lastmod'
     | 'tags'
@@ -99,6 +100,7 @@ function toPublicPost(article: PublishedArticleListItem): PublicBlogPost {
     url: article.url,
     coverImageUrl: article.coverImageUrl,
     viewCount: article.viewCount,
+    readMinutes: article.readMinutes,
     path: `blog/${article.url}`,
     slug: article.url,
     summary: article.summary?.trim() || '该文章暂无摘要。',
