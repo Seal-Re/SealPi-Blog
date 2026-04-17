@@ -11,4 +11,7 @@ public class ArticleStatsVO {
     private int draft;
     private int archived;
 
+    /** Sum of view_count across all articles (any status). */
+    private long totalViews;
+
 }

@@ -98,4 +98,10 @@ public interface ArticleGateway {
      */
     List<Article> findRelatedPublished(List<String> tagNames, Set<Integer> excludeIds, int limit);
 
+    /**
+     * Returns the sum of view_count across all articles (any status).
+     * NULL view_count values are treated as 0.
+     */
+    long sumViewCount();
+
 }

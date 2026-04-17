@@ -207,6 +207,12 @@ public class ArticleGatewayImpl implements ArticleGateway {
     }
 
     @Override
+    public long sumViewCount() {
+        Long total = articleMapper.selectTotalViewCount();
+        return total == null ? 0L : total;
+    }
+
+    @Override
     public List<Tag> getAllPublishedTags() {
         List<TagPO> tagPos = tagMapper.selectPublishedTagsWithCount();
         return tagPos.stream()

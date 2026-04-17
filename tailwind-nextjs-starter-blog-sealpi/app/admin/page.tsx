@@ -62,6 +62,7 @@ export default async function AdminPage() {
   const publishedCount = stats?.published ?? null
   const draftCount = stats?.draft ?? null
   const archivedCount = stats?.archived ?? null
+  const totalViews = stats?.totalViews ?? null
   const recentArticles = recentResult?.data ?? []
 
   return (
@@ -124,7 +125,7 @@ export default async function AdminPage() {
           ))}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <StatCard
             label="管理员状态"
             value={user?.isAdmin ? '已授权' : '未授权'}
@@ -134,6 +135,11 @@ export default async function AdminPage() {
             label="GitHub 用户 ID"
             value={user?.githubUserId || '未获取'}
             hint="用于识别管理员身份的 GitHub 用户编号。"
+          />
+          <StatCard
+            label="累计浏览量"
+            value={totalViews !== null ? totalViews.toLocaleString('zh-CN') : '—'}
+            hint="所有文章的总阅读次数。"
           />
         </div>
 

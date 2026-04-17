@@ -328,6 +328,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
         stats.setPublished(articleGateway.countByStatus(ArticleStatus.PUBLISHED.getCode()));
         stats.setDraft(articleGateway.countByStatus(ArticleStatus.DRAFT.getCode()));
         stats.setArchived(articleGateway.countByStatus(ArticleStatus.ARCHIVED.getCode()));
+        stats.setTotalViews(articleGateway.sumViewCount());
         return stats;
     }
 

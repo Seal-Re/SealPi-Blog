@@ -58,6 +58,7 @@ export type ArticleStats = {
   published: number
   draft: number
   archived: number
+  totalViews?: number
 }
 
 export type AdminArticle = {
