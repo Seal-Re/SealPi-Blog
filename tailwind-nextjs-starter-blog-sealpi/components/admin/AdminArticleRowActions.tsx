@@ -107,7 +107,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
       <Link
         href={`/admin/editor?articleId=${articleId}`}
-        className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+        className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
       >
         编辑文章
       </Link>
@@ -115,7 +115,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
         href={`/admin/preview/${articleId}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-medium transition dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+        className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-medium transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
       >
         草稿预览 ↗
       </Link>
@@ -124,7 +124,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           href={`/blog/${articleUrl}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+          className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
         >
           查看前台 ↗
         </Link>
@@ -134,7 +134,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           type="button"
           onClick={() => void handlePublish()}
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
+          className="inline-flex items-center justify-center rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
         >
           {loading ? '处理中...' : '发布'}
         </button>
@@ -144,7 +144,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           type="button"
           onClick={() => void handleOffline()}
           disabled={loading || !isPublished}
-          className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
+          className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
         >
           {loading && isPublished ? '处理中...' : '下线'}
         </button>
@@ -157,7 +157,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
         type="button"
         onClick={() => void handleDelete()}
         disabled={loading}
-        className="inline-flex items-center justify-center rounded-full border border-rose-300 px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
+        className="inline-flex items-center justify-center rounded-full border border-rose-300 px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
       >
         {loading ? '删除中...' : '删除'}
       </button>

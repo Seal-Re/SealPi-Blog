@@ -57,7 +57,7 @@ export default function UserPermissionsActions({ userId, commentPermission, bann
           type="button"
           onClick={() => void handleAction('comment')}
           disabled={loading !== null}
-          className="inline-flex items-center justify-center rounded-full border border-sky-300 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10"
+          className="inline-flex items-center justify-center rounded-full border border-sky-300 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-50 focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-sky-500/40 dark:text-sky-300 dark:hover:bg-sky-500/10"
         >
           {loading === 'comment'
             ? '更新中...'
@@ -69,10 +69,10 @@ export default function UserPermissionsActions({ userId, commentPermission, bann
           type="button"
           onClick={() => void handleAction('ban')}
           disabled={loading !== null}
-          className={`inline-flex items-center justify-center rounded-full border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+          className={`inline-flex items-center justify-center rounded-full border px-3 py-1.5 text-xs font-semibold transition focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
             banned
-              ? 'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10'
-              : 'border-rose-300 text-rose-700 hover:bg-rose-50 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10'
+              ? 'border-emerald-300 text-emerald-700 hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-400 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10'
+              : 'border-rose-300 text-rose-700 hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-400 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10'
           }`}
         >
           {loading === 'ban' ? '更新中...' : banned ? '解封' : '封禁'}

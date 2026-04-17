@@ -117,7 +117,7 @@ export default function AdminEditorWorkspace({
         type="button"
         onClick={() => void runAction('draft')}
         disabled={isTriggering}
-        className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+        className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
       >
         {isTriggering ? '保存中...' : '保存草稿'}
       </button>
@@ -125,7 +125,7 @@ export default function AdminEditorWorkspace({
         type="button"
         onClick={() => void runAction('publish')}
         disabled={isTriggering}
-        className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+        className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
       >
         <span className="bg-wb-paper/80 h-1.5 w-1.5 animate-pulse rounded-full dark:bg-gray-700" />
         发布
@@ -155,7 +155,7 @@ export default function AdminEditorWorkspace({
               }
               router.push('/admin/articles')
             }}
-            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             返回列表
           </button>
@@ -198,14 +198,14 @@ export default function AdminEditorWorkspace({
               <button
                 type="button"
                 onClick={() => setShowDraftHint(false)}
-                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper rounded-full border px-4 py-2 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 创建新文章
               </button>
               <button
                 type="button"
                 onClick={() => router.push('/admin/drafts')}
-                className="rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500"
+                className="rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-500 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none"
               >
                 进入草稿箱
               </button>
@@ -227,14 +227,14 @@ export default function AdminEditorWorkspace({
               <button
                 type="button"
                 onClick={() => setFeedback((prev) => ({ ...prev, open: false }))}
-                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper rounded-full border px-4 py-2 text-sm font-semibold transition dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 留在当前页
               </button>
               <button
                 type="button"
                 onClick={() => router.push('/admin/articles')}
-                className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none"
               >
                 返回列表
               </button>
