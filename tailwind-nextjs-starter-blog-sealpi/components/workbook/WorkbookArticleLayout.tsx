@@ -154,7 +154,7 @@ export default function WorkbookArticleLayout({
               <Link
                 key={post.path}
                 href={`/${post.path}`}
-                className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 rounded-xl border p-4 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none"
               >
                 {post.coverImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -206,7 +206,7 @@ export default function WorkbookArticleLayout({
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:items-start"
+              className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none sm:items-start"
             >
               {prevPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -241,7 +241,7 @@ export default function WorkbookArticleLayout({
           {nextPost ? (
             <Link
               href={`/${nextPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:items-end"
+              className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none sm:items-end"
             >
               {nextPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element

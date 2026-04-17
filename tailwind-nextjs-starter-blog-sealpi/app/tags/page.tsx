@@ -57,7 +57,7 @@ export default async function Page() {
                   href={`/tags/${tag.slug}`}
                   aria-label={`查看标签：${tag.name}`}
                   style={{ fontSize: `${fontSize}rem` }}
-                  className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold uppercase transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
+                  className="border-wb-rule-soft text-wb-meta focus-visible:ring-wb-accent hover:border-wb-accent hover:bg-wb-accent/5 hover:text-wb-accent inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold uppercase transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-1 focus-visible:outline-none"
                 >
                   {tag.name}
                   <span className="text-wb-rule text-[0.7em]">{tag.count}</span>

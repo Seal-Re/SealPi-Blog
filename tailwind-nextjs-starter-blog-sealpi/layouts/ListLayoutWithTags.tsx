@@ -313,10 +313,16 @@ export default function ListLayoutWithTags({
                           <div className="mt-4">
                             <Link
                               href={`/${post.path}`}
-                              className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
+                              className="group/cta text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center gap-1 rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
                               aria-label={`阅读全文：${post.title}`}
                             >
-                              阅读全文 &rarr;
+                              阅读全文
+                              <span
+                                className="inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5"
+                                aria-hidden="true"
+                              >
+                                →
+                              </span>
                             </Link>
                           </div>
                         </div>
