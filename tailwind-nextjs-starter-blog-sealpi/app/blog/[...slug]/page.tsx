@@ -233,7 +233,7 @@ export default async function Page(props: PageProps) {
         dateIso={dateIso}
         lastmodIso={lastmodIso}
         tags={currentTags}
-        readMinutes={estimateReadMinutes(article.bodyMd)}
+        readMinutes={article.readMinutes ?? estimateReadMinutes(article.bodyMd)}
         viewCount={article.viewCount}
         contentJson={article.contentJson}
         coverImageUrl={article.coverImageUrl}

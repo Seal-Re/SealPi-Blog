@@ -26,44 +26,99 @@ interface ListLayoutProps {
   emptyDescription?: string
 }
 
+/** Returns a compact page-number sequence with at most one ellipsis per gap. */
+function getPageSequence(current: number, total: number): (number | 'ellipsis')[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+  const items: (number | 'ellipsis')[] = [1]
+  const rangeStart = Math.max(2, current - 2)
+  const rangeEnd = Math.min(total - 1, current + 2)
+  if (rangeStart > 2) items.push('ellipsis')
+  for (let p = rangeStart; p <= rangeEnd; p++) items.push(p)
+  if (rangeEnd < total - 1) items.push('ellipsis')
+  items.push(total)
+  return items
+}
+
 function Pagination({ totalPages, currentPage }: PaginationProps) {
   const pathname = usePathname()
   const basePath = pathname
     .replace(/^\//, '')
     .replace(/\/page\/\d+\/?$/, '')
     .replace(/\/$/, '')
+
+  function pageHref(p: number) {
+    return p === 1 ? `/${basePath}/` : `/${basePath}/page/${p}`
+  }
+
   const prevPage = currentPage - 1 > 0
   const nextPage = currentPage + 1 <= totalPages
+  const pages = getPageSequence(currentPage, totalPages)
 
   return (
-    <nav className="mt-8 flex items-center justify-between">
+    <nav className="mt-8 flex flex-wrap items-center justify-center gap-1" aria-label="分页导航">
+      {/* Prev */}
       {prevPage ? (
         <Link
-          href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
+          href={pageHref(currentPage - 1)}
           rel="prev"
-          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+          aria-label="上一页"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
         >
-          <span aria-hidden="true">←</span> 上一页
+          <span aria-hidden="true">←</span>
         </Link>
       ) : (
-        <span className="border-wb-rule-soft text-wb-rule inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
-          <span aria-hidden="true">←</span> 上一页
+        <span
+          aria-disabled="true"
+          className="border-wb-rule-soft text-wb-rule inline-flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full border opacity-35 select-none"
+        >
+          <span aria-hidden="true">←</span>
         </span>
       )}
-      <span className="text-wb-meta text-sm">
-        第 {currentPage} / {totalPages} 页
-      </span>
+
+      {/* Page numbers */}
+      {pages.map((item, idx) =>
+        item === 'ellipsis' ? (
+          <span key={`ellipsis-${idx}`} className="text-wb-rule px-1 text-sm select-none">
+            …
+          </span>
+        ) : item === currentPage ? (
+          <span
+            key={item}
+            aria-current="page"
+            className="bg-wb-accent text-wb-paper inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold"
+          >
+            {item}
+          </span>
+        ) : (
+          <Link
+            key={item}
+            href={pageHref(item)}
+            aria-label={`第 ${item} 页`}
+            className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+          >
+            {item}
+          </Link>
+        )
+      )}
+
+      {/* Next */}
       {nextPage ? (
         <Link
-          href={`/${basePath}/page/${currentPage + 1}`}
+          href={pageHref(currentPage + 1)}
           rel="next"
-          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+          aria-label="下一页"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
         >
-          下一页 <span aria-hidden="true">→</span>
+          <span aria-hidden="true">→</span>
         </Link>
       ) : (
-        <span className="border-wb-rule-soft text-wb-rule inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
-          下一页 <span aria-hidden="true">→</span>
+        <span
+          aria-disabled="true"
+          className="border-wb-rule-soft text-wb-rule inline-flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full border opacity-35 select-none"
+        >
+          <span aria-hidden="true">→</span>
         </span>
       )}
     </nav>
