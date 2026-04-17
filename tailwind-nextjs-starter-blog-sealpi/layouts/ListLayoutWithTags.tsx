@@ -46,7 +46,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
           <span aria-hidden="true">←</span> 上一页
         </Link>
       ) : (
-        <span className="border-wb-rule-soft text-wb-rule inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
+        <span className="border-wb-rule-soft text-wb-rule inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
           <span aria-hidden="true">←</span> 上一页
         </span>
       )}
@@ -62,7 +62,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
           下一页 <span aria-hidden="true">→</span>
         </Link>
       ) : (
-        <span className="border-wb-rule-soft text-wb-rule inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
+        <span className="border-wb-rule-soft text-wb-rule inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium opacity-40 select-none">
           下一页 <span aria-hidden="true">→</span>
         </span>
       )}

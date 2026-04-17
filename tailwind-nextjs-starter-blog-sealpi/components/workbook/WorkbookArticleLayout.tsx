@@ -185,7 +185,7 @@ export default function WorkbookArticleLayout({
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors focus-visible:ring-2 focus-visible:outline-none"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-canvas focus-visible:ring-wb-accent group flex flex-col gap-2 overflow-hidden rounded-xl border transition-colors focus-visible:ring-2 focus-visible:outline-none sm:items-start"
             >
               {prevPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -196,7 +196,7 @@ export default function WorkbookArticleLayout({
                   className="border-wb-rule-soft/60 h-24 w-full border-b object-cover"
                 />
               ) : null}
-              <div className="flex flex-col gap-1.5 px-4 pt-2 pb-3">
+              <div className="flex w-full flex-col gap-1.5 px-4 pt-2 pb-3">
                 <span className="text-wb-meta font-inter text-[10px] tracking-[0.16em] uppercase">
                   ← 上一篇
                 </span>

@@ -2,16 +2,19 @@
 
 import { useState } from 'react'
 
+type CopyState = 'idle' | 'copied' | 'error'
+
 export default function CopyLinkButton() {
-  const [copied, setCopied] = useState(false)
+  const [state, setState] = useState<CopyState>('idle')
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      setState('copied')
+      setTimeout(() => setState('idle'), 2000)
     } catch {
-      // clipboard unavailable — fail silently
+      setState('error')
+      setTimeout(() => setState('idle'), 2000)
     }
   }
 
@@ -19,10 +22,14 @@ export default function CopyLinkButton() {
     <button
       type="button"
       onClick={() => void handleCopy()}
-      className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none"
+      className={`focus-visible:ring-wb-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none ${
+        state === 'error'
+          ? 'border-rose-300 text-rose-500'
+          : 'border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent'
+      }`}
       aria-label="复制文章链接"
     >
-      {copied ? (
+      {state === 'copied' ? (
         <>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -39,6 +46,26 @@ export default function CopyLinkButton() {
             <polyline points="20 6 9 17 4 12" />
           </svg>
           已复制
+        </>
+      ) : state === 'error' ? (
+        <>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          复制失败
         </>
       ) : (
         <>
