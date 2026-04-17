@@ -1,9 +1,19 @@
 import Link from '@/components/Link'
 import { genPageMetadata } from 'app/seo'
 import { fetchPublishedTags } from '@/lib/public-blog-api'
+import siteMetadata from '@/data/siteMetadata'
 
 export const metadata = genPageMetadata({ title: '标签', description: '按标签浏览文章' })
 export const revalidate = 300
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+    { '@type': 'ListItem', position: 2, name: '标签', item: `${siteMetadata.siteUrl}/tags` },
+  ],
+}
 
 export default async function Page() {
   const tags = await fetchPublishedTags()
@@ -15,6 +25,11 @@ export default async function Page() {
   const maxCount = sorted[0]?.count ?? 1
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+    />
     <div className="wb-page-enter pt-8 pb-16 md:pt-12">
       <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
         探索 · 分类
@@ -48,5 +63,6 @@ export default async function Page() {
         </div>
       )}
     </div>
+    </>
   )
 }
