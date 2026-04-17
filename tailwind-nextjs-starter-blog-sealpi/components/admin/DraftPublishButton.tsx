@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AdminApiError, publishAdminArticle } from '@/lib/admin-api'
 
 type Props = {
@@ -14,6 +14,12 @@ export default function DraftPublishButton({ articleId, canPublish }: Props) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [tone, setTone] = useState<'ok' | 'error'>('ok')
+
+  useEffect(() => {
+    if (!message) return
+    const timer = setTimeout(() => setMessage(''), 4000)
+    return () => clearTimeout(timer)
+  }, [message])
 
   if (!canPublish) return null
 
@@ -36,7 +42,6 @@ export default function DraftPublishButton({ articleId, canPublish }: Props) {
           : '发布失败，请稍后重试。'
       setTone('error')
       setMessage(text)
-      setTimeout(() => setMessage(''), 4000)
     } finally {
       setLoading(false)
     }

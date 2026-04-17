@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AdminApiError, patchAdminUser } from '@/lib/admin-api'
 
 type Props = {
@@ -15,6 +15,12 @@ export default function UserPermissionsActions({ userId, commentPermission, bann
   const [loading, setLoading] = useState<'comment' | 'ban' | null>(null)
   const [message, setMessage] = useState('')
   const [tone, setTone] = useState<'ok' | 'error'>('ok')
+
+  useEffect(() => {
+    if (!message) return
+    const timer = setTimeout(() => setMessage(''), 4000)
+    return () => clearTimeout(timer)
+  }, [message])
 
   const handleAction = async (action: 'comment' | 'ban') => {
     if (loading) return
@@ -44,7 +50,6 @@ export default function UserPermissionsActions({ userId, commentPermission, bann
           : '操作失败，请稍后重试。'
       setTone('error')
       setMessage(text)
-      setTimeout(() => setMessage(''), 4000)
     } finally {
       setLoading(null)
     }

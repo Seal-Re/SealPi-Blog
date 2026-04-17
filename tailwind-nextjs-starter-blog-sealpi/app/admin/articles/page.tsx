@@ -188,7 +188,17 @@ export default async function AdminArticlesPage(props: {
             管理所有文章，进行创建、编辑、发布与删除。
             {hasFilter && (
               <span className="text-wb-accent ml-2 dark:text-gray-400">
-                （已筛选）
+                （已筛选：
+                {[
+                  status && status !== 'all'
+                    ? { draft: '草稿', published: '已发布', archived: '已归档' }[status] ?? status
+                    : null,
+                  q ? `关键词「${q}」` : null,
+                  tag ? `标签「${tag}」` : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+                ）
                 <a
                   href="/admin/articles"
                   className="text-wb-meta hover:text-wb-ink ml-1 underline underline-offset-2 dark:text-gray-500 dark:hover:text-gray-300"
