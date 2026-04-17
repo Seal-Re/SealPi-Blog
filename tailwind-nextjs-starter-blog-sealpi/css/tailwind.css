@@ -93,6 +93,11 @@
     border-color: var(--color-gray-200, currentColor);
   }
 
+  ::selection {
+    background: color-mix(in srgb, var(--color-wb-accent) 22%, transparent);
+    color: var(--color-wb-ink);
+  }
+
   a,
   button {
     outline-color: var(--color-wb-accent);
