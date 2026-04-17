@@ -5,6 +5,20 @@ import siteMetadata from '@/data/siteMetadata'
 import { BLOG_POSTS_PER_PAGE, fetchPublishedArticles, fetchTopViewedArticles } from '@/lib/public-blog-api'
 import type { PublicBlogPost } from '@/lib/public-blog-api'
 
+const blogLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: siteMetadata.title,
+  description: siteMetadata.description,
+  url: siteMetadata.siteUrl,
+  inLanguage: siteMetadata.language,
+  author: {
+    '@type': 'Person',
+    name: siteMetadata.author,
+    url: `${siteMetadata.siteUrl}/about`,
+  },
+}
+
 export const revalidate = 300
 
 async function ArticleFeed() {
@@ -77,6 +91,10 @@ function ArticleFeedSkeleton() {
 export default function Page() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogLd) }}
+      />
       {/* Hero */}
       <div className="wb-page-enter border-wb-rule-soft border-b pt-10 pb-12 md:pt-14">
         <p className="font-inter text-wb-accent mb-4 text-[11px] font-semibold tracking-[0.26em] uppercase">
