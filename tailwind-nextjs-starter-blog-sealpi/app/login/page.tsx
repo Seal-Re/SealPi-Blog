@@ -1,6 +1,12 @@
 import { auth, signIn } from '@/auth'
 import Link from '@/components/Link'
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '登录',
+  robots: { index: false, follow: false },
+}
 
 function errorText(code?: string) {
   if (!code) return null
