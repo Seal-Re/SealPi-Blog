@@ -10,6 +10,14 @@ type PreviewPageProps = {
 
 export const dynamic = 'force-dynamic'
 
+function estimateReadMinutes(markdown?: string | null): number | undefined {
+  if (!markdown?.trim()) return undefined
+  const cjk = (markdown.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g) || []).length
+  const latin = markdown.replace(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/g, ' ').trim()
+  const latinWords = latin ? latin.split(/\s+/).filter(Boolean).length : 0
+  return Math.max(1, Math.round(cjk / 300 + latinWords / 220))
+}
+
 async function fetchArticleForPreview(id: string): Promise<AdminArticle | null> {
   const result = await adminServerGet<ApiResult<AdminArticle>>(`/api/v1/admin/articles/${id}`)
   return result?.data || null
@@ -21,6 +29,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
   if (!article) return notFound()
 
   const dateIso = article.date ? new Date(article.date).toISOString() : new Date().toISOString()
+  const previewBodyMd = article.draftBodyMd || article.bodyMd
 
   return (
     <>
@@ -37,10 +46,11 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
         title={article.title || '（无标题草稿）'}
         dateIso={dateIso}
         tags={article.tags?.map((t) => t.name).filter((n): n is string => Boolean(n)) || []}
+        readMinutes={estimateReadMinutes(previewBodyMd)}
         contentJson={article.draftJson || article.contentJson}
         coverImageUrl={article.coverImageUrl}
         coverCaption={article.coverCaption}
-        bodyMd={article.draftBodyMd || article.bodyMd}
+        bodyMd={previewBodyMd}
         eyebrow="草稿预览"
         eyebrowHref="/admin/drafts"
       />
