@@ -46,7 +46,16 @@ const Excalidraw = dynamic(
     const mod = await import('@excalidraw/excalidraw')
     return mod.Excalidraw
   },
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center">
+        <span className="animate-pulse text-sm text-amber-700/50 dark:text-amber-300/40">
+          画板加载中…
+        </span>
+      </div>
+    ),
+  }
 )
 
 const MAX_INLINE_IMAGE_BYTES = 200 * 1024
