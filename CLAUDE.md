@@ -48,7 +48,7 @@ cd tailwind-nextjs-starter-blog-sealpi
 npm install          # or: yarn
 npx next dev -p 13311   # dev server
 npx next build       # production build
-npx next lint --fix  # lint
+npm run lint         # lint (pages/app/components/lib/layouts/scripts + prettier)
 npm test             # run Vitest unit tests (once)
 npm run test:watch   # run Vitest in watch mode
 ```
@@ -189,12 +189,18 @@ Server components must use `adminServerGet` from `app/api/admin/_utils.ts` to ca
 - `POST /api/v1/articles/{id}/view` — Increment view count (no-op on error)
 
 ### Admin (requires JWT auth)
+- `GET /api/v1/admin/stats` — Aggregated article counts (total, published, draft, archived, totalViews)
 - `GET /api/v1/admin/articles` — Paginated article list (any status, full VO)
 - `GET /api/v1/admin/articles/{id}` — Article by ID (any status, full VO including draftJson/draftBodyMd)
 - `POST /api/v1/admin/articles?action=draft|publish` — Create article (multipart preferred)
 - `PUT /api/v1/admin/articles/{id}?action=draft|publish` — Update article
 - `DELETE /api/v1/admin/articles/{id}` — Delete article
 - `POST /api/v1/admin/articles/{id}/offline` — Take article offline (back to draft)
+- `POST /api/v1/admin/articles/{id}/publish` — Publish article directly (no multipart)
+- `POST /api/v1/admin/articles/{id}/archive` — Archive article (terminal state)
+- `GET /api/v1/admin/auth/check` — Admin permission check (used by frontend `auth.ts`)
+- `GET /api/v1/admin/users` — Paginated user list
+- `PATCH /api/v1/admin/users/{userId}` — Admin update user (commentPermission, banned)
 - `POST /api/v1/admin/upload` — Upload asset to MinIO
 
 ### Internal (header auth)
@@ -224,5 +230,7 @@ Frontend unit tests use **Vitest 4.1.4** (`npm test`). Test files in `lib/__test
 - Docker builds may fail on Windows due to `exec format error`; use CI for Docker validation
 - Frontend admin API calls route through Next.js BFF (`/api/admin/*`) which proxies to the Java backend, injecting auth headers server-side
 - Validation happens before domain method calls in `ArticleServiceImpl`; domain methods trust their inputs
-- Frontend CSS: use `wb-*` token classes (`wb-paper`, `wb-canvas`, `wb-ink`, `wb-accent`, `wb-meta`, `wb-rule`, `wb-rule-soft`). Do NOT add `dark:bg-gray-*` / `dark:text-gray-*` outside the admin area.
+- Frontend CSS: use `wb-*` token classes (`wb-paper`, `wb-canvas`, `wb-ink`, `wb-ink-soft`, `wb-accent`, `wb-meta`, `wb-rule`, `wb-rule-soft`, `wb-card-shadow`). Do NOT add `dark:bg-gray-*` / `dark:text-gray-*` outside the admin area. The `.dark` class remaps all `--color-wb-*` CSS variables — do NOT hardcode hex values for these tokens.
+- `ArticleVO.readMinutes` is computed by `ArticleAssembler.computeReadMinutes()` from `bodyMd` (CJK ~300 chars/min, Latin ~220 words/min). Set in `toPublicVO()` before `bodyMd` is stripped from list responses; available on both list and detail public endpoints.
+- Markdown body supports GitHub alert callouts (`> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`) via `remark-github-blockquote-alert`. CSS in `css/tailwind.css` under `.wb-body .markdown-alert-*`.
 - `export const revalidate` must be a static number literal — Next.js 15 rejects variable references. Do NOT combine with `force-dynamic`.
