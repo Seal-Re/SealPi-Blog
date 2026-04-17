@@ -2,7 +2,7 @@ import { auth, signOut } from '@/auth'
 import Link from '@/components/Link'
 import { adminServerGet } from '@/app/api/admin/_utils'
 import { isArchivedStatus, isPublishedStatus } from '@/lib/article-status'
-import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
+import type { AdminArticle, ArticleStats, PageResult } from '@/lib/blog-api-types'
 
 function AdminQuickAction({
   href,
@@ -51,26 +51,17 @@ export default async function AdminPage() {
   const session = await auth()
   const user = session?.user
 
-  const [allResult, publishedResult, draftResult, archivedResult, recentResult] = await Promise.all([
-    adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
-    adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=published'
-    ),
-    adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
-    ),
-    adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=archived'
-    ),
+  const [stats, recentResult] = await Promise.all([
+    adminServerGet<ArticleStats>('/api/v1/admin/stats'),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=5&sort=lastmod'
     ),
   ])
 
-  const totalArticles = allResult?.totalCount ?? null
-  const publishedCount = publishedResult?.totalCount ?? null
-  const draftCount = draftResult?.totalCount ?? null
-  const archivedCount = archivedResult?.totalCount ?? null
+  const totalArticles = stats?.total ?? null
+  const publishedCount = stats?.published ?? null
+  const draftCount = stats?.draft ?? null
+  const archivedCount = stats?.archived ?? null
   const recentArticles = recentResult?.data ?? []
 
   return (
@@ -252,7 +243,7 @@ export default async function AdminPage() {
             <div className="mt-6 flex flex-col gap-3">
               <Link
                 href="/"
-                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+                className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-5 py-3 text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
               >
                 返回前台首页
               </Link>
@@ -264,7 +255,7 @@ export default async function AdminPage() {
               >
                 <button
                   type="submit"
-                  className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                  className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
                 >
                   退出当前管理员会话
                 </button>

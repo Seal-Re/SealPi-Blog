@@ -8,6 +8,7 @@ import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleAdjacentVO;
+import com.seal.blog.client.article.dto.vo.ArticleStatsVO;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
@@ -70,5 +71,11 @@ public interface ArticleServiceI {
      * 浏览量 +1（best-effort，不影响主流程，供前端客户端主动上报）
      */
     Response incrementViewCount(Integer articleId);
+
+    /**
+     * Returns aggregated article counts (total, published, draft, archived) in a single call.
+     * Intended for admin dashboards that previously needed 4 separate page-query requests.
+     */
+    ArticleStatsVO getAdminStats();
 
 }

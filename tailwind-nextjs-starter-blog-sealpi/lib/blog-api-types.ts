@@ -53,6 +53,13 @@ export type ArticleAdjacent = {
   related?: ArticleAdjacentSummary[]
 }
 
+export type ArticleStats = {
+  total: number
+  published: number
+  draft: number
+  archived: number
+}
+
 export type AdminArticle = {
   articleId: string
   title: string

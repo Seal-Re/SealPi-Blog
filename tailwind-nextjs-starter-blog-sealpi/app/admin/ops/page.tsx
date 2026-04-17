@@ -1,7 +1,7 @@
 import { auth } from '@/auth'
 import Link from '@/components/Link'
 import { adminServerGet } from '@/app/api/admin/_utils'
-import type { AdminUser, PageResult, AdminArticle } from '@/lib/blog-api-types'
+import type { AdminUser, ArticleStats, PageResult, AdminArticle } from '@/lib/blog-api-types'
 import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({
@@ -9,34 +9,19 @@ export const metadata = genPageMetadata({
   description: '运维控制台 — 系统状态与文章统计',
 })
 
-type ArticleStats = {
-  total: number
-  published: number
-  draft: number
-  archived: number
-  users: number
-}
+type OpsStats = ArticleStats & { users: number }
 
-async function fetchArticleStats(): Promise<ArticleStats> {
-  const [totalRes, publishedRes, draftRes, archivedRes, usersRes] = await Promise.all([
-    adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
-    adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=published'
-    ),
-    adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
-    ),
-    adminServerGet<PageResult<AdminArticle>>(
-      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=archived'
-    ),
+async function fetchArticleStats(): Promise<OpsStats> {
+  const [articleStats, usersRes] = await Promise.all([
+    adminServerGet<ArticleStats>('/api/v1/admin/stats'),
     adminServerGet<PageResult<AdminUser>>('/api/v1/admin/users?pageIndex=1&pageSize=1'),
   ])
 
   return {
-    total: totalRes?.totalCount ?? 0,
-    published: publishedRes?.totalCount ?? 0,
-    draft: draftRes?.totalCount ?? 0,
-    archived: archivedRes?.totalCount ?? 0,
+    total: articleStats?.total ?? 0,
+    published: articleStats?.published ?? 0,
+    draft: articleStats?.draft ?? 0,
+    archived: articleStats?.archived ?? 0,
     users: usersRes?.totalCount ?? 0,
   }
 }

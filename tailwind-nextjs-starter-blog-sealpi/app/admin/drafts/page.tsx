@@ -59,7 +59,7 @@ function DraftCard({ article }: { article: AdminArticle }) {
         <div className="mt-4 flex gap-2">
           <Link
             href={`/admin/editor?articleId=${article.articleId}`}
-            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex flex-1 items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex flex-1 items-center justify-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             继续编辑
           </Link>

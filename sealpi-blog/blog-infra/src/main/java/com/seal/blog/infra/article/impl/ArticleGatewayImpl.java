@@ -197,6 +197,16 @@ public class ArticleGatewayImpl implements ArticleGateway {
     }
 
     @Override
+    public int countByStatus(Integer statusCode) {
+        LambdaQueryWrapper<ArticlePO> wrapper = new LambdaQueryWrapper<>();
+        if (statusCode != null) {
+            wrapper.eq(ArticlePO::getDraft, statusCode);
+        }
+        Long count = articleMapper.selectCount(wrapper);
+        return count == null ? 0 : count.intValue();
+    }
+
+    @Override
     public List<Tag> getAllPublishedTags() {
         List<TagPO> tagPos = tagMapper.selectPublishedTagsWithCount();
         return tagPos.stream()

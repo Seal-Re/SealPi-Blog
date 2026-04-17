@@ -6,6 +6,7 @@ import com.seal.blog.client.article.dto.cmd.ArticleDraftSaveCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleDraftUpdateCmd;
 import com.seal.blog.client.article.dto.cmd.ArticleUpdateCmd;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
+import com.seal.blog.client.article.dto.vo.ArticleStatsVO;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.common.PageResponse;
 import com.seal.blog.client.common.Response;
@@ -38,6 +39,15 @@ public class ArticleAdminController {
     private final ArticleServiceI articleService;
 
     private final MinioObjectStorage objectStorage;
+
+    /**
+     * Returns aggregated article counts (total, published, draft, archived) in one request.
+     * Replaces the pattern of 4 separate page-query calls with pageSize=1 to read totalCount.
+     */
+    @GetMapping("/stats")
+    public ArticleStatsVO adminStats() {
+        return articleService.getAdminStats();
+    }
 
     /** Admin article list — returns all articles (any status). Requires JWT auth via AdminAuthFilter. */
     @GetMapping("/articles")

@@ -62,7 +62,7 @@ export default function AdminTopbar({ userName }: AdminTopbarProps) {
             {pathname !== '/admin/editor' ? (
               <Link
                 href="/admin/editor"
-                className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
               >
                 快速发布
               </Link>

@@ -191,7 +191,7 @@ export default async function AdminArticlesPage(props: {
                 （已筛选：
                 {[
                   status && status !== 'all'
-                    ? { draft: '草稿', published: '已发布', archived: '已归档' }[status] ?? status
+                    ? ({ draft: '草稿', published: '已发布', archived: '已归档' }[status] ?? status)
                     : null,
                   q ? `关键词「${q}」` : null,
                   tag ? `标签「${tag}」` : null,

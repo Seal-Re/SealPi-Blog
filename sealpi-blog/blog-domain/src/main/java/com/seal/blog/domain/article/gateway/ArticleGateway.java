@@ -83,6 +83,13 @@ public interface ArticleGateway {
     Article findNextPublished(String currentDate, Integer currentArticleId);
 
     /**
+     * Returns the count of articles matching the given status code (draft field value).
+     * Pass null to count all articles regardless of status.
+     * @param statusCode 0 = DRAFT, 1 = PUBLISHED, 2 = ARCHIVED, null = all
+     */
+    int countByStatus(Integer statusCode);
+
+    /**
      * 查找相关已发布文章：与给定标签名称中至少一个相匹配，排除指定文章 ID，按日期降序，最多取 limit 篇。
      * @param tagNames   标签名称列表
      * @param excludeIds 需要排除的文章 ID 集合

@@ -10,6 +10,7 @@ import com.seal.blog.client.article.dto.qry.ArticleByIdQry;
 import com.seal.blog.client.article.dto.qry.ArticleBySlugQry;
 import com.seal.blog.client.article.dto.qry.ArticlePageQry;
 import com.seal.blog.client.article.dto.vo.ArticleAdjacentVO;
+import com.seal.blog.client.article.dto.vo.ArticleStatsVO;
 import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.client.article.dto.vo.TagVO;
 import com.seal.blog.client.common.PageResponse;
@@ -318,6 +319,16 @@ public class ArticleServiceImpl implements ArticleServiceI {
                         .collect(Collectors.toList())
                 : Collections.emptyList());
         return s;
+    }
+
+    @Override
+    public ArticleStatsVO getAdminStats() {
+        ArticleStatsVO stats = new ArticleStatsVO();
+        stats.setTotal(articleGateway.countByStatus(null));
+        stats.setPublished(articleGateway.countByStatus(ArticleStatus.PUBLISHED.getCode()));
+        stats.setDraft(articleGateway.countByStatus(ArticleStatus.DRAFT.getCode()));
+        stats.setArchived(articleGateway.countByStatus(ArticleStatus.ARCHIVED.getCode()));
+        return stats;
     }
 
     @Override

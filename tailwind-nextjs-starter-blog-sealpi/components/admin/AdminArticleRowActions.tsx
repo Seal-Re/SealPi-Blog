@@ -22,7 +22,9 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
   const isPublished = isPublishedStatus(draft)
   const isArchived = isArchivedStatus(draft)
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const [runningOp, setRunningOp] = useState<'delete' | 'offline' | 'archive' | 'publish' | null>(
+    null
+  )
   const [message, setMessage] = useState('')
   const [tone, setTone] = useState<'ok' | 'error'>('ok')
 
@@ -33,11 +35,11 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
   }, [message])
 
   const handleDelete = async () => {
-    if (loading) return
+    if (runningOp) return
     const ok = window.confirm('确认删除这篇文章吗？该操作不可撤销。')
     if (!ok) return
 
-    setLoading(true)
+    setRunningOp('delete')
     setMessage('')
     try {
       await deleteAdminArticle(Number(articleId))
@@ -52,16 +54,16 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
       setTone('error')
       setMessage(text)
     } finally {
-      setLoading(false)
+      setRunningOp(null)
     }
   }
 
   const handleOffline = async () => {
-    if (loading || !isPublished) return
+    if (runningOp || !isPublished) return
     const ok = window.confirm('确认将该文章下线为草稿状态吗？')
     if (!ok) return
 
-    setLoading(true)
+    setRunningOp('offline')
     setMessage('')
     try {
       await offlineAdminArticle(Number(articleId))
@@ -76,16 +78,18 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
       setTone('error')
       setMessage(text)
     } finally {
-      setLoading(false)
+      setRunningOp(null)
     }
   }
 
   const handleArchive = async () => {
-    if (loading || !isPublished) return
-    const ok = window.confirm('确认将该文章归档吗？归档后文章将从前台下线，且无法通过管理界面恢复（可删除后重建）。')
+    if (runningOp || !isPublished) return
+    const ok = window.confirm(
+      '确认将该文章归档吗？归档后文章将从前台下线，且无法通过管理界面恢复（可删除后重建）。'
+    )
     if (!ok) return
 
-    setLoading(true)
+    setRunningOp('archive')
     setMessage('')
     try {
       await archiveAdminArticle(Number(articleId))
@@ -100,16 +104,16 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
       setTone('error')
       setMessage(text)
     } finally {
-      setLoading(false)
+      setRunningOp(null)
     }
   }
 
   const handlePublish = async () => {
-    if (loading || isPublished) return
+    if (runningOp || isPublished) return
     const ok = window.confirm('确认将该草稿发布为公开文章吗？')
     if (!ok) return
 
-    setLoading(true)
+    setRunningOp('publish')
     setMessage('')
     try {
       await publishAdminArticle(Number(articleId))
@@ -124,7 +128,7 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
       setTone('error')
       setMessage(text)
     } finally {
-      setLoading(false)
+      setRunningOp(null)
     }
   }
 
@@ -158,20 +162,20 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
         <button
           type="button"
           onClick={() => void handlePublish()}
-          disabled={loading}
+          disabled={runningOp !== null}
           className="inline-flex items-center justify-center rounded-full border border-emerald-300 px-4 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/40 dark:text-emerald-300 dark:hover:bg-emerald-500/10"
         >
-          {loading ? '处理中...' : '发布'}
+          {runningOp === 'publish' ? '发布中...' : '发布'}
         </button>
       ) : null}
       {isPublished ? (
         <button
           type="button"
           onClick={() => void handleOffline()}
-          disabled={loading}
+          disabled={runningOp !== null}
           className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
         >
-          {loading ? '处理中...' : '下线'}
+          {runningOp === 'offline' ? '处理中...' : '下线'}
         </button>
       ) : isArchived ? (
         <span className="text-wb-meta inline-flex items-center rounded-full border border-gray-200 px-4 py-2 text-xs font-medium dark:border-gray-700 dark:text-gray-500">
@@ -182,19 +186,19 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
         <button
           type="button"
           onClick={() => void handleArchive()}
-          disabled={loading}
+          disabled={runningOp !== null}
           className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
         >
-          {loading ? '处理中...' : '归档'}
+          {runningOp === 'archive' ? '处理中...' : '归档'}
         </button>
       ) : null}
       <button
         type="button"
         onClick={() => void handleDelete()}
-        disabled={loading}
+        disabled={runningOp !== null}
         className="inline-flex items-center justify-center rounded-full border border-rose-300 px-4 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/10"
       >
-        {loading ? '删除中...' : '删除'}
+        {runningOp === 'delete' ? '删除中...' : '删除'}
       </button>
       {message ? (
         <div
