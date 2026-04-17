@@ -9,7 +9,14 @@ const personLd = {
   '@type': 'Person',
   name: siteMetadata.author,
   url: `${siteMetadata.siteUrl}/about`,
-  sameAs: [siteMetadata.github].filter(Boolean),
+  description: siteMetadata.description,
+  sameAs: [
+    siteMetadata.github,
+    siteMetadata.x,
+    siteMetadata.linkedin,
+    siteMetadata.bluesky,
+    siteMetadata.mastodon,
+  ].filter(Boolean),
 }
 
 const breadcrumbLd = {

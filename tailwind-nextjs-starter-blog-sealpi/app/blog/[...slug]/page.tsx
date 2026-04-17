@@ -176,6 +176,7 @@ export default async function Page(props: PageProps) {
     '@type': 'BlogPosting',
     headline: article.title,
     url: articleUrl,
+    inLanguage: siteMetadata.language,
     datePublished: dateIso,
     dateModified: normalizeDate(article.lastmod || article.date),
     description: summary || siteMetadata.description,
@@ -190,10 +191,12 @@ export default async function Page(props: PageProps) {
     author: authorDetails.map((author) => ({
       '@type': 'Person',
       name: author.name,
+      url: `${siteMetadata.siteUrl}/about`,
     })),
     publisher: {
       '@type': 'Person',
       name: siteMetadata.author,
+      url: `${siteMetadata.siteUrl}/about`,
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
