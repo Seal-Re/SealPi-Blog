@@ -594,6 +594,9 @@ div:has(> #kbar-listbox) [class~="text-primary-600"] {
   border-radius: 0 0.5rem 0.5rem 0;
   margin: 1.8em 0;
   padding: 0.75em 1.25em;
+  /* Reset blockquote defaults that don't apply to alerts */
+  font-style: normal;
+  color: var(--color-wb-ink-soft);
 }
 .wb-body .markdown-alert > :last-child {
   margin-bottom: 0;
