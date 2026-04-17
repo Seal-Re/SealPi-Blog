@@ -173,7 +173,7 @@ export default async function Page(props: PageProps) {
   const articleUrl = `${siteMetadata.siteUrl}/blog/${article.url}`
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: article.title,
     url: articleUrl,
     datePublished: dateIso,
@@ -191,6 +191,28 @@ export default async function Page(props: PageProps) {
       '@type': 'Person',
       name: author.name,
     })),
+    publisher: {
+      '@type': 'Person',
+      name: siteMetadata.author,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': articleUrl,
+    },
+  }
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: '文章',
+        item: `${siteMetadata.siteUrl}/blog`,
+      },
+      { '@type': 'ListItem', position: 3, name: article.title, item: articleUrl },
+    ],
   }
 
   return (
@@ -198,6 +220,10 @@ export default async function Page(props: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <WorkbookArticleLayout
         title={article.title}
