@@ -1,6 +1,9 @@
 import siteMetadata from '@/data/siteMetadata'
 import Link from '@/components/Link'
 import { genPageMetadata } from 'app/seo'
+import { fetchPublishedArticles } from '@/lib/public-blog-api'
+
+export const revalidate = 300
 
 export const metadata = genPageMetadata({
   title: '关于',
@@ -31,7 +34,8 @@ const breadcrumbLd = {
   ],
 }
 
-export default function Page() {
+export default async function Page() {
+  const recentPosts = await fetchPublishedArticles({ pageSize: 3 })
   return (
     <>
       <script
@@ -129,6 +133,44 @@ export default function Page() {
             <li>· 动态 RSS / Sitemap，搜索由 kbar 驱动</li>
           </ul>
         </div>
+
+        {recentPosts.length > 0 && (
+          <div data-reveal className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-fraunces text-wb-ink text-xl font-semibold italic">最新文章</h2>
+              <Link
+                href="/blog"
+                className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent font-inter rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
+              >
+                查看全部 →
+              </Link>
+            </div>
+            <ul className="space-y-2">
+              {recentPosts.map((post) => (
+                <li key={post.slug}>
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <time
+                      dateTime={post.date}
+                      className="font-geist-mono text-wb-meta shrink-0 text-xs tabular-nums"
+                    >
+                      {new Date(post.date).toLocaleDateString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                      })}
+                    </time>
+                    <span className="text-wb-ink group-hover:text-wb-accent font-fraunces min-w-0 flex-1 truncate text-sm font-medium italic transition-colors">
+                      {post.title}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </section>
     </>
   )
