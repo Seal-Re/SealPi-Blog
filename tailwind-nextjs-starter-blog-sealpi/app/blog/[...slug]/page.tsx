@@ -171,6 +171,7 @@ export default async function Page(props: PageProps) {
     date: r.date,
   }))
   const articleUrl = `${siteMetadata.siteUrl}/blog/${article.url}`
+  const readMins = article.readMinutes ?? estimateReadMinutes(article.bodyMd)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -181,6 +182,7 @@ export default async function Page(props: PageProps) {
     dateModified: normalizeDate(article.lastmod || article.date),
     description: summary || siteMetadata.description,
     keywords: currentTags.length > 0 ? currentTags.join(', ') : undefined,
+    timeRequired: readMins != null ? `PT${readMins}M` : undefined,
     image: article.coverImageUrl
       ? [
           article.coverImageUrl.includes('http')
@@ -233,7 +235,7 @@ export default async function Page(props: PageProps) {
         dateIso={dateIso}
         lastmodIso={lastmodIso}
         tags={currentTags}
-        readMinutes={article.readMinutes ?? estimateReadMinutes(article.bodyMd)}
+        readMinutes={readMins}
         viewCount={article.viewCount}
         contentJson={article.contentJson}
         coverImageUrl={article.coverImageUrl}
