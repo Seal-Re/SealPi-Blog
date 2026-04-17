@@ -8,7 +8,7 @@ import type { PublicBlogPost } from '@/lib/public-blog-api'
 export default function Home({ posts }: { posts: PublicBlogPost[] }) {
   return (
     <>
-      <ul className="space-y-6">
+      <ul data-reveal className="space-y-6">
         {!posts.length && (
           <li className="bg-wb-canvas border-wb-rule-soft rounded-2xl border p-10 text-center">
             <p className="text-wb-meta text-sm">暂无已发布文章</p>

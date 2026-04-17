@@ -63,7 +63,7 @@ export default function Page() {
       </div>
 
       {/* Section label */}
-      <div className="mt-10 mb-6 flex items-center gap-4">
+      <div data-reveal className="mt-10 mb-6 flex items-center gap-4">
         <p className="font-inter text-wb-meta shrink-0 text-[11px] font-semibold tracking-[0.22em] uppercase">
           最新文章
         </p>
