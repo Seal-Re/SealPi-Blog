@@ -139,7 +139,7 @@ const MobileNav = () => {
               </nav>
 
               <button
-                className="hover:text-wb-accent text-wb-ink focus-visible:ring-wb-accent fixed top-7 right-4 z-80 h-16 w-16 rounded p-4 focus-visible:ring-2 focus-visible:outline-none"
+                className="hover:text-wb-accent text-wb-ink focus-visible:ring-wb-accent fixed top-7 right-4 z-80 h-10 w-10 rounded p-2 focus-visible:ring-2 focus-visible:outline-none"
                 aria-label="关闭导航菜单"
                 onClick={onToggleNav}
               >
@@ -148,6 +148,7 @@ const MobileNav = () => {
                   viewBox="0 0 20 20"
                   fill="currentColor"
                   aria-hidden="true"
+                  className="h-6 w-6"
                 >
                   <path
                     fillRule="evenodd"

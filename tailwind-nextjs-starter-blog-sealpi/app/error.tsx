@@ -10,9 +10,9 @@ export default function Error({
   reset: () => void
 }) {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16">
+    <div className="wb-page-enter flex min-h-[60vh] flex-col items-center justify-center px-4 py-16">
       <div className="border-wb-rule-soft bg-wb-canvas w-full max-w-md rounded-[2rem] border p-10 text-center shadow-[0_12px_40px_-12px_rgba(31,26,21,0.14)] dark:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.45)]">
-        <span className="border-wb-accent/40 bg-wb-accent/10 text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase">
+        <span className="inline-flex rounded-full border border-rose-200/70 bg-rose-50 px-4 py-1 text-xs font-semibold tracking-[0.24em] text-rose-700 uppercase dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-200">
           加载失败
         </span>
         <h1 className="font-fraunces text-wb-ink mt-5 text-2xl font-medium tracking-tight italic">
