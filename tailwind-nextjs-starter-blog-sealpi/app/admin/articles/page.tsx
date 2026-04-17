@@ -221,11 +221,7 @@ export default async function AdminArticlesPage(props: {
                     : null,
                   q ? `关键词「${q}」` : null,
                   tag ? `标签「${tag}」` : null,
-                  sort === 'lastmod'
-                    ? `排序：最近更新`
-                    : sort === 'views'
-                      ? `排序：浏览量`
-                      : null,
+                  sort === 'lastmod' ? `排序：最近更新` : sort === 'views' ? `排序：浏览量` : null,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
