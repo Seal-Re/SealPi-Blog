@@ -51,13 +51,16 @@ export default async function AdminPage() {
   const session = await auth()
   const user = session?.user
 
-  const [allResult, publishedResult, draftResult, recentResult] = await Promise.all([
+  const [allResult, publishedResult, draftResult, archivedResult, recentResult] = await Promise.all([
     adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=published'
     ),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
+    ),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=archived'
     ),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=5&sort=lastmod'
@@ -67,6 +70,7 @@ export default async function AdminPage() {
   const totalArticles = allResult?.totalCount ?? null
   const publishedCount = publishedResult?.totalCount ?? null
   const draftCount = draftResult?.totalCount ?? null
+  const archivedCount = archivedResult?.totalCount ?? null
   const recentArticles = recentResult?.data ?? []
 
   return (
@@ -86,7 +90,7 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
             {
               label: '文章总数',
@@ -105,6 +109,12 @@ export default async function AdminPage() {
               value: draftCount,
               hint: '当前保存为草稿的文章数量。',
               href: '/admin/drafts',
+            },
+            {
+              label: '已归档',
+              value: archivedCount,
+              hint: '已归档（软删除）的文章数量。',
+              href: '/admin/articles?status=archived',
             },
           ].map(({ label, value, hint, href }) => (
             <Link

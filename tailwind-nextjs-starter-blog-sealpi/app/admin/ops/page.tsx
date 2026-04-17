@@ -13,17 +13,21 @@ type ArticleStats = {
   total: number
   published: number
   draft: number
+  archived: number
   users: number
 }
 
 async function fetchArticleStats(): Promise<ArticleStats> {
-  const [totalRes, publishedRes, draftRes, usersRes] = await Promise.all([
+  const [totalRes, publishedRes, draftRes, archivedRes, usersRes] = await Promise.all([
     adminServerGet<PageResult<AdminArticle>>('/api/v1/admin/articles?pageIndex=1&pageSize=1'),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=published'
     ),
     adminServerGet<PageResult<AdminArticle>>(
       '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=draft'
+    ),
+    adminServerGet<PageResult<AdminArticle>>(
+      '/api/v1/admin/articles?pageIndex=1&pageSize=1&status=archived'
     ),
     adminServerGet<PageResult<AdminUser>>('/api/v1/admin/users?pageIndex=1&pageSize=1'),
   ])
@@ -32,6 +36,7 @@ async function fetchArticleStats(): Promise<ArticleStats> {
     total: totalRes?.totalCount ?? 0,
     published: publishedRes?.totalCount ?? 0,
     draft: draftRes?.totalCount ?? 0,
+    archived: archivedRes?.totalCount ?? 0,
     users: usersRes?.totalCount ?? 0,
   }
 }
@@ -131,10 +136,11 @@ export default async function OpsPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         <StatCard label="文章总数" value={stats.total} />
         <StatCard label="已发布" value={stats.published} accent />
         <StatCard label="草稿中" value={stats.draft} />
+        <StatCard label="已归档" value={stats.archived} />
         <StatCard label="注册用户" value={stats.users} />
         <StatCard label="页面生成" value={buildTime} />
       </div>
