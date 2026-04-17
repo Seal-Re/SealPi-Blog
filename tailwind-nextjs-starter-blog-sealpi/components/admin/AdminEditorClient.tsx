@@ -220,6 +220,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const [errorMessage, setErrorMessage] = useState<string>('')
     const [syncState, setSyncState] = useState<SyncState>('SUCCESS')
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submittingAction, setSubmittingAction] = useState<SubmitAction | null>(null)
     const [isSceneDirty, setIsSceneDirty] = useState(false)
     const [isTextDirty, setIsTextDirty] = useState(false)
     const [isUploadingAssets, setIsUploadingAssets] = useState(false)
@@ -606,6 +607,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         }
         submitInFlightRef.current = true
         setIsSubmitting(true)
+        setSubmittingAction(action)
         setIsUploadingAssets(false)
         setErrorMessage('')
         setSyncState('UPDATING')
@@ -679,6 +681,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         } finally {
           submitInFlightRef.current = false
           setIsSubmitting(false)
+          setSubmittingAction(null)
           setIsUploadingAssets(false)
           uploadAbortRef.current = true
         }
@@ -994,7 +997,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     onClick={() => void handleSubmit('draft')}
                     className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-18px_rgba(15,23,42,0.55)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-gray-800 focus:ring-gray-200 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:focus:ring-gray-700"
                   >
-                    {isSubmitting ? '提交中...' : '保存草稿'}
+                    {submittingAction === 'draft' ? '保存中...' : '保存草稿'}
                   </button>
                   <button
                     type="button"
@@ -1002,7 +1005,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     onClick={() => void handleSubmit('publish')}
                     className="border-wb-rule text-wb-accent hover:border-wb-accent hover:text-wb-accent focus:ring-wb-accent/10 dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center rounded-full border bg-[linear-gradient(135deg,rgba(251,245,236,0.95),rgba(245,236,225,0.90))] px-5 py-3.5 text-sm font-semibold shadow-[0_18px_38px_-24px_rgba(166,88,43,0.30)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(245,236,225,0.98),rgba(237,223,207,0.95))] focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(166,88,43,0.06))] dark:hover:bg-[linear-gradient(135deg,rgba(166,88,43,0.20),rgba(166,88,43,0.14))]"
                   >
-                    {isSubmitting ? '提交中...' : '直接发布'}
+                    {submittingAction === 'publish' ? '发布中...' : '直接发布'}
                   </button>
                   {fieldErrors.content ? (
                     <p className="text-xs text-rose-600 dark:text-rose-300">
