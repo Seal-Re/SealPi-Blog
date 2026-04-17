@@ -180,7 +180,7 @@ function FieldHint({ children }: { children: React.ReactNode }) {
 function StatusDot({ tone }: { tone: SyncState }) {
   const toneClass = {
     SUCCESS: 'bg-emerald-400',
-    UPDATING: 'bg-amber-400',
+    UPDATING: 'bg-amber-400 animate-pulse',
     FAILED: 'bg-rose-400',
   }[tone]
 
