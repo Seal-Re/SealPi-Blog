@@ -23,7 +23,7 @@ export default function AdminEditorWorkspace({
   const router = useRouter()
   const editorRef = useRef<AdminEditorClientRef | null>(null)
   const actionLockRef = useRef(false)
-  const [isTriggering, setIsTriggering] = useState(false)
+  const [triggeringAction, setTriggeringAction] = useState<'draft' | 'publish' | null>(null)
   const [mounted, setMounted] = useState(false)
   const [resolvedArticleId, setResolvedArticleId] = useState<string | undefined>(articleId)
   const [showDraftHint, setShowDraftHint] = useState(Boolean(draftHint && draftHint.draftCount > 0))
@@ -93,7 +93,7 @@ export default function AdminEditorWorkspace({
     }
 
     actionLockRef.current = true
-    setIsTriggering(true)
+    setTriggeringAction(action)
     try {
       if (action === 'draft') {
         await editorRef.current.saveDraft()
@@ -102,7 +102,7 @@ export default function AdminEditorWorkspace({
       }
     } finally {
       actionLockRef.current = false
-      setIsTriggering(false)
+      setTriggeringAction(null)
     }
   }
 
@@ -116,19 +116,25 @@ export default function AdminEditorWorkspace({
       <button
         type="button"
         onClick={() => void runAction('draft')}
-        disabled={isTriggering}
+        disabled={triggeringAction !== null}
         className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
       >
-        {isTriggering ? '保存中...' : '保存草稿'}
+        {triggeringAction === 'draft' ? '保存中...' : '保存草稿'}
       </button>
       <button
         type="button"
         onClick={() => void runAction('publish')}
-        disabled={isTriggering}
+        disabled={triggeringAction !== null}
         className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
       >
-        <span className="bg-wb-paper/80 h-1.5 w-1.5 animate-pulse rounded-full dark:bg-gray-700" />
-        发布
+        {triggeringAction === 'publish' ? (
+          '发布中...'
+        ) : (
+          <>
+            <span className="bg-wb-paper/80 h-1.5 w-1.5 animate-pulse rounded-full dark:bg-gray-700" />
+            发布
+          </>
+        )}
       </button>
     </>
   )
