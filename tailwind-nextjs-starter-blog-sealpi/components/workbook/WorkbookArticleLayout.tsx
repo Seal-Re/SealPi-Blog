@@ -123,8 +123,29 @@ export default function WorkbookArticleLayout({
 
       {children}
 
+      {/* Author bio */}
+      <div data-reveal className="border-wb-rule-soft mt-14 flex items-start gap-4 border-t pt-8">
+        <div className="bg-wb-accent/15 text-wb-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold">
+          {siteMetadata.author.charAt(0).toUpperCase()}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-wb-ink font-fraunces font-semibold italic">
+              {siteMetadata.author}
+            </span>
+            <Link
+              href="/about"
+              className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent font-inter rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
+            >
+              关于我 →
+            </Link>
+          </div>
+          <p className="text-wb-meta mt-1 text-sm leading-relaxed">{siteMetadata.description}</p>
+        </div>
+      </div>
+
       {hasRelated ? (
-        <div data-reveal className="border-wb-rule-soft mt-16 border-t pt-10">
+        <div data-reveal className="border-wb-rule-soft mt-10 border-t pt-10">
           <p className="font-inter text-wb-meta mb-6 text-[11px] font-semibold tracking-[0.22em] uppercase">
             相关文章
           </p>
