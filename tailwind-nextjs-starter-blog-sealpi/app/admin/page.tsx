@@ -151,9 +151,15 @@ export default async function AdminPage() {
               </h2>
               <Link
                 href="/admin/articles"
-                className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                className="group/all text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-0.5 rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none dark:text-gray-400 dark:hover:text-gray-100"
               >
-                查看全部 →
+                查看全部
+                <span
+                  className="inline-block transition-transform duration-200 group-hover/all:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
               </Link>
             </div>
             <ul className="mt-4 divide-y divide-[var(--color-wb-rule-soft)] dark:divide-gray-800">

@@ -135,9 +135,15 @@ export default function WorkbookArticleLayout({
             </span>
             <Link
               href="/about"
-              className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent font-inter rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
+              className="group/about text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent font-inter inline-flex items-center gap-0.5 rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
             >
-              关于我 →
+              关于我
+              <span
+                className="inline-block transition-transform duration-200 group-hover/about:translate-x-0.5"
+                aria-hidden="true"
+              >
+                →
+              </span>
             </Link>
           </div>
           <p className="text-wb-meta mt-1 text-sm leading-relaxed">{siteMetadata.description}</p>

@@ -140,9 +140,15 @@ export default async function Page() {
               <h2 className="font-fraunces text-wb-ink text-xl font-semibold italic">最新文章</h2>
               <Link
                 href="/blog"
-                className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent font-inter rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
+                className="group/all text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent font-inter inline-flex items-center gap-0.5 rounded text-xs transition-colors focus-visible:ring-1 focus-visible:outline-none"
               >
-                查看全部 →
+                查看全部
+                <span
+                  className="inline-block transition-transform duration-200 group-hover/all:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
               </Link>
             </div>
             <ul className="space-y-2">
