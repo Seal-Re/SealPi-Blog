@@ -3,7 +3,6 @@ import Link from '@/components/Link'
 import AdminArticleRowActions from '@/components/admin/AdminArticleRowActions'
 import AdminErrorToast from '@/components/admin/AdminErrorToast'
 import AdminArticlesTopbarPortal from '@/components/admin/AdminArticlesTopbarPortal'
-import PageTitle from '@/components/PageTitle'
 import { adminServerGet } from '@/app/api/admin/_utils'
 import { isDraftStatus, isArchivedStatus } from '@/lib/article-status'
 import type { AdminArticle, PageResult } from '@/lib/blog-api-types'
@@ -183,7 +182,9 @@ export default async function AdminArticlesPage(props: {
           <span className="border-wb-rule bg-wb-paper text-wb-accent inline-flex rounded-full border px-4 py-1 text-xs font-semibold tracking-[0.24em] uppercase dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
             文章管理
           </span>
-          <PageTitle>文章列表</PageTitle>
+          <h1 className="text-wb-ink text-3xl font-black tracking-tight sm:text-4xl dark:text-white">
+            文章列表
+          </h1>
           <p className="text-wb-meta max-w-3xl text-sm leading-7 dark:text-gray-300">
             管理所有文章，进行创建、编辑、发布与删除。
             {hasFilter && (
