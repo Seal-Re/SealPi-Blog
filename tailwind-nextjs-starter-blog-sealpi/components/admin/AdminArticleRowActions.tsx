@@ -164,20 +164,20 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           {loading ? '处理中...' : '发布'}
         </button>
       ) : null}
-      {!isArchived ? (
+      {isPublished ? (
         <button
           type="button"
           onClick={() => void handleOffline()}
-          disabled={loading || !isPublished}
+          disabled={loading}
           className="inline-flex items-center justify-center rounded-full border border-amber-300 px-4 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50 focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-500/40 dark:text-amber-300 dark:hover:bg-amber-500/10"
         >
-          {loading && isPublished ? '处理中...' : '下线'}
+          {loading ? '处理中...' : '下线'}
         </button>
-      ) : (
+      ) : isArchived ? (
         <span className="text-wb-meta inline-flex items-center rounded-full border border-gray-200 px-4 py-2 text-xs font-medium dark:border-gray-700 dark:text-gray-500">
           已归档
         </span>
-      )}
+      ) : null}
       {isPublished ? (
         <button
           type="button"
