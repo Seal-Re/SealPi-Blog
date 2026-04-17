@@ -600,6 +600,24 @@ class BlogAdapterApplicationTests {
     }
 
     @Test
+    void adminList_withSortByViews_passesCorrectSortToService() throws Exception {
+        when(articleService.getPage(any(com.seal.blog.client.article.dto.qry.ArticlePageQry.class)))
+                .thenReturn(com.seal.blog.client.common.PageResponse.empty());
+
+        ArgumentCaptor<com.seal.blog.client.article.dto.qry.ArticlePageQry> captor =
+                ArgumentCaptor.forClass(com.seal.blog.client.article.dto.qry.ArticlePageQry.class);
+
+        mvc.perform(
+                get("/api/v1/admin/articles")
+                        .header("Authorization", bearerToken("123"))
+                        .param("sort", "views")
+        ).andExpect(status().isOk());
+
+        verify(articleService).getPage(captor.capture());
+        org.junit.jupiter.api.Assertions.assertEquals("views", captor.getValue().getSort());
+    }
+
+    @Test
     void adminStats_withWhitelistedUser_returnsStats() throws Exception {
         com.seal.blog.client.article.dto.vo.ArticleStatsVO stats =
                 new com.seal.blog.client.article.dto.vo.ArticleStatsVO();
