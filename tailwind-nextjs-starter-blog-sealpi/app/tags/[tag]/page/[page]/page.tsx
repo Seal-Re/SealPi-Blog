@@ -8,6 +8,7 @@ import {
   fetchPublishedArticlesPage,
   fetchPublishedTags,
 } from '@/lib/public-blog-api'
+import { slug as slugify } from 'github-slugger'
 
 function normalizeTagLabel(tag: string) {
   return tag.charAt(0).toUpperCase() + tag.slice(1)
@@ -78,25 +79,54 @@ export default async function TagPage(props: { params: Promise<{ tag: string; pa
     return notFound()
   }
 
+  const tagName = normalizeTagLabel(currentTag?.name || fallbackTagName)
+  const canonicalTagSlug = currentTag ? slugify(currentTag.name) || tagSlug : tagSlug
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+      { '@type': 'ListItem', position: 2, name: '标签', item: `${siteMetadata.siteUrl}/tags` },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: tagName,
+        item: `${siteMetadata.siteUrl}/tags/${canonicalTagSlug}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 4,
+        name: `第 ${pageNumber} 页`,
+        item: `${siteMetadata.siteUrl}/tags/${canonicalTagSlug}/page/${pageNumber}`,
+      },
+    ],
+  }
+
   return (
-    <ListLayout
-      posts={response.items}
-      initialDisplayPosts={response.items}
-      pagination={{
-        currentPage: response.pageIndex,
-        totalPages: response.totalPages,
-      }}
-      title={normalizeTagLabel(currentTag?.name || fallbackTagName)}
-      eyebrow="标签"
-      eyebrowHref="/tags"
-      availableTags={availableTags}
-      totalCount={response.totalCount}
-      emptyTitle={hasTagCatalog ? '该分页下暂时没有文章' : '标签数据暂不可用'}
-      emptyDescription={
-        hasTagCatalog
-          ? '可能是标签文章数量刚发生变化，或当前分页已无数据；可以返回第一页继续查看。'
-          : '暂时无法加载标签总表，已回退为按当前标签名请求分页；可稍后刷新重试。'
-      }
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <ListLayout
+        posts={response.items}
+        initialDisplayPosts={response.items}
+        pagination={{
+          currentPage: response.pageIndex,
+          totalPages: response.totalPages,
+        }}
+        title={tagName}
+        eyebrow="标签"
+        eyebrowHref="/tags"
+        availableTags={availableTags}
+        totalCount={response.totalCount}
+        emptyTitle={hasTagCatalog ? '该分页下暂时没有文章' : '标签数据暂不可用'}
+        emptyDescription={
+          hasTagCatalog
+            ? '可能是标签文章数量刚发生变化，或当前分页已无数据；可以返回第一页继续查看。'
+            : '暂时无法加载标签总表，已回退为按当前标签名请求分页；可稍后刷新重试。'
+        }
+      />
+    </>
   )
 }
