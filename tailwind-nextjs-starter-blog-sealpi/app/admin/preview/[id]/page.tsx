@@ -28,7 +28,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
         <span className="text-wb-meta dark:text-gray-400">草稿预览模式</span>
         <Link
           href={`/admin/editor?articleId=${id}`}
-          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
         >
           ← 返回编辑
         </Link>

@@ -155,7 +155,7 @@ export default async function OpsPage() {
                 >
                   <Link
                     href={`/admin/editor?articleId=${a.articleId}`}
-                    className="text-wb-ink hover:text-wb-accent truncate text-sm font-medium transition-colors dark:text-gray-100"
+                    className="text-wb-ink hover:text-wb-accent focus-visible:ring-wb-accent truncate rounded text-sm font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none dark:text-gray-100"
                   >
                     {a.title || '无标题'}
                   </Link>
@@ -175,14 +175,14 @@ export default async function OpsPage() {
           <div className="space-y-3 p-6">
             <Link
               href="/admin/editor?mode=new"
-              className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+              className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
             >
               新建文章
               <span aria-hidden="true">→</span>
             </Link>
             <Link
               href="/admin/articles"
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper focus-visible:ring-wb-accent flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
             >
               <span className="text-wb-ink dark:text-gray-100">文章列表</span>
               <span className="text-wb-meta dark:text-gray-400" aria-hidden="true">
@@ -191,7 +191,7 @@ export default async function OpsPage() {
             </Link>
             <Link
               href="/admin/drafts"
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper focus-visible:ring-wb-accent flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
             >
               <span className="text-wb-ink dark:text-gray-100">草稿箱</span>
               <span className="text-wb-meta dark:text-gray-400" aria-hidden="true">
@@ -200,7 +200,7 @@ export default async function OpsPage() {
             </Link>
             <Link
               href="/admin/users"
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper focus-visible:ring-wb-accent flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
             >
               <span className="text-wb-ink dark:text-gray-100">用户列表</span>
               <span className="text-wb-meta dark:text-gray-400" aria-hidden="true">
@@ -211,7 +211,7 @@ export default async function OpsPage() {
               href="/feed.xml"
               target="_blank"
               rel="noopener noreferrer"
-              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
+              className="border-wb-rule-soft hover:border-wb-rule hover:bg-wb-paper focus-visible:ring-wb-accent flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-900"
             >
               <span className="text-wb-ink dark:text-gray-100">RSS 订阅源</span>
               <span className="text-wb-meta dark:text-gray-400" aria-hidden="true">
