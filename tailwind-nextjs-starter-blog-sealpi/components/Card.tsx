@@ -48,10 +48,16 @@ const Card = ({ title, description, imgSrc, href }) => (
         {href && (
           <Link
             href={href}
-            className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
+            className="group/cta text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center gap-1 rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             aria-label={`查看 ${title}`}
           >
-            了解更多 &rarr;
+            了解更多
+            <span
+              className="inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5"
+              aria-hidden="true"
+            >
+              →
+            </span>
           </Link>
         )}
       </div>
