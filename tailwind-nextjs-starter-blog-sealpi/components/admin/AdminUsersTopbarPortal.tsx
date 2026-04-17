@@ -10,6 +10,7 @@ type AdminUsersTopbarPortalProps = {
 
 export default function AdminUsersTopbarPortal({ q, banned }: AdminUsersTopbarPortalProps) {
   const [mounted, setMounted] = useState(false)
+  const hasFilter = Boolean(q || banned === 'true' || banned === 'false')
 
   useEffect(() => {
     setMounted(true)
@@ -28,13 +29,15 @@ export default function AdminUsersTopbarPortal({ q, banned }: AdminUsersTopbarPo
   return (
     <>
       {createPortal(
-        <a
-          href="/admin/users"
-          className="border-wb-rule-soft bg-wb-canvas text-wb-meta hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper hidden rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-300 lg:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
-          title="点击快速清空筛选并刷新列表"
-        >
-          清空筛选
-        </a>,
+        hasFilter ? (
+          <a
+            href="/admin/users"
+            className="border-wb-rule-soft bg-wb-canvas text-wb-meta hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper hidden rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-300 lg:inline-flex dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            title="点击快速清空筛选并刷新列表"
+          >
+            清空筛选
+          </a>
+        ) : null,
         leftExtraAnchor
       )}
       {createPortal(
@@ -57,7 +60,7 @@ export default function AdminUsersTopbarPortal({ q, banned }: AdminUsersTopbarPo
           </select>
           <button
             type="submit"
-            className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule bg-wb-canvas text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent rounded-full border px-3 py-2 text-xs font-semibold transition-all duration-300 active:scale-95 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             筛选
           </button>
