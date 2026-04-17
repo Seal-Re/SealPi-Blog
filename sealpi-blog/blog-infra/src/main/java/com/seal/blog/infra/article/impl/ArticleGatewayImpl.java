@@ -166,6 +166,8 @@ public class ArticleGatewayImpl implements ArticleGateway {
 
         if ("lastmod".equalsIgnoreCase(articlePageQry.getSort())) {
             queryWrapper.orderByDesc(ArticlePO::getLastmod);
+        } else if ("views".equalsIgnoreCase(articlePageQry.getSort())) {
+            queryWrapper.orderByDesc(ArticlePO::getViewCount).orderByDesc(ArticlePO::getDate);
         } else {
             queryWrapper.orderByDesc(ArticlePO::getDate);
         }

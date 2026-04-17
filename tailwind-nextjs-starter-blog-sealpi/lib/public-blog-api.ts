@@ -167,6 +167,29 @@ export async function fetchPublishedArticles(options?: { pageSize?: number; tag?
   return response.items
 }
 
+/** Fetch top-N published articles sorted by view count (most read first). */
+export async function fetchTopViewedArticles(pageSize = 5): Promise<PublicBlogPost[]> {
+  const params = new URLSearchParams({
+    pageIndex: '1',
+    pageSize: String(pageSize),
+    status: 'published',
+    sort: 'views',
+  })
+
+  try {
+    const response = await fetch(buildApiUrl(`/api/v1/articles?${params.toString()}`), {
+      next: { revalidate: PUBLIC_FETCH_REVALIDATE_SECONDS },
+    })
+    if (!response.ok) return []
+    const payload = (await response.json()) as PageResult<PublishedArticleListItem>
+    return (payload.data || [])
+      .map(toPublicPost)
+      .filter((p) => (p.viewCount ?? 0) > 0)
+  } catch {
+    return []
+  }
+}
+
 export async function fetchPublishedArticlesForStaticPaths() {
   return fetchAllPublishedArticles()
 }

@@ -33,7 +33,7 @@ public class ArticlePageQry {
     private String status;
 
     /**
-     * Sort order: date (default) | lastmod.
+     * Sort order: date (default) | lastmod | views.
      */
     private String sort;
 

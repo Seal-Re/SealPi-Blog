@@ -33,7 +33,8 @@ const MobileNav = () => {
   return (
     <>
       <button
-        aria-label="打开导航菜单"
+        aria-label={navShow ? '关闭导航菜单' : '打开导航菜单'}
+        aria-expanded={navShow}
         onClick={onToggleNav}
         className="focus-visible:ring-wb-accent rounded focus-visible:ring-2 focus-visible:outline-none sm:hidden"
       >

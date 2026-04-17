@@ -2,13 +2,55 @@ import { Suspense } from 'react'
 import Link from '@/components/Link'
 import Main from './Main'
 import siteMetadata from '@/data/siteMetadata'
-import { BLOG_POSTS_PER_PAGE, fetchPublishedArticles } from '@/lib/public-blog-api'
+import { BLOG_POSTS_PER_PAGE, fetchPublishedArticles, fetchTopViewedArticles } from '@/lib/public-blog-api'
+import type { PublicBlogPost } from '@/lib/public-blog-api'
 
 export const revalidate = 300
 
 async function ArticleFeed() {
   const posts = await fetchPublishedArticles({ pageSize: BLOG_POSTS_PER_PAGE })
   return <Main posts={posts} />
+}
+
+async function PopularFeed() {
+  const posts = await fetchTopViewedArticles(5)
+  if (posts.length === 0) return null
+  return <PopularPosts posts={posts} />
+}
+
+function PopularPosts({ posts }: { posts: PublicBlogPost[] }) {
+  return (
+    <>
+      <div data-reveal className="mt-14 mb-6 flex items-center gap-4">
+        <p className="font-inter text-wb-meta shrink-0 text-[11px] font-semibold tracking-[0.22em] uppercase">
+          热门文章
+        </p>
+        <div className="border-wb-rule-soft flex-1 border-t" />
+      </div>
+      <ul data-reveal className="space-y-2">
+        {posts.map((post, idx) => (
+          <li key={post.slug}>
+            <Link
+              href={`/blog/${post.slug}`}
+              className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <span className="font-geist-mono text-wb-rule w-5 shrink-0 text-xs tabular-nums">
+                {String(idx + 1).padStart(2, '0')}
+              </span>
+              <span className="text-wb-ink group-hover:text-wb-accent min-w-0 flex-1 truncate text-sm font-medium transition-colors">
+                {post.title}
+              </span>
+              {post.viewCount != null && post.viewCount > 0 ? (
+                <span className="font-inter text-wb-meta shrink-0 text-xs tabular-nums">
+                  {post.viewCount.toLocaleString('zh-CN')} 次
+                </span>
+              ) : null}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </>
+  )
 }
 
 function ArticleFeedSkeleton() {
@@ -72,6 +114,10 @@ export default function Page() {
 
       <Suspense fallback={<ArticleFeedSkeleton />}>
         <ArticleFeed />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <PopularFeed />
       </Suspense>
     </>
   )
