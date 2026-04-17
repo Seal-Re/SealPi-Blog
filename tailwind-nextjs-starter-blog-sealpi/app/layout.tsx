@@ -81,6 +81,19 @@ export const metadata: Metadata = {
   },
 }
 
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteMetadata.title,
+  url: siteMetadata.siteUrl,
+  description: siteMetadata.description,
+  author: {
+    '@type': 'Person',
+    name: siteMetadata.author,
+    url: `${siteMetadata.siteUrl}/about`,
+  },
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const basePath = process.env.BASE_PATH || ''
 
@@ -118,6 +131,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a130d" />
       <link rel="alternate" type="application/rss+xml" href={`${basePath}/feed.xml`} />
       <body className="bg-wb-paper text-wb-ink pl-[calc(100vw-100%)] antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        />
         <ThemeProviders>
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
           <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>

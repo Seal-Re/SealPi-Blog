@@ -50,18 +50,39 @@ export default async function Page(props: { params: Promise<{ page: string }> })
     return notFound()
   }
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+      { '@type': 'ListItem', position: 2, name: '文章', item: `${siteMetadata.siteUrl}/blog` },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: `第 ${pageNumber} 页`,
+        item: `${siteMetadata.siteUrl}/blog/page/${pageNumber}`,
+      },
+    ],
+  }
+
   return (
-    <ListLayout
-      posts={response.items}
-      initialDisplayPosts={response.items}
-      pagination={{
-        currentPage: response.pageIndex,
-        totalPages: response.totalPages,
-      }}
-      title="全部文章"
-      eyebrow="随笔 · 技术"
-      availableTags={availableTags}
-      totalCount={response.totalCount}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <ListLayout
+        posts={response.items}
+        initialDisplayPosts={response.items}
+        pagination={{
+          currentPage: response.pageIndex,
+          totalPages: response.totalPages,
+        }}
+        title="全部文章"
+        eyebrow="随笔 · 技术"
+        availableTags={availableTags}
+        totalCount={response.totalCount}
+      />
+    </>
   )
 }

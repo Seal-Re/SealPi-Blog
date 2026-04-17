@@ -1,12 +1,26 @@
 import projectsData from '@/data/projectsData'
 import Card from '@/components/Card'
 import { genPageMetadata } from 'app/seo'
+import siteMetadata from '@/data/siteMetadata'
 
 export const metadata = genPageMetadata({ title: '项目' })
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+    { '@type': 'ListItem', position: 2, name: '项目', item: `${siteMetadata.siteUrl}/projects` },
+  ],
+}
 
 export default function Projects() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <div className="wb-page-enter divide-wb-rule-soft divide-y">
         <div className="pt-8 pb-10 md:pt-12">
           <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
