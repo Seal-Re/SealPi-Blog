@@ -35,7 +35,13 @@ function BodyImage({ src, alt }: ComponentPropsWithoutRef<'img'>) {
   return (
     <span className="my-6 block">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt || ''} loading="lazy" decoding="async" className="mx-auto max-w-full" />
+      <img
+        src={src}
+        alt={alt || ''}
+        loading="lazy"
+        decoding="async"
+        className="mx-auto max-w-full"
+      />
       {alt ? (
         <span className="font-inter text-wb-meta mt-2 block text-center text-xs">{alt}</span>
       ) : null}
