@@ -4,8 +4,34 @@ import { genPageMetadata } from 'app/seo'
 
 export const metadata = genPageMetadata({ title: '关于' })
 
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: siteMetadata.author,
+  url: `${siteMetadata.siteUrl}/about`,
+  sameAs: [siteMetadata.github].filter(Boolean),
+}
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+    { '@type': 'ListItem', position: 2, name: '关于', item: `${siteMetadata.siteUrl}/about` },
+  ],
+}
+
 export default function Page() {
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(personLd) }}
+    />
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+    />
     <section className="wb-page-enter space-y-10 pt-8 pb-8 md:pt-12">
       <div className="space-y-3">
         <p className="font-inter text-wb-accent text-[11px] font-semibold tracking-[0.26em] uppercase">
@@ -94,5 +120,6 @@ export default function Page() {
         </ul>
       </div>
     </section>
+    </>
   )
 }
