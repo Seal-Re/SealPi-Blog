@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import ExcalidrawViewer from '@/components/ExcalidrawViewer'
 
 type ExcalidrawHeroProps = {
@@ -24,9 +27,13 @@ export default function ExcalidrawHero({
   title,
 }: ExcalidrawHeroProps) {
   const showViewer = hasRenderableElements(contentJson)
+  const [imgError, setImgError] = useState(false)
 
   // Nothing to render — skip the hero entirely so the title becomes the visual anchor.
   if (!showViewer && !coverImageUrl) return null
+
+  // Cover image failed to load — skip hero rather than showing broken-image icon
+  if (!showViewer && imgError) return null
 
   return (
     <div data-reveal className="relative mb-10">
@@ -43,6 +50,7 @@ export default function ExcalidrawHero({
             src={coverImageUrl!}
             alt={title}
             className="absolute inset-0 h-full w-full object-cover"
+            onError={() => setImgError(true)}
           />
         )}
       </div>
