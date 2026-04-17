@@ -2,6 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
+import remarkGithubBlockquoteAlert from 'remark-github-blockquote-alert'
 import rehypeSlug from 'rehype-slug'
 import rehypeHighlight from 'rehype-highlight'
 import { visit } from 'unist-util-visit'
@@ -105,7 +106,7 @@ export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
   return (
     <div className="wb-body font-fraunces text-wb-ink-soft text-[18px] leading-[1.75]">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkDirective, remarkNoteDirective]}
+        remarkPlugins={[remarkGfm, remarkGithubBlockquoteAlert, remarkDirective, remarkNoteDirective]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
         components={
           {

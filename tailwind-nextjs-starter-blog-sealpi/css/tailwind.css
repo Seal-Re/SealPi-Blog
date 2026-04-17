@@ -567,6 +567,69 @@ div:has(> #kbar-listbox) [class~="text-primary-600"] {
     linear-gradient(160deg, var(--color-wb-paper) 0%, var(--color-wb-canvas) 50%, var(--color-wb-paper) 100%);
 }
 
+/* ===== GitHub Markdown Alerts (remark-github-blockquote-alert) ===== */
+/* Warm-palette re-theme of the five alert types: NOTE, TIP, IMPORTANT, WARNING, CAUTION */
+.wb-body .markdown-alert {
+  border-left: 3px solid var(--alert-color, var(--color-wb-rule));
+  background: color-mix(in srgb, var(--alert-color, var(--color-wb-rule)) 8%, var(--color-wb-canvas));
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin: 1.8em 0;
+  padding: 0.75em 1.25em;
+}
+.wb-body .markdown-alert > :last-child {
+  margin-bottom: 0;
+}
+.wb-body .markdown-alert-title {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--alert-color, var(--color-wb-meta));
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 0.5em;
+}
+.wb-body .markdown-alert-title .octicon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+/* NOTE — amber/accent */
+.wb-body .markdown-alert-note {
+  --alert-color: var(--color-wb-accent);
+}
+/* TIP — warm sage green */
+.wb-body .markdown-alert-tip {
+  --alert-color: #4d7a5a;
+}
+.dark .wb-body .markdown-alert-tip {
+  --alert-color: #6aad82;
+}
+/* IMPORTANT — warm plum */
+.wb-body .markdown-alert-important {
+  --alert-color: #7a5090;
+}
+.dark .wb-body .markdown-alert-important {
+  --alert-color: #b07fd0;
+}
+/* WARNING — warm golden */
+.wb-body .markdown-alert-warning {
+  --alert-color: #9a7000;
+}
+.dark .wb-body .markdown-alert-warning {
+  --alert-color: #d4aa30;
+}
+/* CAUTION — rose red */
+.wb-body .markdown-alert-caution {
+  --alert-color: #c44040;
+}
+.dark .wb-body .markdown-alert-caution {
+  --alert-color: #e07070;
+}
+
 /* ===== Print styles ===== */
 @media print {
   /* Reset page */
