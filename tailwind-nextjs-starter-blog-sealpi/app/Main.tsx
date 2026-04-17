@@ -87,10 +87,16 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                   <div className="mt-4">
                     <Link
                       href={`/blog/${slug}`}
-                      className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
+                      className="group/cta text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center gap-1 rounded text-sm font-medium transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
                       aria-label={`阅读全文：${title}`}
                     >
-                      阅读全文 &rarr;
+                      阅读全文
+                      <span
+                        className="inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5"
+                        aria-hidden="true"
+                      >
+                        →
+                      </span>
                     </Link>
                   </div>
                 </div>
@@ -104,10 +110,16 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
         <div className="mt-6 flex justify-end text-base leading-6 font-medium">
           <Link
             href="/blog"
-            className="text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
+            className="group/all text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center gap-1 rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             aria-label="查看全部文章"
           >
-            查看全部文章 &rarr;
+            查看全部文章
+            <span
+              className="inline-block transition-transform duration-200 group-hover/all:translate-x-0.5"
+              aria-hidden="true"
+            >
+              →
+            </span>
           </Link>
         </div>
       )}
