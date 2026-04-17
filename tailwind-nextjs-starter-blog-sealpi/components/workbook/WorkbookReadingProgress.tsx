@@ -21,7 +21,7 @@ export default function WorkbookReadingProgress() {
   }, [])
 
   return (
-    <div className="bg-wb-rule-soft/40 fixed top-0 right-0 left-0 z-50 h-[2px]" aria-hidden="true">
+    <div className="wb-reading-progress bg-wb-rule-soft/40 fixed top-0 right-0 left-0 z-50 h-[2px]" aria-hidden="true">
       <div
         className="bg-wb-accent h-full transition-[width] duration-75 ease-out"
         style={{ width: `${progress}%` }}
