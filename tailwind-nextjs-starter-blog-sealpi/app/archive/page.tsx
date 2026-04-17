@@ -9,6 +9,15 @@ export const metadata = genPageMetadata({
 })
 export const revalidate = 300
 
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+    { '@type': 'ListItem', position: 2, name: '归档', item: `${siteMetadata.siteUrl}/archive` },
+  ],
+}
+
 export default async function ArchivePage() {
   const posts = await fetchAllPublishedArticles()
 
@@ -28,6 +37,11 @@ export default async function ArchivePage() {
   const years = Array.from(byYear.keys()).sort((a, b) => b - a)
 
   return (
+    <>
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+    />
     <div className="wb-page-enter pt-8 pb-16 md:pt-12">
       <p className="font-inter text-wb-accent mb-3 text-[11px] font-semibold tracking-[0.26em] uppercase">
         时间 · 记录
@@ -92,5 +106,6 @@ export default async function ArchivePage() {
         </div>
       )}
     </div>
+    </>
   )
 }
