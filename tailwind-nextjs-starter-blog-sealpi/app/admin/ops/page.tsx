@@ -85,7 +85,7 @@ function formatDate(value?: string) {
 export default async function OpsPage() {
   await auth()
 
-  let stats: ArticleStats = { total: 0, published: 0, draft: 0, users: 0 }
+  let stats: ArticleStats = { total: 0, published: 0, draft: 0, archived: 0, users: 0 }
   let statsError = false
   let recentArticles: AdminArticle[] = []
 
