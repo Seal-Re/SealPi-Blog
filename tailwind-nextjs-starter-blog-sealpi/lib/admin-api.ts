@@ -196,6 +196,12 @@ export async function offlineAdminArticle(articleId: number) {
   })
 }
 
+export async function archiveAdminArticle(articleId: number) {
+  return adminFetch<ApiEnvelope>(`/api/admin/articles/${articleId}/archive`, {
+    method: 'POST',
+  })
+}
+
 export async function publishAdminArticle(articleId: number) {
   return adminFetch<ApiEnvelope>(`/api/admin/articles/${articleId}/publish`, {
     method: 'POST',

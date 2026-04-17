@@ -709,6 +709,39 @@ class ArticleServiceImplTest {
         assertEquals("new-slug", article.getUrl());
     }
 
+    // --- adminArchive tests ---
+
+    @Test
+    void adminArchive_existingArticle_setsArchivedStatus() {
+        Article article = Article.reconstruct(
+                12,
+                "title", "summary", "slug-d",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.PUBLISHED, 0,
+                "{}", "{}",
+                null, 0,
+                null, null, null
+        );
+        when(articleGateway.findById(12)).thenReturn(article);
+
+        Response result = service.adminArchive(12);
+
+        assertTrue(result.isSuccess());
+        assertEquals(ArticleStatus.ARCHIVED, article.getDraft());
+        verify(articleGateway).save(article);
+    }
+
+    @Test
+    void adminArchive_missingArticle_returns404() {
+        when(articleGateway.findById(999)).thenReturn(null);
+
+        Response result = service.adminArchive(999);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+        verify(articleGateway, never()).save(any(Article.class));
+    }
+
     // --- adminPublish tests ---
 
     private Article buildDraftArticle(String title, String url) {

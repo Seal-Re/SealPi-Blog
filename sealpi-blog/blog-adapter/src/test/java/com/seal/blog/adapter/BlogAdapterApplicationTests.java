@@ -529,6 +529,25 @@ class BlogAdapterApplicationTests {
     }
 
     @Test
+    void adminArchive_withWhitelistedUser_callsService() throws Exception {
+        when(articleService.adminArchive(11)).thenReturn(Response.buildSuccess());
+
+        mvc.perform(
+                post("/api/v1/admin/articles/11/archive")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.success").value(true));
+
+        verify(articleService).adminArchive(11);
+    }
+
+    @Test
+    void adminArchive_withoutAuth_returns401() throws Exception {
+        mvc.perform(post("/api/v1/admin/articles/11/archive"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void adminPublish_withWhitelistedUser_callsService() throws Exception {
         when(articleService.adminPublish(9)).thenReturn(Response.buildSuccess());
 

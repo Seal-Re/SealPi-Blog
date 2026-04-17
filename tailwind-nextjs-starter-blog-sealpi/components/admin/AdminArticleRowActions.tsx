@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import Link from '@/components/Link'
 import {
   AdminApiError,
+  archiveAdminArticle,
   deleteAdminArticle,
   offlineAdminArticle,
   publishAdminArticle,
@@ -72,6 +73,30 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
         error instanceof AdminApiError
           ? `${error.message}${error.status ? `（HTTP ${error.status}）` : ''}`
           : '下线失败，请稍后重试。'
+      setTone('error')
+      setMessage(text)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleArchive = async () => {
+    if (loading || !isPublished) return
+    const ok = window.confirm('确认将该文章归档吗？归档后文章将从前台下线，且无法通过管理界面恢复（可删除后重建）。')
+    if (!ok) return
+
+    setLoading(true)
+    setMessage('')
+    try {
+      await archiveAdminArticle(Number(articleId))
+      setTone('ok')
+      setMessage('文章已归档。')
+      router.refresh()
+    } catch (error) {
+      const text =
+        error instanceof AdminApiError
+          ? `${error.message}${error.status ? `（HTTP ${error.status}）` : ''}`
+          : '归档失败，请稍后重试。'
       setTone('error')
       setMessage(text)
     } finally {
@@ -153,6 +178,16 @@ export default function AdminArticleRowActions({ articleId, articleUrl, draft }:
           已归档
         </span>
       )}
+      {isPublished ? (
+        <button
+          type="button"
+          onClick={() => void handleArchive()}
+          disabled={loading}
+          className="inline-flex items-center justify-center rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-gray-600 transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-800"
+        >
+          {loading ? '处理中...' : '归档'}
+        </button>
+      ) : null}
       <button
         type="button"
         onClick={() => void handleDelete()}

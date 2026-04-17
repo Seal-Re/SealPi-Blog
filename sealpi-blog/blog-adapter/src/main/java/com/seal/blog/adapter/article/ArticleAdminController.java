@@ -212,4 +212,14 @@ public class ArticleAdminController {
     public Response publish(@PathVariable("id") Integer id) {
         return articleService.adminPublish(id);
     }
+
+    /**
+     * Archives an article (soft-delete: status → ARCHIVED, article stays in DB).
+     * Terminal state — cannot be reversed via API. Use when you want to retire
+     * content without losing its data.
+     */
+    @PostMapping("/articles/{id}/archive")
+    public Response archive(@PathVariable("id") Integer id) {
+        return articleService.adminArchive(id);
+    }
 }

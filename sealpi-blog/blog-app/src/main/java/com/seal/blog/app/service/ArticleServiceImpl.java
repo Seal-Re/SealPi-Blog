@@ -159,6 +159,18 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public Response adminArchive(Integer id) {
+        Article article = articleGateway.findById(id);
+        if (article == null) {
+            return Response.buildFailure("404", "文章不存在");
+        }
+        article.delete();
+        articleGateway.save(article);
+        return Response.buildSuccess();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public Response adminPublish(Integer id) {
         Article article = articleGateway.findById(id);
         if (article == null) {

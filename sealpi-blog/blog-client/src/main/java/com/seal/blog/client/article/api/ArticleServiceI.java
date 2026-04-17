@@ -33,6 +33,12 @@ public interface ArticleServiceI {
     Response adminOffline(Integer id);
 
     /**
+     * Archives a published article (soft-delete: transitions status to ARCHIVED without removing data).
+     * ARCHIVED is a terminal state — the article is no longer visible on the public site.
+     */
+    Response adminArchive(Integer id);
+
+    /**
      * Promotes a draft article to published status without a full payload update.
      * Copies draftJson→contentJson, draftBodyMd→bodyMd, and sets status=PUBLISHED.
      * Returns 400 if the article has no real title or no URL set.
