@@ -2,7 +2,10 @@ import siteMetadata from '@/data/siteMetadata'
 import Link from '@/components/Link'
 import { genPageMetadata } from 'app/seo'
 
-export const metadata = genPageMetadata({ title: '关于' })
+export const metadata = genPageMetadata({
+  title: '关于',
+  alternates: { canonical: `${siteMetadata.siteUrl}/about` },
+})
 
 const personLd = {
   '@context': 'https://schema.org',

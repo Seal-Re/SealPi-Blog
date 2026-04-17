@@ -3,7 +3,10 @@ import Card from '@/components/Card'
 import { genPageMetadata } from 'app/seo'
 import siteMetadata from '@/data/siteMetadata'
 
-export const metadata = genPageMetadata({ title: '项目' })
+export const metadata = genPageMetadata({
+  title: '项目',
+  alternates: { canonical: `${siteMetadata.siteUrl}/projects` },
+})
 
 const breadcrumbLd = {
   '@context': 'https://schema.org',

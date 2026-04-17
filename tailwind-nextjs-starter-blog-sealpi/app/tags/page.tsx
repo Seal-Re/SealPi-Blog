@@ -3,7 +3,11 @@ import { genPageMetadata } from 'app/seo'
 import { fetchPublishedTags } from '@/lib/public-blog-api'
 import siteMetadata from '@/data/siteMetadata'
 
-export const metadata = genPageMetadata({ title: '标签', description: '按标签浏览文章' })
+export const metadata = genPageMetadata({
+  title: '标签',
+  description: '按标签浏览文章',
+  alternates: { canonical: `${siteMetadata.siteUrl}/tags` },
+})
 export const revalidate = 300
 
 const breadcrumbLd = {

@@ -6,6 +6,7 @@ import siteMetadata from '@/data/siteMetadata'
 export const metadata = genPageMetadata({
   title: '归档',
   description: `${siteMetadata.title} 全部已发布文章按年份归档`,
+  alternates: { canonical: `${siteMetadata.siteUrl}/archive` },
 })
 export const revalidate = 300
 
