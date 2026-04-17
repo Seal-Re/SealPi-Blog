@@ -119,7 +119,7 @@ const MobileNav = () => {
                           onToggleNav()
                           signOut({ callbackUrl: '/' })
                         }}
-                        className="rounded text-lg font-bold text-red-600 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:outline-none dark:text-red-400"
+                        className="focus-visible:ring-wb-accent rounded text-lg font-bold text-red-600 focus-visible:ring-2 focus-visible:outline-none dark:text-red-400"
                       >
                         退出登录
                       </button>
