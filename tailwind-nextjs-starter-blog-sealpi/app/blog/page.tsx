@@ -16,6 +16,15 @@ export const metadata = genPageMetadata({
 })
 export const revalidate = 300
 
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: siteMetadata.title, item: siteMetadata.siteUrl },
+    { '@type': 'ListItem', position: 2, name: '文章', item: `${siteMetadata.siteUrl}/blog` },
+  ],
+}
+
 export default async function BlogPage() {
   const [response, availableTags] = await Promise.all([
     fetchPublishedArticlesPage(1, BLOG_POSTS_PER_PAGE),
@@ -23,17 +32,23 @@ export default async function BlogPage() {
   ])
 
   return (
-    <ListLayout
-      posts={response.items}
-      initialDisplayPosts={response.items}
-      pagination={{
-        currentPage: response.pageIndex,
-        totalPages: response.totalPages,
-      }}
-      title="全部文章"
-      eyebrow="随笔 · 技术"
-      availableTags={availableTags}
-      totalCount={response.totalCount}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+      <ListLayout
+        posts={response.items}
+        initialDisplayPosts={response.items}
+        pagination={{
+          currentPage: response.pageIndex,
+          totalPages: response.totalPages,
+        }}
+        title="全部文章"
+        eyebrow="随笔 · 技术"
+        availableTags={availableTags}
+        totalCount={response.totalCount}
+      />
+    </>
   )
 }
