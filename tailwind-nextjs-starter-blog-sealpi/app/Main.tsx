@@ -15,8 +15,17 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
           </li>
         )}
         {posts.map((post) => {
-          const { slug, date, lastmod, title, summary, tags, coverImageUrl, viewCount, readMinutes } =
-            post
+          const {
+            slug,
+            date,
+            lastmod,
+            title,
+            summary,
+            tags,
+            coverImageUrl,
+            viewCount,
+            readMinutes,
+          } = post
           const isUpdated = lastmod && lastmod.substring(0, 10) !== date.substring(0, 10)
           return (
             <li key={slug}>

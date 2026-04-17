@@ -106,7 +106,12 @@ export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
   return (
     <div className="wb-body font-fraunces text-wb-ink-soft text-[18px] leading-[1.75]">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkGithubBlockquoteAlert, remarkDirective, remarkNoteDirective]}
+        remarkPlugins={[
+          remarkGfm,
+          remarkGithubBlockquoteAlert,
+          remarkDirective,
+          remarkNoteDirective,
+        ]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
         components={
           {
