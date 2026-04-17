@@ -801,4 +801,25 @@ class ArticleServiceImplTest {
         assertEquals(ArticleStatus.PUBLISHED, article.getDraft());
         verify(articleGateway).save(article);
     }
+
+    // --- getAdminStats ---
+
+    @Test
+    void getAdminStats_aggregatesCountsFromGateway() {
+        when(articleGateway.countByStatus(null)).thenReturn(10);
+        when(articleGateway.countByStatus(ArticleStatus.PUBLISHED.getCode())).thenReturn(6);
+        when(articleGateway.countByStatus(ArticleStatus.DRAFT.getCode())).thenReturn(3);
+        when(articleGateway.countByStatus(ArticleStatus.ARCHIVED.getCode())).thenReturn(1);
+
+        com.seal.blog.client.article.dto.vo.ArticleStatsVO stats = service.getAdminStats();
+
+        assertEquals(10, stats.getTotal());
+        assertEquals(6, stats.getPublished());
+        assertEquals(3, stats.getDraft());
+        assertEquals(1, stats.getArchived());
+        verify(articleGateway).countByStatus(null);
+        verify(articleGateway).countByStatus(ArticleStatus.PUBLISHED.getCode());
+        verify(articleGateway).countByStatus(ArticleStatus.DRAFT.getCode());
+        verify(articleGateway).countByStatus(ArticleStatus.ARCHIVED.getCode());
+    }
 }

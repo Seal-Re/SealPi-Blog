@@ -598,4 +598,32 @@ class BlogAdapterApplicationTests {
                         .content("{\"commentPermission\":\"ALLOWED\"}")
         ).andExpect(status().isUnauthorized());
     }
+
+    @Test
+    void adminStats_withWhitelistedUser_returnsStats() throws Exception {
+        com.seal.blog.client.article.dto.vo.ArticleStatsVO stats =
+                new com.seal.blog.client.article.dto.vo.ArticleStatsVO();
+        stats.setTotal(10);
+        stats.setPublished(6);
+        stats.setDraft(3);
+        stats.setArchived(1);
+        when(articleService.getAdminStats()).thenReturn(stats);
+
+        mvc.perform(
+                get("/api/v1/admin/stats")
+                        .header("Authorization", bearerToken("123"))
+        ).andExpect(status().isOk())
+         .andExpect(jsonPath("$.total").value(10))
+         .andExpect(jsonPath("$.published").value(6))
+         .andExpect(jsonPath("$.draft").value(3))
+         .andExpect(jsonPath("$.archived").value(1));
+
+        verify(articleService).getAdminStats();
+    }
+
+    @Test
+    void adminStats_withoutAuth_returns401() throws Exception {
+        mvc.perform(get("/api/v1/admin/stats"))
+                .andExpect(status().isUnauthorized());
+    }
 }
