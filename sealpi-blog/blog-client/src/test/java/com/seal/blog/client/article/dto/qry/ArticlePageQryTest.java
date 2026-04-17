@@ -37,6 +37,13 @@ class ArticlePageQryTest {
     }
 
     @Test
+    void resolveDraft_statusArchived_returns2() {
+        ArticlePageQry qry = new ArticlePageQry();
+        qry.setStatus("archived");
+        assertEquals(2, qry.resolveDraft(), "archived should map to code 2 (ARCHIVED)");
+    }
+
+    @Test
     void resolveDraft_statusCaseInsensitive() {
         ArticlePageQry qry = new ArticlePageQry();
         qry.setStatus("DRAFT");
@@ -44,6 +51,9 @@ class ArticlePageQryTest {
 
         qry.setStatus("Published");
         assertEquals(1, qry.resolveDraft());
+
+        qry.setStatus("ARCHIVED");
+        assertEquals(2, qry.resolveDraft());
     }
 
     @Test

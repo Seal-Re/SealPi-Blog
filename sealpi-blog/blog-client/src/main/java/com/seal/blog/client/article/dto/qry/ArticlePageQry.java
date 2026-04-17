@@ -54,6 +54,9 @@ public class ArticlePageQry {
         if ("published".equalsIgnoreCase(status)) {
             return 1;   // ArticleStatus.PUBLISHED = 1
         }
+        if ("archived".equalsIgnoreCase(status)) {
+            return 2;   // ArticleStatus.ARCHIVED = 2
+        }
         return draft;
     }
 }
