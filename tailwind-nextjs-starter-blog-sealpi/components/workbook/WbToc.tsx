@@ -56,7 +56,7 @@ export default function WbToc({ markdown }: { markdown: string }) {
         }}
         aria-expanded={open}
         aria-label={open ? '折叠目录' : '展开目录'}
-        className="font-inter text-wb-accent focus-visible:ring-wb-accent flex w-full items-center justify-between rounded-t-xl px-5 py-4 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none sm:pointer-events-none sm:cursor-default"
+        className="font-inter text-wb-accent focus-visible:ring-wb-accent active:bg-wb-accent/5 flex w-full items-center justify-between rounded-t-xl px-5 py-4 text-[11px] font-semibold tracking-[0.2em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none sm:pointer-events-none sm:cursor-default sm:active:bg-transparent"
       >
         <span>目录</span>
         {/* Chevron — only visible on small screens */}
@@ -104,7 +104,7 @@ export default function WbToc({ markdown }: { markdown: string }) {
                   className={`focus-visible:ring-wb-accent block rounded leading-snug transition-colors duration-150 focus-visible:ring-1 focus-visible:outline-none ${sizeClass} ${
                     isActive
                       ? 'text-wb-accent pl-2 font-semibold'
-                      : 'text-wb-meta hover:text-wb-accent pl-2'
+                      : 'text-wb-meta hover:text-wb-accent hover:bg-wb-accent/5 pl-2'
                   }`}
                 >
                   {h.text}

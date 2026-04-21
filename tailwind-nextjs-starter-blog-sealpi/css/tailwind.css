@@ -221,7 +221,11 @@ input:-webkit-autofill:focus {
     filter: none;
     transition: none;
   }
-  .wb-page-enter {
+  .wb-page-enter,
+  .toast-enter,
+  .dialog-enter,
+  .dropdown-enter,
+  .content-enter {
     animation: none;
   }
 }
@@ -239,6 +243,60 @@ input:-webkit-autofill:focus {
 }
 .wb-page-enter {
   animation: wb-page-in var(--duration-page) cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Toast/snackbar slide-up entrance */
+@keyframes toast-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.toast-enter {
+  animation: toast-slide-up 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Modal dialog scale-in entrance */
+@keyframes dialog-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.dialog-enter {
+  animation: dialog-scale-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Dropdown menu slide-down entrance */
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.dropdown-enter {
+  animation: dropdown-in 0.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Inline content cross-fade (e.g. editor preview toggle) */
+@keyframes content-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.content-enter {
+  animation: content-fade-in 0.14s ease both;
 }
 
 /* ===== Workbook body typography ===== */

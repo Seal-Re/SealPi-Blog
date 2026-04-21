@@ -29,7 +29,7 @@ export default function WbShareButton({ title }: WbShareButtonProps) {
     <button
       type="button"
       onClick={() => void handleShare()}
-      className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none"
+      className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
       aria-label="分享文章"
     >
       <svg

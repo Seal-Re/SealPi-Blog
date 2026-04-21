@@ -802,6 +802,42 @@ class ArticleServiceImplTest {
         verify(articleGateway).save(article);
     }
 
+    @Test
+    void adminPublish_archivedArticle_returns400() {
+        Article archived = Article.reconstruct(
+                5, "My Article", "summary", "my-article",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.ARCHIVED, 0,
+                "{}", "{}", null, 0, null, null, null
+        );
+        when(articleGateway.findById(5)).thenReturn(archived);
+
+        Response result = service.adminPublish(5);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        // ARCHIVED is terminal — must not be persisted as PUBLISHED
+        verify(articleGateway, never()).save(any(Article.class));
+    }
+
+    @Test
+    void adminOffline_archivedArticle_returns400() {
+        Article archived = Article.reconstruct(
+                7, "Archived Post", "summary", "archived-post",
+                "2026-01-01", "2026-01-01",
+                ArticleStatus.ARCHIVED, 0,
+                "{}", "{}", null, 0, null, null, null
+        );
+        when(articleGateway.findById(7)).thenReturn(archived);
+
+        Response result = service.adminOffline(7);
+
+        assertFalse(result.isSuccess());
+        assertEquals("400", result.getErrorCode());
+        // ARCHIVED is terminal — must not be persisted as DRAFT
+        verify(articleGateway, never()).save(any(Article.class));
+    }
+
     // --- getAdminStats ---
 
     @Test
@@ -821,5 +857,90 @@ class ArticleServiceImplTest {
         verify(articleGateway).countByStatus(ArticleStatus.PUBLISHED.getCode());
         verify(articleGateway).countByStatus(ArticleStatus.DRAFT.getCode());
         verify(articleGateway).countByStatus(ArticleStatus.ARCHIVED.getCode());
+    }
+
+    @Test
+    void getAdminStats_includesViewCountFromGateway() {
+        when(articleGateway.countByStatus(null)).thenReturn(5);
+        when(articleGateway.countByStatus(ArticleStatus.PUBLISHED.getCode())).thenReturn(3);
+        when(articleGateway.countByStatus(ArticleStatus.DRAFT.getCode())).thenReturn(2);
+        when(articleGateway.countByStatus(ArticleStatus.ARCHIVED.getCode())).thenReturn(0);
+        when(articleGateway.sumViewCount()).thenReturn(9876L);
+
+        com.seal.blog.client.article.dto.vo.ArticleStatsVO stats = service.getAdminStats();
+
+        assertEquals(9876L, stats.getTotalViews());
+        verify(articleGateway).sumViewCount();
+    }
+
+    // --- adminUpdate additional coverage ---
+
+    @Test
+    void adminUpdate_missingArticle_returns404() {
+        when(articleGateway.findById(777)).thenReturn(null);
+
+        ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd(777, "title", "s", "slug-x", "{}", null, null, null);
+        Response result = service.adminUpdate(cmd, "draft", null);
+
+        assertFalse(result.isSuccess());
+        assertEquals("404", result.getErrorCode());
+        verify(articleGateway, never()).save(any(Article.class));
+    }
+
+    @Test
+    void adminUpdate_slugBelongsToDifferentArticle_returns409() {
+        Article targetArticle = Article.reconstruct(
+                20, "My Article", "s", "my-slug", "2026-01-01", "2026-01-01",
+                ArticleStatus.DRAFT, 0, "{}", "{}", null, 0, null, null, null);
+        Article conflictingArticle = Article.reconstruct(
+                21, "Other", "s", "conflict-slug", "2026-01-01", "2026-01-01",
+                ArticleStatus.PUBLISHED, 0, null, null, null, 0, null, null, null);
+
+        when(articleGateway.findById(20)).thenReturn(targetArticle);
+        // Slug "conflict-slug" is owned by article 21 (different ID)
+        when(articleGateway.findBySlug("conflict-slug")).thenReturn(conflictingArticle);
+
+        ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd(20, "My Article", "s", "conflict-slug", "{}", null, null, null);
+        Response result = service.adminUpdate(cmd, "draft", null);
+
+        assertFalse(result.isSuccess());
+        assertEquals("409", result.getErrorCode());
+        verify(articleGateway, never()).save(any(Article.class));
+    }
+
+    @Test
+    void adminUpdate_slugBelongsToSameArticle_allowsUpdate() {
+        // When updating and the slug resolves to the SAME article, it should pass (no 409).
+        Article article = Article.reconstruct(
+                25, "Title", "s", "own-slug", "2026-01-01", "2026-01-01",
+                ArticleStatus.DRAFT, 0, "{}", "{}", null, 0, null, null, null);
+
+        when(articleGateway.findById(25)).thenReturn(article);
+        when(articleGateway.findBySlug("own-slug")).thenReturn(article); // same article
+
+        ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd(25, "Title", "s", "own-slug", "{}", null, null, null);
+        Response result = service.adminUpdate(cmd, "draft", null);
+
+        assertTrue(result.isSuccess());
+        verify(articleGateway).save(article);
+    }
+
+    @Test
+    void adminUpdate_publishAction_copiesDraftBodyMdToBodyMd() {
+        Article article = Article.reconstruct(
+                30, "Published Title", "s", "pub-slug", "2026-01-01", "2026-01-01",
+                ArticleStatus.DRAFT, 0, "{}", "{}", null, 0, null, "# original draft", null);
+
+        when(articleGateway.findById(30)).thenReturn(article);
+        when(articleGateway.findBySlug("pub-slug")).thenReturn(null);
+
+        ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd(
+                30, "Published Title", "s", "pub-slug", "{}", "# new draft body", null, null);
+        Response result = service.adminUpdate(cmd, "publish", null);
+
+        assertTrue(result.isSuccess());
+        assertEquals(ArticleStatus.PUBLISHED, article.getDraft());
+        assertThat(article.getBodyMd()).isEqualTo("# new draft body");
+        verify(articleGateway).save(article);
     }
 }

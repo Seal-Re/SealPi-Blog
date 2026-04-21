@@ -1,12 +1,15 @@
 spring:
   application:
     name: blog-infra
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3304/sealpi_blog?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: Fastop@123
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:13307/sealpi_blog?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     hikari:
       minimum-idle: 5
       maximum-pool-size: 15

@@ -14,6 +14,15 @@ export default function Comments({ slug }: { slug: string }) {
     return null
   }
 
+  // Guard against unconfigured giscus (empty env vars) — widget would show
+  // "giscus is not installed on this repository" otherwise.
+  if (siteMetadata.comments.provider === 'giscus') {
+    const gc = siteMetadata.comments.giscusConfig
+    if (!gc?.repo || !gc?.repositoryId || !gc?.category || !gc?.categoryId) {
+      return null
+    }
+  }
+
   // Avoid flash of incorrect permission banner while session resolves
   if (status === 'loading') {
     return (

@@ -61,7 +61,7 @@ const Header = () => {
         ) : (
           <button
             type="button"
-            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:bg-wb-accent/5 hover:text-wb-accent focus-visible:ring-wb-accent hidden rounded-full border px-3 py-1 text-xs font-semibold transition focus-visible:ring-2 focus-visible:outline-none sm:block"
+            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:bg-wb-accent/5 hover:text-wb-accent focus-visible:ring-wb-accent hidden rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-95 sm:block"
             onClick={() => signIn('github', { callbackUrl: '/' })}
           >
             登录

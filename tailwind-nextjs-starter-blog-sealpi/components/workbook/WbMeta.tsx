@@ -30,11 +30,13 @@ export default function WbMeta({
 
   return (
     <div className="font-inter text-wb-meta mb-7 flex flex-wrap items-center gap-3.5 text-[13px]">
-      <time dateTime={dateIso}>{formatZhCN(dateIso)}</time>
+      <time dateTime={dateIso} className="tabular-nums">
+        {formatZhCN(dateIso)}
+      </time>
       {showLastmod ? (
         <>
           <span className="opacity-40">·</span>
-          <time dateTime={lastmodIso} className="text-[12px] opacity-70">
+          <time dateTime={lastmodIso} className="text-[12px] tabular-nums opacity-70">
             更新于 {formatZhCN(lastmodIso!)}
           </time>
         </>
@@ -42,13 +44,13 @@ export default function WbMeta({
       {readMinutes != null ? (
         <>
           <span className="opacity-40">·</span>
-          <span>{readMinutes} 分钟阅读</span>
+          <span className="tabular-nums">{readMinutes} 分钟阅读</span>
         </>
       ) : null}
       {viewCount != null && viewCount > 0 ? (
         <>
           <span className="opacity-40">·</span>
-          <span>{viewCount.toLocaleString('zh-CN')} 次阅读</span>
+          <span className="tabular-nums">{viewCount.toLocaleString('zh-CN')} 次阅读</span>
         </>
       ) : null}
       {tags.map((tag) => (

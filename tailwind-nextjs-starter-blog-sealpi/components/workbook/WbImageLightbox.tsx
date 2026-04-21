@@ -56,7 +56,7 @@ export default function WbImageLightbox() {
         onClick={close}
       />
       {/* Image — pointer-events-auto so right-click to save works */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
+      <div className="dialog-enter pointer-events-none absolute inset-0 flex items-center justify-center p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={lightbox.src}
@@ -69,7 +69,7 @@ export default function WbImageLightbox() {
         ref={closeButtonRef}
         type="button"
         aria-label="关闭预览"
-        className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+        className="absolute top-4 right-4 rounded-full bg-white/10 p-2 text-white transition-colors duration-200 hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none active:scale-95"
         onClick={close}
       >
         <svg

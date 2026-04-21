@@ -2,7 +2,7 @@ import Link from '@/components/Link'
 
 export default function AdminForbiddenPage() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden p-6 sm:p-10">
+    <section className="wb-page-enter relative flex min-h-screen items-center justify-center overflow-hidden p-6 sm:p-10">
       <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_18%_22%,rgba(225,29,72,0.18),transparent_38%),radial-gradient(circle_at_82%_78%,rgba(244,63,94,0.14),transparent_36%),linear-gradient(160deg,#fff1f2_0%,#ffe4e6_45%,#fff1f2_100%)] dark:bg-[radial-gradient(circle_at_18%_22%,rgba(225,29,72,0.2),transparent_36%),radial-gradient(circle_at_82%_78%,rgba(244,63,94,0.16),transparent_34%),linear-gradient(160deg,#0f172a_0%,#111827_45%,#0f172a_100%)]" />
       <div className="bg-wb-canvas/35 absolute inset-0 -z-10 backdrop-blur-2xl dark:bg-black/35" />
       <div className="bg-wb-canvas/85 w-full max-w-2xl rounded-[2rem] border border-rose-200/70 p-8 shadow-[0_24px_80px_-42px_rgba(225,29,72,0.35)] backdrop-blur-xl dark:border-rose-900/50 dark:bg-gray-950/65">
@@ -19,13 +19,13 @@ export default function AdminForbiddenPage() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/login?next=/admin"
-            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
           >
             返回登录页
           </Link>
           <Link
             href="/"
-            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
+            className="border-wb-rule text-wb-ink hover:border-wb-ink hover:bg-wb-ink hover:text-wb-paper focus-visible:ring-wb-accent inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95 dark:border-gray-700 dark:text-gray-100 dark:hover:border-gray-100 dark:hover:bg-gray-100 dark:hover:text-gray-950"
           >
             回到首页
           </Link>

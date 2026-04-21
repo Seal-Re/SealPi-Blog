@@ -8,7 +8,7 @@ import type { PublicBlogPost } from '@/lib/public-blog-api'
 export default function Home({ posts }: { posts: PublicBlogPost[] }) {
   return (
     <>
-      <ul data-reveal className="space-y-6">
+      <ul data-reveal suppressHydrationWarning className="space-y-6">
         {!posts.length && (
           <li className="bg-wb-canvas border-wb-rule-soft rounded-2xl border p-10 text-center">
             <p className="text-wb-meta text-sm">暂无已发布文章</p>
@@ -45,7 +45,7 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                 )}
                 <div className="p-6">
                   <div className="flex flex-wrap items-center gap-3">
-                    <time dateTime={date} className="text-wb-meta text-sm font-medium">
+                    <time dateTime={date} className="text-wb-meta text-sm font-medium tabular-nums">
                       {formatDate(date, siteMetadata.locale)}
                     </time>
                     {isUpdated ? (
@@ -56,13 +56,15 @@ export default function Home({ posts }: { posts: PublicBlogPost[] }) {
                     {readMinutes != null ? (
                       <>
                         <span className="text-wb-rule opacity-40">·</span>
-                        <span className="text-wb-meta text-xs">{readMinutes} 分钟阅读</span>
+                        <span className="text-wb-meta text-xs tabular-nums">
+                          {readMinutes} 分钟阅读
+                        </span>
                       </>
                     ) : null}
                     {viewCount != null && viewCount > 0 ? (
                       <>
                         <span className="text-wb-rule opacity-40">·</span>
-                        <span className="text-wb-meta text-xs">
+                        <span className="text-wb-meta text-xs tabular-nums">
                           {viewCount.toLocaleString('zh-CN')} 次阅读
                         </span>
                       </>

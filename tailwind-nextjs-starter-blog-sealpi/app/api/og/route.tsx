@@ -1,11 +1,12 @@
 import { ImageResponse } from 'next/og'
+import { NextRequest } from 'next/server'
 import siteMetadata from '@/data/siteMetadata'
 import { buildApiUrl } from '@/lib/api-config'
 import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
 
 export const runtime = 'edge'
+
 export const size = { width: 1200, height: 630 }
-export const contentType = 'image/png'
 
 async function fetchArticleForOg(
   slug: string
@@ -28,16 +29,14 @@ async function fetchArticleForOg(
   }
 }
 
-export default async function ArticleOgImage(props: { params: Promise<{ slug: string[] }> }) {
-  const params = await props.params
-  const slug = decodeURI(params.slug.join('/'))
-  const article = await fetchArticleForOg(slug)
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl
+  const slug = searchParams.get('slug') ?? ''
 
+  const article = slug ? await fetchArticleForOg(decodeURIComponent(slug)) : null
   const title = article?.title ?? siteMetadata.title
   const firstTag = article?.tags?.[0]
 
-  // Estimate visual character width: CJK characters are roughly 2× the width of ASCII.
-  // This gives a more accurate threshold for font-size scaling in mixed-language titles.
   const effectiveLength = [...title].reduce(
     (acc, ch) =>
       acc +
@@ -58,7 +57,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
         overflow: 'hidden',
       }}
     >
-      {/* Warm texture overlay — subtle radial gradient */}
       <div
         style={{
           position: 'absolute',
@@ -67,8 +65,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
             'radial-gradient(ellipse 80% 60% at 10% 80%, rgba(196,155,92,0.14) 0%, transparent 70%)',
         }}
       />
-
-      {/* Left amber accent bar */}
       <div
         style={{
           position: 'absolute',
@@ -79,8 +75,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
           background: 'linear-gradient(180deg, #c49b5c 0%, #a07840 100%)',
         }}
       />
-
-      {/* Main content */}
       <div
         style={{
           position: 'absolute',
@@ -92,7 +86,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
           padding: '60px 72px 60px 64px',
         }}
       >
-        {/* Top: tag label */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {firstTag ? (
             <div
@@ -114,8 +107,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
             <div style={{ display: 'flex' }} />
           )}
         </div>
-
-        {/* Middle: article title */}
         <div
           style={{
             display: 'flex',
@@ -140,8 +131,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
             {title}
           </div>
         </div>
-
-        {/* Bottom: site attribution */}
         <div
           style={{
             display: 'flex',
@@ -171,8 +160,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
           </div>
         </div>
       </div>
-
-      {/* Decorative corner mark */}
       <div
         style={{
           position: 'absolute',
@@ -185,8 +172,6 @@ export default async function ArticleOgImage(props: { params: Promise<{ slug: st
         }}
       />
     </div>,
-    {
-      ...size,
-    }
+    { width: 1200, height: 630 }
   )
 }

@@ -153,6 +153,9 @@ public class ArticleServiceImpl implements ArticleServiceI {
         if (article == null) {
             return Response.buildFailure("404", "文章不存在");
         }
+        if (ArticleStatus.ARCHIVED == article.getDraft()) {
+            return Response.buildFailure("400", "已归档文章不可下线，归档为终态");
+        }
         article.offlineToDraft();
         articleGateway.save(article);
         return Response.buildSuccess();
@@ -176,6 +179,9 @@ public class ArticleServiceImpl implements ArticleServiceI {
         Article article = articleGateway.findById(id);
         if (article == null) {
             return Response.buildFailure("404", "文章不存在");
+        }
+        if (ArticleStatus.ARCHIVED == article.getDraft()) {
+            return Response.buildFailure("400", "已归档文章不可发布，归档为终态");
         }
         String title = article.getTitle();
         if (title == null || title.isBlank() || DRAFT_PLACEHOLDER_TITLE.equals(title.trim())) {

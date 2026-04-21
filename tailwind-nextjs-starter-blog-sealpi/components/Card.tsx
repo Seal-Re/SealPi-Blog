@@ -11,12 +11,12 @@ const Card = ({ title, description, imgSrc, href }) => (
           <Link
             href={href}
             aria-label={`查看 ${title}`}
-            className="focus-visible:ring-wb-accent block focus-visible:ring-2 focus-visible:outline-none"
+            className="focus-visible:ring-wb-accent block overflow-hidden focus-visible:ring-2 focus-visible:outline-none"
           >
             <Image
               alt={title}
               src={imgSrc}
-              className="object-cover object-center md:h-36 lg:h-48"
+              className="object-cover object-center transition-transform duration-300 group-hover:scale-105 md:h-36 lg:h-48"
               width={544}
               height={306}
             />

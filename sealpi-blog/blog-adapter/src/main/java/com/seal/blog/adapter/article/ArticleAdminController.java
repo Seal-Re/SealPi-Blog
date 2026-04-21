@@ -18,8 +18,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,12 +34,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@RequiredArgsConstructor
 public class ArticleAdminController {
 
     private final ArticleServiceI articleService;
 
+    @Nullable
     private final MinioObjectStorage objectStorage;
+
+    @Autowired
+    public ArticleAdminController(ArticleServiceI articleService,
+                                  @Nullable MinioObjectStorage objectStorage) {
+        this.articleService = articleService;
+        this.objectStorage = objectStorage;
+    }
 
     /**
      * Returns aggregated article counts (total, published, draft, archived) in one request.
@@ -112,6 +120,9 @@ public class ArticleAdminController {
     ) {
         String finalCoverUrl = coverImageUrl;
         if (previewImage != null && !previewImage.isEmpty()) {
+            if (objectStorage == null) {
+                throw new IllegalStateException("文件上传未配置：请设置 ADMIN_UPLOAD_MINIO_ENDPOINT 环境变量");
+            }
             try {
                 finalCoverUrl = objectStorage.upload(
                         previewImage.getInputStream(),
@@ -172,6 +183,9 @@ public class ArticleAdminController {
     ) {
         String finalCoverUrl = coverImageUrl;
         if (previewImage != null && !previewImage.isEmpty()) {
+            if (objectStorage == null) {
+                throw new IllegalStateException("文件上传未配置：请设置 ADMIN_UPLOAD_MINIO_ENDPOINT 环境变量");
+            }
             try {
                 finalCoverUrl = objectStorage.upload(
                         previewImage.getInputStream(),

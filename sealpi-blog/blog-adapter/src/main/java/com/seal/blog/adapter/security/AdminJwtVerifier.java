@@ -33,19 +33,20 @@ public class AdminJwtVerifier {
             String githubUserApi,
             boolean allowLegacyJwt
     ) {
-        if (secret == null || secret.isBlank()) {
-            throw new IllegalArgumentException("admin.jwt.secret must not be blank");
+        // Secret is only needed when the JWT path is enabled.
+        if (allowLegacyJwt && (secret == null || secret.isBlank())) {
+            throw new IllegalArgumentException(
+                    "admin.jwt.secret must not be blank when admin.auth.allowLegacyJwt=true");
         }
-        this.secret = secret.getBytes(StandardCharsets.UTF_8);
+        this.secret = (secret == null || secret.isBlank())
+                ? new byte[0]
+                : secret.getBytes(StandardCharsets.UTF_8);
         this.adminGithubUserIds = parseCsv(adminGithubUserIdsCsv);
         this.githubUserIdClaim = (githubUserIdClaim == null || githubUserIdClaim.isBlank()) ? "githubUserId" : githubUserIdClaim;
         this.githubUserApi = (githubUserApi == null || githubUserApi.isBlank()) ? "https://api.github.com/user" : githubUserApi;
         this.allowLegacyJwt = allowLegacyJwt;
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
-
-        if (this.adminGithubUserIds.isEmpty()) {
-            throw new IllegalArgumentException("admin.github.userIds must not be empty");
-        }
+        // Empty whitelist is allowed — all admin requests will return 403 until configured.
     }
 
     public void verifyAuthorizationHeader(String header) {
@@ -133,6 +134,21 @@ public class AdminJwtVerifier {
         }
 
         String payloadJson = new String(base64UrlDecode(payloadB64), StandardCharsets.UTF_8);
+
+        // Check exp claim if present: reject tokens whose expiry has passed.
+        String expStr = extractJsonStringOrNumber(payloadJson, "exp");
+        if (expStr != null && !expStr.isBlank()) {
+            try {
+                long expSeconds = Long.parseLong(expStr);
+                long nowSeconds = System.currentTimeMillis() / 1000L;
+                if (nowSeconds > expSeconds) {
+                    throw new AdminAuthException(401, "401", "token已过期");
+                }
+            } catch (NumberFormatException e) {
+                throw new AdminAuthException(401, "401", "token格式错误");
+            }
+        }
+
         String githubUserId = extractJsonStringOrNumber(payloadJson, githubUserIdClaim);
         if (githubUserId == null || githubUserId.isBlank()) {
             throw new AdminAuthException(403, "403", "token缺少管理员标识");

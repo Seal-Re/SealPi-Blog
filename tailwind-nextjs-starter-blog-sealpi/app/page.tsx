@@ -39,13 +39,13 @@ async function PopularFeed() {
 function PopularPosts({ posts }: { posts: PublicBlogPost[] }) {
   return (
     <>
-      <div data-reveal className="mt-14 mb-6 flex items-center gap-4">
+      <div data-reveal suppressHydrationWarning className="mt-14 mb-6 flex items-center gap-4">
         <p className="font-inter text-wb-meta shrink-0 text-[11px] font-semibold tracking-[0.22em] uppercase">
           热门文章
         </p>
         <div className="border-wb-rule-soft flex-1 border-t" />
       </div>
-      <ul data-reveal className="space-y-2">
+      <ul data-reveal suppressHydrationWarning className="space-y-2">
         {posts.map((post, idx) => (
           <li key={post.slug}>
             <Link
@@ -113,13 +113,13 @@ export default function Page() {
         <div className="mt-7 flex flex-wrap items-center gap-3">
           <Link
             href="/blog"
-            className="bg-wb-ink text-wb-paper hover:bg-wb-accent focus-visible:ring-wb-accent rounded-full px-6 py-2.5 text-sm font-semibold transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+            className="bg-wb-ink text-wb-paper hover:bg-wb-accent focus-visible:ring-wb-accent rounded-full px-6 py-2.5 text-sm font-semibold transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
           >
             浏览全部文章
           </Link>
           <Link
             href="/about"
-            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent rounded-full border px-6 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+            className="border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent rounded-full border px-6 py-2.5 text-sm font-medium transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
           >
             关于我
           </Link>
@@ -127,7 +127,7 @@ export default function Page() {
       </div>
 
       {/* Section label */}
-      <div data-reveal className="mt-10 mb-6 flex items-center gap-4">
+      <div data-reveal suppressHydrationWarning className="mt-10 mb-6 flex items-center gap-4">
         <p className="font-inter text-wb-meta shrink-0 text-[11px] font-semibold tracking-[0.22em] uppercase">
           最新文章
         </p>

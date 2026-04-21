@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   fetchPublishedArticlesPage,
+  fetchPublishedArticles,
   fetchPublishedTags,
   fetchAdjacentBySlug,
   fetchAllPublishedArticles,
+  fetchTopViewedArticles,
   BLOG_POSTS_PER_PAGE,
 } from '../public-blog-api'
 
@@ -350,5 +352,169 @@ describe('fetchAllPublishedArticles', () => {
     const result = await fetchAllPublishedArticles()
 
     expect(result).toHaveLength(0)
+  })
+})
+
+describe('fetchTopViewedArticles', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  function makeArticle(id: string, title: string, viewCount: number) {
+    return {
+      articleId: id,
+      title,
+      url: title.toLowerCase().replace(/\s/g, '-'),
+      summary: 'summary',
+      coverImageUrl: null,
+      viewCount,
+      date: '2026-01-01',
+      tags: [],
+    }
+  }
+
+  it('returns empty array when fetch throws (network error)', async () => {
+    vi.mocked(fetch).mockRejectedValue(new TypeError('fetch failed'))
+
+    const result = await fetchTopViewedArticles()
+
+    expect(result).toEqual([])
+  })
+
+  it('returns empty array when response is not ok', async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 503 }))
+
+    const result = await fetchTopViewedArticles()
+
+    expect(result).toEqual([])
+  })
+
+  it('filters out articles with zero viewCount', async () => {
+    const payload = {
+      data: [makeArticle('1', 'Popular', 100), makeArticle('2', 'Zero Views', 0)],
+      totalCount: 2,
+      pageIndex: 1,
+      pageSize: 5,
+      totalPage: 1,
+    }
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 }))
+
+    const result = await fetchTopViewedArticles()
+
+    expect(result).toHaveLength(1)
+    expect(result[0].title).toBe('Popular')
+    expect(result[0].viewCount).toBe(100)
+  })
+
+  it('returns up to pageSize items when all have non-zero viewCounts', async () => {
+    const payload = {
+      data: [
+        makeArticle('1', 'Most', 500),
+        makeArticle('2', 'Second', 200),
+        makeArticle('3', 'Third', 50),
+      ],
+      totalCount: 3,
+      pageIndex: 1,
+      pageSize: 5,
+      totalPage: 1,
+    }
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 }))
+
+    const result = await fetchTopViewedArticles(5)
+
+    expect(result).toHaveLength(3)
+  })
+
+  it('requests sort=views param', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({ data: [], totalCount: 0, pageIndex: 1, pageSize: 5, totalPage: 1 }),
+        {
+          status: 200,
+        }
+      )
+    )
+
+    await fetchTopViewedArticles(5)
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('sort=views')
+  })
+
+  it('returns empty array when payload data is empty', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({ data: [], totalCount: 0, pageIndex: 1, pageSize: 5, totalPage: 1 }),
+        { status: 200 }
+      )
+    )
+
+    const result = await fetchTopViewedArticles()
+
+    expect(result).toEqual([])
+  })
+})
+
+describe('fetchPublishedArticles', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  it('returns items from page 1 with default page size', async () => {
+    const payload = {
+      data: [
+        {
+          articleId: '1',
+          title: 'Hello',
+          url: 'hello',
+          summary: 'A summary',
+          coverImageUrl: null,
+          viewCount: 0,
+          date: '2026-01-01',
+          tags: [],
+        },
+      ],
+      totalCount: 1,
+      pageIndex: 1,
+      pageSize: BLOG_POSTS_PER_PAGE,
+      totalPage: 1,
+    }
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(payload), { status: 200 }))
+
+    const result = await fetchPublishedArticles()
+
+    expect(result).toHaveLength(1)
+    expect(result[0].title).toBe('Hello')
+    expect(result[0].slug).toBe('hello')
+  })
+
+  it('returns empty array on network error', async () => {
+    vi.mocked(fetch).mockRejectedValue(new TypeError('fetch failed'))
+
+    const result = await fetchPublishedArticles()
+
+    expect(result).toEqual([])
+  })
+
+  it('accepts custom pageSize option', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({ data: [], totalCount: 0, pageIndex: 1, pageSize: 10, totalPage: 1 }),
+        { status: 200 }
+      )
+    )
+
+    await fetchPublishedArticles({ pageSize: 10 })
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('pageSize=10')
   })
 })

@@ -60,6 +60,11 @@ services:
       ADMIN_UPLOAD_MINIO_BUCKET: blog-assets
       ADMIN_UPLOAD_PUBLICBASEURL: ${MINIO_PUBLIC_BASE_URL:-http://localhost:13308}
       BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
+      # Flyway baseline — only needed when migrating an existing DB that has no
+      # schema history table. Omit (or set to false) for fresh installations so
+      # Flyway runs all migrations (V0→V3) on the empty MySQL volume.
+      # SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      # SPRING_FLYWAY_BASELINE_VERSION: "2"
     ports:
       - "13310:8080"
 

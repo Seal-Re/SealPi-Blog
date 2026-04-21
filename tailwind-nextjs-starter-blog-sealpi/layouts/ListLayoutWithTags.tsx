@@ -7,6 +7,7 @@ import Link from '@/components/Link'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata'
 import type { PublicBlogPost, PublicTag } from '@/lib/public-blog-api'
+import { getPageSequence } from '@/lib/pagination-utils'
 
 interface PaginationProps {
   totalPages: number
@@ -24,21 +25,6 @@ interface ListLayoutProps {
   totalCount?: number
   emptyTitle?: string
   emptyDescription?: string
-}
-
-/** Returns a compact page-number sequence with at most one ellipsis per gap. */
-function getPageSequence(current: number, total: number): (number | 'ellipsis')[] {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1)
-  }
-  const items: (number | 'ellipsis')[] = [1]
-  const rangeStart = Math.max(2, current - 2)
-  const rangeEnd = Math.min(total - 1, current + 2)
-  if (rangeStart > 2) items.push('ellipsis')
-  for (let p = rangeStart; p <= rangeEnd; p++) items.push(p)
-  if (rangeEnd < total - 1) items.push('ellipsis')
-  items.push(total)
-  return items
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
@@ -64,7 +50,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
           href={pageHref(currentPage - 1)}
           rel="prev"
           aria-label="上一页"
-          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
         >
           <span aria-hidden="true">←</span>
         </Link>
@@ -87,7 +73,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
           <span
             key={item}
             aria-current="page"
-            className="bg-wb-accent text-wb-paper inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold"
+            className="bg-wb-accent text-wb-paper inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold tabular-nums"
           >
             {item}
           </span>
@@ -96,7 +82,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
             key={item}
             href={pageHref(item)}
             aria-label={`第 ${item} 页`}
-            className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+            className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm tabular-nums transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
           >
             {item}
           </Link>
@@ -109,7 +95,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
           href={pageHref(currentPage + 1)}
           rel="next"
           aria-label="下一页"
-          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+          className="border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
         >
           <span aria-hidden="true">→</span>
         </Link>
@@ -164,7 +150,9 @@ export default function ListLayoutWithTags({
               {title}
             </h1>
             {totalCount != null && totalCount > 0 ? (
-              <span className="font-inter text-wb-meta text-sm">共 {totalCount} 篇</span>
+              <span className="font-inter text-wb-meta text-sm tabular-nums">
+                共 {totalCount} 篇
+              </span>
             ) : null}
           </div>
         </div>
@@ -172,7 +160,7 @@ export default function ListLayoutWithTags({
           <div className="no-scrollbar -mx-1 mb-4 flex gap-1.5 overflow-x-auto px-1 sm:hidden">
             <Link
               href="/blog"
-              className={`focus-visible:ring-wb-accent rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:ring-1 focus-visible:outline-none ${
+              className={`focus-visible:ring-wb-accent rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:ring-1 focus-visible:outline-none active:scale-95 ${
                 pathname.startsWith('/blog') && !pathname.includes('/tags/')
                   ? 'border-wb-accent bg-wb-accent/10 text-wb-accent'
                   : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent'
@@ -188,7 +176,7 @@ export default function ListLayoutWithTags({
                   key={tag.slug}
                   href={`/tags/${tag.slug}`}
                   aria-label={`查看标签：${tag.name}`}
-                  className={`focus-visible:ring-wb-accent rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:ring-1 focus-visible:outline-none ${
+                  className={`focus-visible:ring-wb-accent rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap uppercase transition-colors focus-visible:ring-1 focus-visible:outline-none active:scale-95 ${
                     isActive
                       ? 'border-wb-accent bg-wb-accent/10 text-wb-accent'
                       : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent'
@@ -201,7 +189,7 @@ export default function ListLayoutWithTags({
           </div>
         )}
         <div className="flex sm:space-x-24">
-          <div className="border-wb-rule-soft bg-wb-paper hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-2xl border pt-5 shadow-[0_4px_20px_-6px_rgba(31,26,21,0.10)] sm:flex dark:shadow-[0_4px_20px_-6px_rgba(0,0,0,0.35)]">
+          <div className="border-wb-rule-soft bg-wb-paper hidden max-h-screen max-w-[280px] min-w-[280px] shrink-0 overflow-auto rounded-2xl border pt-5 shadow-[0_4px_20px_-6px_rgba(31,26,21,0.10)] sm:block dark:shadow-[0_4px_20px_-6px_rgba(0,0,0,0.35)]">
             <div className="px-4 py-4">
               {pathname.startsWith('/blog') ? (
                 <span className="bg-wb-accent/10 text-wb-accent inline-block w-full rounded-lg px-3 py-2 text-sm font-bold uppercase">
@@ -210,7 +198,7 @@ export default function ListLayoutWithTags({
               ) : (
                 <Link
                   href="/blog"
-                  className="hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+                  className="hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent text-wb-meta inline-block w-full rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
                 >
                   全部文章
                 </Link>
@@ -222,16 +210,16 @@ export default function ListLayoutWithTags({
                     tag.slug ? (
                       <span className="bg-wb-accent/10 text-wb-accent flex w-full items-center rounded-lg px-3 py-2 text-sm font-bold uppercase">
                         <span className="flex-1">{tag.name}</span>
-                        <span className="text-wb-accent/60 text-xs">{tag.count}</span>
+                        <span className="text-wb-accent/60 text-xs tabular-nums">{tag.count}</span>
                       </span>
                     ) : (
                       <Link
                         href={`/tags/${tag.slug}`}
-                        className="hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent text-wb-meta flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none"
+                        className="hover:text-wb-accent hover:bg-wb-accent/5 focus-visible:ring-wb-accent text-wb-meta flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium uppercase transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
                         aria-label={`查看标签：${tag.name}`}
                       >
                         <span className="flex-1">{tag.name}</span>
-                        <span className="text-wb-rule text-xs">{tag.count}</span>
+                        <span className="text-wb-rule text-xs tabular-nums">{tag.count}</span>
                       </Link>
                     )}
                   </li>
@@ -239,7 +227,7 @@ export default function ListLayoutWithTags({
               </ul>
             </div>
           </div>
-          <div data-reveal>
+          <div data-reveal suppressHydrationWarning className="min-w-0 flex-1">
             {displayPosts.length ? (
               <ul>
                 {displayPosts.map((post) => {
@@ -265,7 +253,7 @@ export default function ListLayoutWithTags({
                           <div className="flex flex-wrap items-center gap-3">
                             <time
                               dateTime={post.date}
-                              className="text-wb-meta text-sm font-medium"
+                              className="text-wb-meta text-sm font-medium tabular-nums"
                               suppressHydrationWarning
                             >
                               {formatDate(post.date, siteMetadata.locale)}
@@ -278,7 +266,7 @@ export default function ListLayoutWithTags({
                             {post.readMinutes != null ? (
                               <>
                                 <span className="text-wb-rule opacity-40">·</span>
-                                <span className="text-wb-meta text-xs">
+                                <span className="text-wb-meta text-xs tabular-nums">
                                   {post.readMinutes} 分钟阅读
                                 </span>
                               </>
@@ -286,7 +274,7 @@ export default function ListLayoutWithTags({
                             {post.viewCount != null && post.viewCount > 0 ? (
                               <>
                                 <span className="text-wb-rule opacity-40">·</span>
-                                <span className="text-wb-meta text-xs">
+                                <span className="text-wb-meta text-xs tabular-nums">
                                   {post.viewCount.toLocaleString('zh-CN')} 次阅读
                                 </span>
                               </>

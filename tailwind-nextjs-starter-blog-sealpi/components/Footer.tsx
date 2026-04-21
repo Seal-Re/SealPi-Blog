@@ -21,7 +21,7 @@ export default function Footer() {
           <div className="space-y-2">
             <Link
               href="/"
-              className="font-fraunces hover:text-wb-accent focus-visible:ring-wb-accent text-wb-ink rounded text-xl font-medium italic transition-colors focus-visible:ring-1 focus-visible:outline-none"
+              className="font-fraunces hover:text-wb-accent focus-visible:ring-wb-accent text-wb-ink rounded text-xl font-medium italic transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             >
               {siteMetadata.headerTitle}
             </Link>
@@ -58,7 +58,7 @@ export default function Footer() {
             <Link
               href="/feed.xml"
               title="RSS 订阅"
-              className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent rounded transition focus-visible:ring-1 focus-visible:outline-none"
+              className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent rounded transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
             >
               <span className="sr-only">RSS 订阅</span>
               <svg
@@ -76,7 +76,7 @@ export default function Footer() {
               <span>{siteMetadata.author}</span>
             </AdminEasterEgg>
             <span>·</span>
-            <span>© {new Date().getFullYear()}</span>
+            <span className="tabular-nums">© {new Date().getFullYear()}</span>
             <span>·</span>
             <Link
               href="/"

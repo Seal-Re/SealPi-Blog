@@ -36,7 +36,7 @@ export default function ExcalidrawHero({
   if (!showViewer && imgError) return null
 
   return (
-    <div data-reveal className="relative mb-10">
+    <div data-reveal suppressHydrationWarning className="relative mb-10">
       <div
         className="border-wb-rule bg-wb-canvas relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[10px] border sm:aspect-video"
         style={{ boxShadow: '3px 4px 0 var(--color-wb-card-shadow)' }}

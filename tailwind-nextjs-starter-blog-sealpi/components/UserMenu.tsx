@@ -19,7 +19,7 @@ export default function UserMenu() {
 
   return (
     <Menu as="div" className="relative hidden text-left sm:block">
-      <MenuButton className="focus-visible:ring-wb-accent flex rounded-full focus-visible:ring-2 focus-visible:outline-none">
+      <MenuButton className="focus-visible:ring-wb-accent flex rounded-full transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-90">
         <span className="sr-only">打开用户菜单</span>
         {user.image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -45,7 +45,7 @@ export default function UserMenu() {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <MenuItems className="ring-opacity-5 bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-xl shadow-[0_8px_24px_-8px_rgba(31,26,21,0.18)] ring-1 focus:outline-hidden dark:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]">
+        <MenuItems className="ring-wb-rule/10 bg-wb-canvas absolute right-0 z-50 mt-2 w-72 origin-top-right overflow-hidden rounded-xl shadow-[0_8px_24px_-8px_rgba(31,26,21,0.18)] ring-1 focus:outline-hidden dark:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]">
           <div className="px-4 py-3">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-wb-ink truncate text-sm font-semibold">{display}</p>
@@ -94,7 +94,7 @@ export default function UserMenu() {
                 {({ focus }) => (
                   <Link
                     href="/admin"
-                    className={`${focus ? 'bg-wb-canvas' : ''} text-wb-ink block px-4 py-2.5 text-sm`}
+                    className={`${focus ? 'bg-wb-canvas text-wb-accent' : 'text-wb-ink'} block px-4 py-2.5 text-sm transition-colors duration-150`}
                   >
                     平台管理
                   </Link>
@@ -105,7 +105,7 @@ export default function UserMenu() {
               {({ focus }) => (
                 <Link
                   href="/login"
-                  className={`${focus ? 'bg-wb-canvas' : ''} text-wb-ink block px-4 py-2.5 text-sm`}
+                  className={`${focus ? 'bg-wb-canvas text-wb-accent' : 'text-wb-ink'} block px-4 py-2.5 text-sm transition-colors duration-150`}
                 >
                   账号与登录
                 </Link>
@@ -121,7 +121,7 @@ export default function UserMenu() {
                 <button
                   type="button"
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className={`${focus ? 'bg-red-50 dark:bg-red-950/30' : ''} w-full px-4 py-3 text-left text-sm font-medium text-red-600 dark:text-red-400`}
+                  className={`${focus ? 'bg-red-50 dark:bg-red-950/30' : ''} w-full px-4 py-3 text-left text-sm font-medium text-red-600 transition-colors duration-150 dark:text-red-400`}
                 >
                   退出登录
                 </button>

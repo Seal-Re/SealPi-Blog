@@ -87,7 +87,19 @@ export default function WorkbookArticleLayout({
         href={eyebrowHref}
         className="font-inter text-wb-accent hover:text-wb-ink focus-visible:ring-wb-accent mb-5 inline-flex items-center gap-1.5 rounded text-[11px] font-medium tracking-[0.18em] uppercase transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
       >
-        <span aria-hidden="true">←</span>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
         {eyebrow}
       </Link>
 
@@ -100,6 +112,7 @@ export default function WorkbookArticleLayout({
 
       <h1
         data-reveal
+        suppressHydrationWarning
         className={`font-fraunces text-wb-ink mb-5 text-[28px] leading-[1.12] font-medium tracking-[-0.02em] italic sm:text-[38px] sm:leading-[1.1] md:text-[48px] md:leading-[1.08] ${showHero ? 'mt-10 sm:mt-12' : 'mt-6 sm:mt-8'}`}
       >
         {title}
@@ -115,7 +128,7 @@ export default function WorkbookArticleLayout({
       <WbDivider />
 
       {bodyMd ? (
-        <div data-reveal>
+        <div data-reveal suppressHydrationWarning>
           <WbToc markdown={bodyMd} />
           <BodyMarkdown markdown={bodyMd} />
         </div>
@@ -124,7 +137,11 @@ export default function WorkbookArticleLayout({
       {children}
 
       {/* Author bio */}
-      <div data-reveal className="border-wb-rule-soft mt-14 flex items-start gap-4 border-t pt-8">
+      <div
+        data-reveal
+        suppressHydrationWarning
+        className="border-wb-rule-soft mt-14 flex items-start gap-4 border-t pt-8"
+      >
         <div className="bg-wb-accent/15 text-wb-accent flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold">
           {siteMetadata.author.charAt(0).toUpperCase()}
         </div>
@@ -151,7 +168,11 @@ export default function WorkbookArticleLayout({
       </div>
 
       {hasRelated ? (
-        <div data-reveal className="border-wb-rule-soft mt-10 border-t pt-10">
+        <div
+          data-reveal
+          suppressHydrationWarning
+          className="border-wb-rule-soft mt-10 border-t pt-10"
+        >
           <p className="font-inter text-wb-meta mb-6 text-[11px] font-semibold tracking-[0.22em] uppercase">
             相关文章
           </p>
@@ -160,7 +181,7 @@ export default function WorkbookArticleLayout({
               <Link
                 key={post.path}
                 href={`/${post.path}`}
-                className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none"
+                className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 rounded-xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98]"
               >
                 {post.coverImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -175,7 +196,7 @@ export default function WorkbookArticleLayout({
                   {post.title}
                 </span>
                 {post.date ? (
-                  <span className="text-wb-meta font-inter text-[11px]">
+                  <span className="text-wb-meta font-inter text-[11px] tabular-nums">
                     {new Date(post.date).toLocaleDateString('zh-CN', {
                       year: 'numeric',
                       month: 'long',
@@ -207,12 +228,13 @@ export default function WorkbookArticleLayout({
       {(prevPost || nextPost) && (
         <div
           data-reveal
+          suppressHydrationWarning
           className="border-wb-rule-soft mt-12 grid grid-cols-1 gap-4 border-t pt-8 sm:grid-cols-2"
         >
           {prevPost ? (
             <Link
               href={`/${prevPost.path}`}
-              className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none sm:items-start"
+              className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98] sm:items-start"
             >
               {prevPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -231,7 +253,7 @@ export default function WorkbookArticleLayout({
                   {prevPost.title}
                 </span>
                 {prevPost.date ? (
-                  <span className="text-wb-meta font-inter text-[11px]">
+                  <span className="text-wb-meta font-inter text-[11px] tabular-nums">
                     {new Date(prevPost.date).toLocaleDateString('zh-CN', {
                       year: 'numeric',
                       month: 'long',
@@ -247,7 +269,7 @@ export default function WorkbookArticleLayout({
           {nextPost ? (
             <Link
               href={`/${nextPost.path}`}
-              className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none sm:items-end"
+              className="border-wb-rule-soft focus-visible:ring-wb-accent group hover:border-wb-rule hover:bg-wb-canvas flex flex-col gap-2 overflow-hidden rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:outline-none active:scale-[0.98] sm:items-end"
             >
               {nextPost.coverImageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -266,7 +288,7 @@ export default function WorkbookArticleLayout({
                   {nextPost.title}
                 </span>
                 {nextPost.date ? (
-                  <span className="text-wb-meta font-inter text-[11px]">
+                  <span className="text-wb-meta font-inter text-[11px] tabular-nums">
                     {new Date(nextPost.date).toLocaleDateString('zh-CN', {
                       year: 'numeric',
                       month: 'long',
@@ -291,7 +313,19 @@ export default function WorkbookArticleLayout({
           href="/blog"
           className="text-wb-meta hover:text-wb-accent focus-visible:ring-wb-accent font-inter inline-flex items-center gap-2 rounded text-sm transition-colors duration-200 focus-visible:ring-1 focus-visible:outline-none"
         >
-          <span aria-hidden="true">←</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
           所有文章
         </Link>
         <div className="flex items-center gap-2">

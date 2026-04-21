@@ -11,9 +11,21 @@ export default function NotFound() {
         <p className="text-wb-meta mt-3 text-sm leading-7">别担心，可以从首页重新出发。</p>
         <Link
           href="/"
-          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:ring-2 focus-visible:outline-none"
+          className="bg-wb-ink text-wb-paper hover:bg-wb-ink-soft focus-visible:ring-wb-accent mt-8 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:ring-2 focus-visible:outline-none active:scale-95"
         >
-          <span aria-hidden="true">←</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
           返回首页
         </Link>
       </div>

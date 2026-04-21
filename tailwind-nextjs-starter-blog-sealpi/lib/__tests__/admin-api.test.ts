@@ -1,5 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { AdminApiError, adminFetch } from '../admin-api'
+import {
+  AdminApiError,
+  adminFetch,
+  createAdminArticle,
+  updateAdminArticle,
+  patchAdminUser,
+  deleteAdminArticle,
+  offlineAdminArticle,
+  archiveAdminArticle,
+  publishAdminArticle,
+} from '../admin-api'
 
 vi.mock('../api-config', () => ({
   buildApiUrl: (path: string) => `http://testhost${path}`,
@@ -165,5 +175,260 @@ describe('adminFetch', () => {
     const result = await adminFetch('/api/v1/admin/articles/42')
 
     expect(result).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// createAdminArticle / updateAdminArticle — FormData construction
+// ---------------------------------------------------------------------------
+
+describe('createAdminArticle', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  function successResponse() {
+    return new Response(JSON.stringify({ success: true, data: 42 }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  it('sends POST to /api/admin/articles with default action=draft', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}' })
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/articles')
+    expect(calledUrl).toContain('action=draft')
+    expect(vi.mocked(fetch).mock.calls[0][1]?.method).toBe('POST')
+  })
+
+  it('sends action=publish when specified', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}' }, 'publish')
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('action=publish')
+  })
+
+  it('includes required fields in FormData', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'My Post', url: 'my-post', draftJson: '{"el":[]}' })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body as FormData
+    expect(body.get('title')).toBe('My Post')
+    expect(body.get('url')).toBe('my-post')
+    expect(body.get('draftJson')).toBe('{"el":[]}')
+  })
+
+  it('joins tags array into comma-separated string', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}', tags: ['Java', 'Spring'] })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body as FormData
+    expect(body.get('tags')).toBe('Java,Spring')
+  })
+
+  it('sends empty tags string when tags array is empty (clears all tags)', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}', tags: [] })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body as FormData
+    expect(body.get('tags')).toBe('')
+  })
+
+  it('does not append tags field when tags is undefined', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}' })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body as FormData
+    expect(body.get('tags')).toBeNull()
+  })
+
+  it('does not append summary when summary is empty', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}', summary: '' })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body as FormData
+    expect(body.get('summary')).toBeNull()
+  })
+
+  it('appends summary when non-empty', async () => {
+    vi.mocked(fetch).mockResolvedValue(successResponse())
+
+    await createAdminArticle({ title: 'T', url: 'u', draftJson: '{}', summary: 'A brief summary' })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body as FormData
+    expect(body.get('summary')).toBe('A brief summary')
+  })
+})
+
+describe('updateAdminArticle', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  it('sends PUT to /api/admin/articles/{id}', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+
+    await updateAdminArticle(7, { title: 'T', url: 'u', draftJson: '{}' })
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/articles/7')
+    expect(vi.mocked(fetch).mock.calls[0][1]?.method).toBe('PUT')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Action endpoints — offline / archive / publish
+// ---------------------------------------------------------------------------
+
+describe('deleteAdminArticle', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  const ok = () =>
+    new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+  it('sends DELETE to /api/admin/articles/{id}', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await deleteAdminArticle(11)
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/articles/11')
+    expect(vi.mocked(fetch).mock.calls[0][1]?.method).toBe('DELETE')
+  })
+
+  it('throws AdminApiError on 404', async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ errMessage: '文章不存在' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    )
+
+    await expect(deleteAdminArticle(999)).rejects.toMatchObject({ status: 404 })
+  })
+})
+
+describe('offlineAdminArticle / archiveAdminArticle / publishAdminArticle', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  const ok = () =>
+    new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+  it('offlineAdminArticle sends POST to .../offline', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await offlineAdminArticle(3)
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/articles/3/offline')
+    expect(vi.mocked(fetch).mock.calls[0][1]?.method).toBe('POST')
+  })
+
+  it('archiveAdminArticle sends POST to .../archive', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await archiveAdminArticle(5)
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/articles/5/archive')
+  })
+
+  it('publishAdminArticle sends POST to .../publish', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await publishAdminArticle(9)
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/articles/9/publish')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// patchAdminUser
+// ---------------------------------------------------------------------------
+
+describe('patchAdminUser', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn())
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.resetAllMocks()
+  })
+
+  const ok = () =>
+    new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+
+  it('sends PATCH to /api/admin/users/{userId}', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await patchAdminUser(42, { banned: true })
+
+    const calledUrl = vi.mocked(fetch).mock.calls[0][0] as string
+    expect(calledUrl).toContain('/api/admin/users/42')
+    expect(vi.mocked(fetch).mock.calls[0][1]?.method).toBe('PATCH')
+  })
+
+  it('sends JSON body with banned flag', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await patchAdminUser(42, { banned: true })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body
+    expect(JSON.parse(body as string)).toMatchObject({ banned: true })
+  })
+
+  it('sends JSON body with commentPermission', async () => {
+    vi.mocked(fetch).mockResolvedValue(ok())
+
+    await patchAdminUser(42, { commentPermission: 'ALLOWED' })
+
+    const body = vi.mocked(fetch).mock.calls[0][1]?.body
+    expect(JSON.parse(body as string)).toMatchObject({ commentPermission: 'ALLOWED' })
   })
 })

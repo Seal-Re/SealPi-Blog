@@ -46,21 +46,29 @@ export default function useReveal() {
     // Observe elements already in the DOM
     observeNew()
 
-    // Watch for elements added by client-side navigation
+    // Watch for elements added by client-side navigation.
+    // Observation is deferred via requestAnimationFrame so it runs after
+    // React's commit phase — preventing hydration mismatches where the
+    // IntersectionObserver fires and sets data-revealed before React has
+    // finished reconciling the new page content.
     const mo = new MutationObserver((mutations) => {
+      const nodes: Element[] = []
       for (const mutation of mutations) {
         mutation.addedNodes.forEach((node) => {
-          if (!(node instanceof Element)) return
-          // The node itself may carry [data-reveal]
+          if (node instanceof Element) nodes.push(node)
+        })
+      }
+      if (nodes.length === 0) return
+      requestAnimationFrame(() => {
+        for (const node of nodes) {
           if (node.hasAttribute('data-reveal') && !node.hasAttribute('data-revealed')) {
             io.observe(node as HTMLElement)
           }
-          // Or its subtree may contain [data-reveal] descendants
           node
             .querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])')
             .forEach((el) => io.observe(el))
-        })
-      }
+        }
+      })
     })
 
     mo.observe(document.body, { childList: true, subtree: true })

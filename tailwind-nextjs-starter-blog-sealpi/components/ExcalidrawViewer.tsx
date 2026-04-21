@@ -111,7 +111,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
             },
           }}
           excalidrawAPI={(api: ExcalidrawImperativeAPI) => {
-            api.refresh()
+            requestAnimationFrame(() => api.refresh())
           }}
         />
       </div>

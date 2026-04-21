@@ -175,8 +175,13 @@ Server components must use `adminServerGet` from `app/api/admin/_utils.ts` to ca
 - `ADMIN_GITHUB_USERIDS` — CSV of admin GitHub user IDs (frontend whitelist)
 - `ADMIN_JWT_SECRET` — Shared HS256 key with backend (used to sign BFF JWTs)
 - `BLOG_INTERNAL_SYNC_SECRET` — Shared secret for `POST /api/v1/internal/users/oauth-sync`
-- `MINIO_PUBLIC_HOSTNAME` — Public base URL for MinIO assets (used in build)
+- `MINIO_PUBLIC_HOSTNAME` — Public base URL for MinIO assets (used in build); next.config.js whitelists both `http://` and `https://` to this hostname for Next.js Image optimization
 - `ADMIN_JWT_GITHUBUSERIDCLAIM` — JWT claim name for GitHub user ID (default `githubUserId`; must match backend `admin.jwt.githubUserIdClaim`)
+
+### Frontend Security & Image Config
+
+- **Image remotePatterns**: `next.config.js` whitelists avatars.githubusercontent.com (GitHub user avatars), MINIO_PUBLIC_HOSTNAME with both http/https protocols (local dev + production), and picsum.photos (placeholder images)
+- **CSP headers**: Allows giscus.app (comments), analytics.umami.is (analytics), and unsafe-inline for styles (required by Tailwind). SVG content via @svgr/webpack. Frame-src limited to giscus.app. `MINIO_PUBLIC_HOSTNAME` must be accessible from browser for image loads to work
 
 ## API Endpoints
 
@@ -187,10 +192,12 @@ Server components must use `adminServerGet` from `app/api/admin/_utils.ts` to ca
 - `GET /api/v1/articles/adjacent?slug={slug}&tags={tag}&tags={tag}` — Prev/next/related articles by slug (returns `{ prev, next, related }` with title/url/summary/coverImageUrl/tags/date)
 - `GET /api/v1/tags` — Published tag list with counts (`[{ tagId, name, count }]`)
 - `POST /api/v1/articles/{id}/view` — Increment view count (no-op on error)
+- `GET /feed.xml` — RSS 2.0 feed (all published articles, 1-hour ISR cache)
+- `GET /tags/{tag}/feed.xml` — RSS 2.0 feed for a specific tag (1-hour ISR cache)
 
 ### Admin (requires JWT auth)
 - `GET /api/v1/admin/stats` — Aggregated article counts (total, published, draft, archived, totalViews)
-- `GET /api/v1/admin/articles` — Paginated article list (any status, full VO)
+- `GET /api/v1/admin/articles` — Paginated article list (any status, full VO); supports `sort=views` to order by view count
 - `GET /api/v1/admin/articles/{id}` — Article by ID (any status, full VO including draftJson/draftBodyMd)
 - `POST /api/v1/admin/articles?action=draft|publish` — Create article (multipart preferred)
 - `PUT /api/v1/admin/articles/{id}?action=draft|publish` — Update article

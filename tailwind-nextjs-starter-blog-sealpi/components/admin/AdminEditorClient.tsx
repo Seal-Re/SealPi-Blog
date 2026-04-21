@@ -25,11 +25,13 @@ import {
 } from '@/lib/admin-api'
 import type { AdminArticle } from '@/lib/blog-api-types'
 import { isPublishedStatus } from '@/lib/article-status'
+import { estimateReadMinutes } from '@/lib/read-time'
 import BodyMarkdown from '@/components/workbook/BodyMarkdown'
 
 type SubmitAction = 'draft' | 'publish'
 type ExcalidrawModule = typeof import('@excalidraw/excalidraw')
-type SyncState = 'SUCCESS' | 'UPDATING' | 'FAILED'
+type SyncState = 'SUCCESS' | 'DIRTY' | 'UPDATING' | 'FAILED'
+type SlugCheckState = 'idle' | 'checking' | 'available' | 'taken'
 type ExcalidrawApiLike = {
   getSceneElements?: () => readonly ExcalidrawElement[]
   getAppState?: () => AppState
@@ -63,6 +65,10 @@ const MAX_UPLOAD_IMAGE_BYTES = 10 * 1024 * 1024
 const AUTO_SYNC_IDLE_MS = 1200
 const AUTO_SAVE_TO_SERVER_MS = 4000
 const DEBUG_PREFIX = '[AdminEditor]'
+const PREVIEW_IMAGE_WIDTH = 1200
+const PREVIEW_IMAGE_HEIGHT = 630
+const PREVIEW_EXPORT_PADDING_PX = 64
+const PREVIEW_FALLBACK_BG = '#fbf5ec'
 
 type EditorState = {
   title: string
@@ -128,6 +134,48 @@ function dataUrlToBlob(dataUrl: string) {
   return new Blob([bytes], { type: mimeType })
 }
 
+async function fitBlobToFixedSize(
+  blob: Blob,
+  targetWidth: number,
+  targetHeight: number,
+  backgroundColor: string
+): Promise<Blob> {
+  const url = URL.createObjectURL(blob)
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image()
+      image.onload = () => resolve(image)
+      image.onerror = () => reject(new Error('failed to decode preview image'))
+      image.src = url
+    })
+    const scale = Math.min(targetWidth / img.width, targetHeight / img.height)
+    const drawWidth = img.width * scale
+    const drawHeight = img.height * scale
+    const canvas = document.createElement('canvas')
+    canvas.width = targetWidth
+    canvas.height = targetHeight
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('canvas 2d context unavailable')
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(0, 0, targetWidth, targetHeight)
+    ctx.drawImage(
+      img,
+      (targetWidth - drawWidth) / 2,
+      (targetHeight - drawHeight) / 2,
+      drawWidth,
+      drawHeight
+    )
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (result) => (result ? resolve(result) : reject(new Error('canvas toBlob returned null'))),
+        'image/png'
+      )
+    })
+  } finally {
+    URL.revokeObjectURL(url)
+  }
+}
+
 function inferImageExtension(mimeType?: string) {
   switch (mimeType) {
     case 'image/png':
@@ -189,11 +237,33 @@ function FieldHint({ children }: { children: React.ReactNode }) {
 function StatusDot({ tone }: { tone: SyncState }) {
   const toneClass = {
     SUCCESS: 'bg-emerald-400',
+    DIRTY: 'bg-amber-400',
     UPDATING: 'bg-amber-400 animate-pulse',
     FAILED: 'bg-rose-400',
   }[tone]
 
   return <span className={`inline-flex h-2.5 w-2.5 rounded-full ${toneClass}`} />
+}
+
+function MdToolbarButton({
+  children,
+  title,
+  onClick,
+}: {
+  children: React.ReactNode
+  title: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      className="text-wb-meta hover:text-wb-ink hover:bg-wb-paper focus-visible:ring-wb-accent/50 rounded px-1.5 py-0.5 font-mono text-[10px] leading-4 transition-colors focus-visible:ring-1 focus-visible:outline-none active:scale-95 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
+    >
+      {children}
+    </button>
+  )
 }
 
 const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProps>(
@@ -212,12 +282,19 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const autoSaveLockRef = useRef(false)
     const inlineAssetSanitizingRef = useRef(false)
     const pendingDraftJsonRef = useRef<string>(article?.draftJson || article?.contentJson || '')
+    const lastSavedDraftJsonRef = useRef<string>(article?.draftJson || article?.contentJson || '')
     const contentFingerprintRef = useRef<string>('')
     const baselineReadyRef = useRef(false)
     const isSceneDirtyRef = useRef(false)
     const isTextDirtyRef = useRef(false)
+    const hasUnsavedCanvasRef = useRef(false)
     const isSubmittingRef = useRef(false)
     const isUploadingAssetsRef = useRef(false)
+    const coverUploadInputRef = useRef<HTMLInputElement | null>(null)
+    const mdTextareaRef = useRef<HTMLTextAreaElement | null>(null)
+    const slugCheckTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const [isCoverUploading, setIsCoverUploading] = useState(false)
+    const [slugCheck, setSlugCheck] = useState<SlugCheckState>('idle')
     /** 新建文章时默认 false：slug 随标题（含拼音）更新；用户手动改过 slug 后为 true。编辑已有文章初始为 true，避免改标题误伤线上 URL。 */
     const slugDetachedFromTitleRef = useRef(Boolean(article?.articleId))
 
@@ -256,6 +333,12 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     }, [isTextDirty])
 
     useEffect(() => {
+      if ((isSceneDirty || isTextDirty) && !isSubmitting && !isUploadingAssets) {
+        setSyncState((prev) => (prev === 'UPDATING' ? prev : 'DIRTY'))
+      }
+    }, [isSceneDirty, isTextDirty, isSubmitting, isUploadingAssets])
+
+    useEffect(() => {
       isSubmittingRef.current = isSubmitting
     }, [isSubmitting])
 
@@ -283,6 +366,39 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     )
     const isEditMode = currentArticleId !== null
 
+    useEffect(() => {
+      const slug = formState.url.trim()
+      // Skip check when slug is empty, or in edit-mode and slug hasn't changed from the saved value
+      if (!slug || (article?.articleId && slug === article.url)) {
+        setSlugCheck('idle')
+        return
+      }
+      if (slugCheckTimerRef.current) clearTimeout(slugCheckTimerRef.current)
+      setSlugCheck('checking')
+      slugCheckTimerRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(
+            `/api/admin/articles?${new URLSearchParams({ q: slug, pageSize: '20' }).toString()}`
+          )
+          if (!res.ok) {
+            setSlugCheck('idle')
+            return
+          }
+          const json = await res.json()
+          const items: AdminArticle[] = json?.data?.list ?? []
+          const conflict = items.find(
+            (item) => item.url === slug && String(item.articleId) !== String(currentArticleId)
+          )
+          setSlugCheck(conflict ? 'taken' : 'available')
+        } catch {
+          setSlugCheck('idle')
+        }
+      }, 800)
+      return () => {
+        if (slugCheckTimerRef.current) clearTimeout(slugCheckTimerRef.current)
+      }
+    }, [formState.url, article?.articleId, article?.url, currentArticleId])
+
     const initialData = useMemo(() => {
       const raw = article?.draftJson || article?.contentJson
       if (!raw?.trim()) {
@@ -299,6 +415,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     const statusBadgeClass = {
       SUCCESS:
         'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/10 dark:text-emerald-200',
+      DIRTY:
+        'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200',
       UPDATING:
         'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200',
       FAILED:
@@ -306,13 +424,15 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     }[syncState]
 
     const syncStateLabel: Record<SyncState, string> = {
-      SUCCESS: '正常',
+      SUCCESS: '已保存',
+      DIRTY: '有未保存更改',
       UPDATING: '同步中',
       FAILED: '失败',
     }
 
     const updateField = useCallback((key: keyof EditorState, value: string) => {
       setFieldErrors((prev) => ({ ...prev, [key]: undefined }))
+      setIsTextDirty(true)
       setFormState((current) => {
         if (key === 'title') {
           const nextTitle = value
@@ -353,6 +473,87 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       setTimeout(() => {
         setSnackbar((prev) => ({ ...prev, show: false }))
       }, 2800)
+    }, [])
+
+    /** Wrap selection (or insert placeholder) with prefix + suffix. */
+    const insertMd = useCallback((prefix: string, suffix = '', placeholder = '') => {
+      const el = mdTextareaRef.current
+      if (!el) return
+      const start = el.selectionStart
+      const end = el.selectionEnd
+      const inner = el.value.slice(start, end) || placeholder
+      const next = el.value.slice(0, start) + prefix + inner + suffix + el.value.slice(end)
+      setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+      setIsTextDirty(true)
+      requestAnimationFrame(() => {
+        el.focus()
+        el.setSelectionRange(start + prefix.length, start + prefix.length + inner.length)
+      })
+    }, [])
+
+    /** Prepend prefix to the start of the current line. */
+    const insertMdLine = useCallback((prefix: string) => {
+      const el = mdTextareaRef.current
+      if (!el) return
+      const pos = el.selectionStart
+      const lineStart = el.value.lastIndexOf('\n', pos - 1) + 1
+      const next = el.value.slice(0, lineStart) + prefix + el.value.slice(lineStart)
+      setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+      setIsTextDirty(true)
+      requestAnimationFrame(() => {
+        el.focus()
+        el.setSelectionRange(pos + prefix.length, pos + prefix.length)
+      })
+    }, [])
+
+    /** Toggle prefix on the current line: remove if already present, prepend otherwise. */
+    const toggleMdLinePrefix = useCallback((prefix: string) => {
+      const el = mdTextareaRef.current
+      if (!el) return
+      const pos = el.selectionStart
+      const lineStart = el.value.lastIndexOf('\n', pos - 1) + 1
+      const currentLine = el.value.slice(lineStart)
+      if (currentLine.startsWith(prefix)) {
+        // Remove prefix
+        const next = el.value.slice(0, lineStart) + el.value.slice(lineStart + prefix.length)
+        setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+        setIsTextDirty(true)
+        requestAnimationFrame(() => {
+          el.focus()
+          const newPos = Math.max(lineStart, pos - prefix.length)
+          el.setSelectionRange(newPos, newPos)
+        })
+      } else {
+        // Prepend prefix
+        const next = el.value.slice(0, lineStart) + prefix + el.value.slice(lineStart)
+        setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+        setIsTextDirty(true)
+        requestAnimationFrame(() => {
+          el.focus()
+          el.setSelectionRange(pos + prefix.length, pos + prefix.length)
+        })
+      }
+    }, [])
+
+    /** Insert a block at the current cursor position (ensures leading newline if needed).
+     * @param cursorInBlock - Optional offset within the block to place the cursor.
+     *   Defaults to end-of-block (after trailing newline). Pass e.g. 4 to land inside a fence. */
+    const insertMdBlock = useCallback((block: string, cursorInBlock?: number) => {
+      const el = mdTextareaRef.current
+      if (!el) return
+      const pos = el.selectionStart
+      const before = el.value.slice(0, pos)
+      const after = el.value.slice(pos)
+      const sep = before && !before.endsWith('\n') ? '\n' : ''
+      const next = before + sep + block + '\n' + after
+      setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+      setIsTextDirty(true)
+      requestAnimationFrame(() => {
+        el.focus()
+        const rawOffset = cursorInBlock !== undefined ? cursorInBlock : block.length + 1
+        const newPos = before.length + sep.length + rawOffset
+        el.setSelectionRange(newPos, newPos)
+      })
     }, [])
 
     const handleSceneChange = useCallback(
@@ -416,6 +617,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           const draft = pendingDraftJsonRef.current
           setDraftJson(draft)
           setIsSceneDirty(false)
+          hasUnsavedCanvasRef.current = draft !== lastSavedDraftJsonRef.current
           setSyncState('SUCCESS')
           if (!isSubmittingRef.current && !isUploadingAssetsRef.current) {
             setStatusMessage('草稿已同步。')
@@ -470,6 +672,32 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         uploadedCount,
       }
     }, [])
+
+    const handleCoverUpload = useCallback(
+      async (file: File) => {
+        if (isCoverUploading) return
+        setIsCoverUploading(true)
+        try {
+          const result = await uploadAdminAsset(file, `cover-${Date.now()}-${file.name}`)
+          const url = result?.data
+          if (url) {
+            updateField('coverImageUrl', url)
+            setIsTextDirty(true)
+            pushSnackbar('封面图上传成功。', 'ok')
+          } else {
+            pushSnackbar('上传失败：未获取到文件地址。', 'error')
+          }
+        } catch {
+          pushSnackbar('封面图上传失败，请稍后重试。', 'error')
+        } finally {
+          setIsCoverUploading(false)
+          if (coverUploadInputRef.current) {
+            coverUploadInputRef.current.value = ''
+          }
+        }
+      },
+      [isCoverUploading, updateField, pushSnackbar]
+    )
 
     const buildPayload = useCallback(
       async (action: SubmitAction): Promise<AdminArticleFormPayload> => {
@@ -544,7 +772,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
 
         let previewImage: Blob | null = null
         try {
-          previewImage = await excalidrawModule.exportToBlob({
+          const rawPreview = await excalidrawModule.exportToBlob({
             elements: activeElements,
             appState: {
               ...scene.appState,
@@ -552,7 +780,17 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
             },
             files: uploadedScene.files,
             mimeType: 'image/png',
+            exportPadding: PREVIEW_EXPORT_PADDING_PX,
           })
+          const bgColor =
+            (scene.appState as { viewBackgroundColor?: string } | undefined)?.viewBackgroundColor ||
+            PREVIEW_FALLBACK_BG
+          previewImage = await fitBlobToFixedSize(
+            rawPreview,
+            PREVIEW_IMAGE_WIDTH,
+            PREVIEW_IMAGE_HEIGHT,
+            bgColor
+          )
         } catch (error) {
           console.warn(DEBUG_PREFIX, 'preview export failed, fallback without preview image', {
             raw: error instanceof Error ? { name: error.name, message: error.message } : error,
@@ -646,6 +884,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
 
           setDraftJson(payload.draftJson)
           pendingDraftJsonRef.current = payload.draftJson
+          lastSavedDraftJsonRef.current = payload.draftJson
+          hasUnsavedCanvasRef.current = false
           setIsSceneDirty(false)
           setIsTextDirty(false)
           setSyncState('SUCCESS')
@@ -657,7 +897,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           )
           const draftToastText = source === 'auto' ? '草稿已自动保存。' : '草稿已保存。'
           pushSnackbar(action === 'publish' ? '发布成功。' : draftToastText, 'ok')
-          if (onSubmitSuccess) {
+          if (onSubmitSuccess && source === 'manual') {
             await onSubmitSuccess(action)
           }
           console.info(DEBUG_PREFIX, 'submit success', { action })
@@ -707,7 +947,12 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
     )
 
     useEffect(() => {
-      if ((!isSceneDirty && !isTextDirty) || isSubmitting || isUploadingAssets) {
+      const hasUnsavedCanvas = draftJson !== lastSavedDraftJsonRef.current
+      if (
+        (!isSceneDirty && !isTextDirty && !hasUnsavedCanvas) ||
+        isSubmitting ||
+        isUploadingAssets
+      ) {
         return
       }
       const timer = setTimeout(async () => {
@@ -720,12 +965,12 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         }
       }, AUTO_SAVE_TO_SERVER_MS)
       return () => clearTimeout(timer)
-    }, [handleSubmit, isSceneDirty, isTextDirty, isSubmitting, isUploadingAssets])
+    }, [handleSubmit, isSceneDirty, isTextDirty, isSubmitting, isUploadingAssets, draftJson])
 
     useEffect(() => {
       const onSaveShortcut = (event: KeyboardEvent) => {
         const key = event.key.toLowerCase()
-        if ((event.ctrlKey || event.metaKey) && key === 's') {
+        if ((event.ctrlKey || event.metaKey) && !event.shiftKey && key === 's') {
           event.preventDefault()
           void handleSubmit('draft')
         }
@@ -770,7 +1015,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           return await handleSubmit('publish')
         },
         isBusy: () => isSubmitting,
-        hasPendingChanges: () => isSceneDirtyRef.current || isTextDirtyRef.current,
+        hasPendingChanges: () =>
+          isSceneDirtyRef.current || isTextDirtyRef.current || hasUnsavedCanvasRef.current,
       }),
       [handleSubmit, isSubmitting]
     )
@@ -789,11 +1035,15 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         const autoSyncTimer = autoSyncTimerRef.current
 
         const idleSyncTimer = idleSyncTimerRef.current
+        const slugCheckTimer = slugCheckTimerRef.current
         if (autoSyncTimer) {
           clearInterval(autoSyncTimer)
         }
         if (idleSyncTimer) {
           clearTimeout(idleSyncTimer)
+        }
+        if (slugCheckTimer) {
+          clearTimeout(slugCheckTimer)
         }
       }
     }, [])
@@ -802,7 +1052,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       <>
         <div className="space-y-8">
           <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-            <aside className="border-wb-rule-soft/90 bg-wb-canvas/95 relative overflow-hidden rounded-[2rem] border p-6 shadow-[0_28px_90px_-42px_rgba(31,26,21,0.3)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/85">
+            <aside className="border-wb-rule-soft/90 bg-wb-canvas/95 no-scrollbar relative overflow-hidden rounded-[2rem] border p-6 shadow-[0_28px_90px_-42px_rgba(31,26,21,0.3)] backdrop-blur xl:sticky xl:top-[4.5rem] xl:max-h-[calc(100vh-5.5rem)] xl:self-start xl:overflow-y-auto dark:border-gray-800 dark:bg-gray-900/85">
               <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,rgba(166,88,43,0.12),transparent_58%),radial-gradient(circle_at_top_right,rgba(201,181,151,0.10),transparent_42%)]" />
               <div className="relative space-y-6">
                 <div className="space-y-4">
@@ -823,7 +1073,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       {isEditMode ? '编辑既有文章' : '创建新文章'}
                     </h2>
                     <p className="text-wb-meta text-sm leading-7 dark:text-gray-300">
-                      填写标题与 Slug 后保存草稿，满意时直接发布；画布变更将在约 30 秒后自动同步。
+                      填写标题与 Slug 后保存草稿，满意时直接发布；文字变更约 4 秒后自动保存，画布请
+                      Ctrl+S 手动保存。
                     </p>
                   </div>
                 </div>
@@ -838,6 +1089,8 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       maxLength={120}
                       onChange={(event) => updateField('title', event.target.value)}
                       placeholder="输入文章标题"
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus={!article?.articleId}
                       className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
                     {fieldErrors.title ? (
@@ -863,6 +1116,19 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       新建时随标题自动生成（中文转拼音）。若已手动修改
                       slug，改标题不再覆盖；清空本框可恢复跟随标题。
                     </FieldHint>
+                    {slugCheck === 'checking' ? (
+                      <p className="text-wb-meta animate-pulse text-xs dark:text-gray-400">
+                        检查 Slug 可用性…
+                      </p>
+                    ) : slugCheck === 'taken' ? (
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        ⚠ 此 Slug 已被占用，发布时将返回 409 冲突错误。
+                      </p>
+                    ) : slugCheck === 'available' ? (
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                        ✓ Slug 可用。
+                      </p>
+                    ) : null}
                   </label>
 
                   <label className="group block space-y-2.5">
@@ -877,7 +1143,18 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       placeholder="用于文章列表与 SEO 的简述"
                       className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm leading-7 shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
-                    <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
+                    <div className="flex items-center justify-between">
+                      <FieldHint>建议控制在 80-140 字，兼顾卡片摘要与元信息展示。</FieldHint>
+                      <p
+                        className={`text-right text-xs tabular-nums ${
+                          formState.summary.length > 180
+                            ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-wb-meta dark:text-gray-500'
+                        }`}
+                      >
+                        {formState.summary.length} / 220
+                      </p>
+                    </div>
                   </label>
 
                   <div className="space-y-2.5">
@@ -915,7 +1192,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                                   updateField('tags', [...existing, t].join(', '))
                                 }
                               }}
-                              className={`rounded border px-2 py-0.5 font-mono text-[10px] font-medium transition-colors ${
+                              className={`focus-visible:ring-wb-accent rounded border px-2 py-0.5 font-mono text-[10px] font-medium transition-colors focus-visible:ring-1 focus-visible:outline-none active:scale-95 ${
                                 active
                                   ? 'border-wb-accent/40 bg-wb-accent/10 text-wb-accent dark:border-wb-accent/30 dark:bg-wb-accent/10 cursor-default'
                                   : 'border-wb-rule-soft text-wb-meta hover:border-wb-accent hover:text-wb-accent dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200'
@@ -927,21 +1204,85 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                         })}
                       </div>
                     ) : null}
-                    <FieldHint>多个标签用英文逗号分隔，保存时全量覆盖。</FieldHint>
+                    <div className="flex items-center justify-between">
+                      <FieldHint>多个标签用英文逗号分隔，保存时全量覆盖。</FieldHint>
+                      {formState.tags.trim() ? (
+                        <p className="text-wb-meta shrink-0 text-right text-xs tabular-nums dark:text-gray-500">
+                          已选{' '}
+                          {
+                            formState.tags
+                              .split(',')
+                              .map((x) => x.trim())
+                              .filter(Boolean).length
+                          }{' '}
+                          个
+                        </p>
+                      ) : null}
+                    </div>
                   </div>
 
-                  <label className="group block space-y-2.5">
-                    <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
-                      封面图 URL
-                    </span>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-wb-ink text-sm font-semibold dark:text-gray-200">
+                        封面图 URL
+                      </span>
+                      <button
+                        type="button"
+                        disabled={isCoverUploading}
+                        onClick={() => coverUploadInputRef.current?.click()}
+                        className="border-wb-rule-soft text-wb-meta hover:border-wb-rule hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all duration-300 focus-visible:ring-1 focus-visible:outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-gray-200"
+                      >
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="17 8 12 3 7 8" />
+                          <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        {isCoverUploading ? '上传中...' : '上传图片'}
+                      </button>
+                      <input
+                        ref={coverUploadInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) void handleCoverUpload(file)
+                        }}
+                      />
+                    </div>
                     <input
                       value={formState.coverImageUrl}
                       onChange={(event) => updateField('coverImageUrl', event.target.value)}
                       placeholder="可选；为空时使用自动导出的预览图"
                       className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 w-full rounded-2xl border px-4 py-3.5 text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
                     />
+                    {formState.coverImageUrl.trim() &&
+                    (formState.coverImageUrl.startsWith('http') ||
+                      formState.coverImageUrl.startsWith('/')) ? (
+                      <div className="border-wb-rule-soft overflow-hidden rounded-xl border dark:border-gray-700">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={formState.coverImageUrl}
+                          alt="封面图预览"
+                          className="h-24 w-full object-cover"
+                          onError={(e) => {
+                            ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                          }}
+                        />
+                      </div>
+                    ) : null}
                     <FieldHint>如已上传 OSS，可直接覆写自动生成的预览图地址。</FieldHint>
-                  </label>
+                  </div>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
@@ -953,7 +1294,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     <p className="text-wb-meta mt-3 text-sm leading-7 dark:text-gray-200">
                       {syncStateLabel[syncState]}
                     </p>
-                    <p className="text-wb-meta mt-1 text-xs leading-6 dark:text-gray-400">
+                    <p className="text-wb-meta mt-1 text-xs leading-6 tabular-nums dark:text-gray-400">
                       {statusMessage}
                       {lastSavedAt ? ` 最近保存于 ${lastSavedAt}` : ''}
                     </p>
@@ -971,22 +1312,25 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     <dl className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-2">
                       <div>
                         <dt className="text-wb-meta text-xs dark:text-gray-400">draftJson 大小</dt>
-                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
+                        <dd className="text-wb-ink mt-1 text-lg font-bold tabular-nums dark:text-gray-50">
                           {draftJson ? `${Math.round(draftJson.length / 1024) || 1} KB` : '未生成'}
                         </dd>
                       </div>
                       <div>
                         <dt className="text-wb-meta text-xs dark:text-gray-400">正文字数</dt>
-                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
+                        <dd className="text-wb-ink mt-1 text-lg font-bold tabular-nums dark:text-gray-50">
                           {formState.draftBodyMd.trim()
                             ? `${formState.draftBodyMd.replace(/\s+/g, '').length} 字`
                             : '—'}
                         </dd>
                       </div>
                       <div>
-                        <dt className="text-wb-meta text-xs dark:text-gray-400">文章模式</dt>
-                        <dd className="text-wb-ink mt-1 text-lg font-bold dark:text-gray-50">
-                          {isEditMode ? '编辑' : '新建'}
+                        <dt className="text-wb-meta text-xs dark:text-gray-400">预计阅读</dt>
+                        <dd className="text-wb-ink mt-1 text-lg font-bold tabular-nums dark:text-gray-50">
+                          {(() => {
+                            const mins = estimateReadMinutes(formState.draftBodyMd)
+                            return mins !== undefined ? `${mins} 分钟` : '—'
+                          })()}
                         </dd>
                       </div>
                       <div>
@@ -1000,19 +1344,24 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row xl:flex-col">
-                  <button
-                    type="button"
-                    disabled={isSubmitting || isUploadingAssets}
-                    onClick={() => void handleSubmit('draft')}
-                    className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-18px_rgba(15,23,42,0.55)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-gray-800 focus:ring-gray-200 focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:focus:ring-gray-700"
-                  >
-                    {submittingAction === 'draft' ? '保存中...' : '保存草稿'}
-                  </button>
+                  <div className="flex flex-col items-stretch gap-1">
+                    <button
+                      type="button"
+                      disabled={isSubmitting || isUploadingAssets}
+                      onClick={() => void handleSubmit('draft')}
+                      className="inline-flex items-center justify-center rounded-full bg-gray-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_18px_40px_-18px_rgba(15,23,42,0.55)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-gray-800 focus-visible:ring-gray-200 focus-visible:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200 dark:focus-visible:ring-gray-700"
+                    >
+                      {submittingAction === 'draft' ? '保存中...' : '保存草稿'}
+                    </button>
+                    <p className="text-wb-meta/50 text-center text-xs dark:text-gray-600">
+                      ⌘S / Ctrl+S
+                    </p>
+                  </div>
                   <button
                     type="button"
                     disabled={isSubmitting || isUploadingAssets}
                     onClick={() => void handleSubmit('publish')}
-                    className="border-wb-rule text-wb-accent hover:border-wb-accent hover:text-wb-accent focus:ring-wb-accent/10 dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center rounded-full border bg-[linear-gradient(135deg,rgba(251,245,236,0.95),rgba(245,236,225,0.90))] px-5 py-3.5 text-sm font-semibold shadow-[0_18px_38px_-24px_rgba(166,88,43,0.30)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(245,236,225,0.98),rgba(237,223,207,0.95))] focus:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(166,88,43,0.06))] dark:hover:bg-[linear-gradient(135deg,rgba(166,88,43,0.20),rgba(166,88,43,0.14))]"
+                    className="border-wb-rule text-wb-accent hover:border-wb-accent hover:text-wb-accent focus-visible:ring-wb-accent/30 dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center rounded-full border bg-[linear-gradient(135deg,rgba(251,245,236,0.95),rgba(245,236,225,0.90))] px-5 py-3.5 text-sm font-semibold shadow-[0_18px_38px_-24px_rgba(166,88,43,0.30)] ring-4 ring-transparent transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[linear-gradient(135deg,rgba(245,236,225,0.98),rgba(237,223,207,0.95))] focus-visible:outline-none active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-55 dark:bg-[linear-gradient(135deg,rgba(166,88,43,0.10),rgba(166,88,43,0.06))] dark:hover:bg-[linear-gradient(135deg,rgba(166,88,43,0.20),rgba(166,88,43,0.14))]"
                   >
                     {submittingAction === 'publish' ? '发布中...' : '直接发布'}
                   </button>
@@ -1028,7 +1377,22 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       rel="noopener noreferrer"
                       className="border-wb-rule text-wb-meta hover:border-wb-rule hover:text-wb-ink focus-visible:ring-wb-accent inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
                     >
-                      预览草稿 ↗
+                      预览草稿
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
                     </a>
                   ) : null}
                   {isPublished && formState.url ? (
@@ -1038,7 +1402,22 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       rel="noopener noreferrer"
                       className="border-wb-rule text-wb-accent hover:border-wb-accent focus-visible:ring-wb-accent dark:border-wb-accent/40 dark:text-wb-accent/80 inline-flex items-center justify-center gap-1.5 rounded-full border px-5 py-3.5 text-sm font-medium transition duration-200 ease-out hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:outline-none"
                     >
-                      查看前台 ↗
+                      查看前台
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15 3 21 3 21 9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
                     </a>
                   ) : null}
                 </div>
@@ -1123,7 +1502,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                     </div>
                   </div>
                   {showMdPreview ? (
-                    <div className="border-wb-rule-soft bg-wb-canvas min-h-[200px] rounded-2xl border px-4 py-3 dark:border-gray-700 dark:bg-gray-950">
+                    <div className="content-enter border-wb-rule-soft bg-wb-canvas min-h-[200px] rounded-2xl border px-4 py-3 dark:border-gray-700 dark:bg-gray-950">
                       {formState.draftBodyMd.trim() ? (
                         <BodyMarkdown markdown={formState.draftBodyMd} />
                       ) : (
@@ -1133,15 +1512,269 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                       )}
                     </div>
                   ) : (
-                    <textarea
-                      value={formState.draftBodyMd}
-                      onChange={(e) => {
-                        setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
-                        setIsTextDirty(true)
-                      }}
-                      placeholder={'# 正文\n\n支持 Markdown，:::note 块会渲染为手写批注。'}
-                      className="border-wb-rule-soft bg-wb-canvas text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y rounded-2xl border px-4 py-3 font-mono text-sm shadow-sm transition duration-200 ease-out outline-none focus:ring-4 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500 dark:hover:border-gray-600"
-                    />
+                    <div className="border-wb-rule-soft bg-wb-canvas overflow-hidden rounded-2xl border shadow-sm dark:border-gray-700 dark:bg-gray-950">
+                      <div className="border-wb-rule-soft/60 flex flex-wrap items-center gap-0.5 border-b px-2 py-1.5 dark:border-gray-700/60">
+                        <MdToolbarButton
+                          title="粗体 (**text**) — Ctrl+B"
+                          onClick={() => insertMd('**', '**', '粗体')}
+                        >
+                          <b>B</b>
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="斜体 (*text*) — Ctrl+I"
+                          onClick={() => insertMd('*', '*', '斜体')}
+                        >
+                          <i>I</i>
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="行内代码 — Ctrl+`"
+                          onClick={() => insertMd('`', '`', 'code')}
+                        >
+                          {'</>'}
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="删除线 (~~text~~) — Ctrl+Shift+S"
+                          onClick={() => insertMd('~~', '~~', '删除线')}
+                        >
+                          <s>S</s>
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="链接 [text](url) — Ctrl+K"
+                          onClick={() => insertMd('[', '](url)', '链接文字')}
+                        >
+                          Lnk
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="图片 ![alt](url)"
+                          onClick={() => insertMd('![', '](url)', '图片描述')}
+                        >
+                          Img
+                        </MdToolbarButton>
+                        <span className="bg-wb-rule-soft mx-0.5 h-3.5 w-px shrink-0 dark:bg-gray-700" />
+                        <MdToolbarButton
+                          title="二级标题（可切换） — Ctrl+Shift+2"
+                          onClick={() => toggleMdLinePrefix('## ')}
+                        >
+                          H2
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="三级标题（可切换） — Ctrl+Shift+3"
+                          onClick={() => toggleMdLinePrefix('### ')}
+                        >
+                          H3
+                        </MdToolbarButton>
+                        <MdToolbarButton title="引用块" onClick={() => insertMdLine('> ')}>
+                          &ldquo;
+                        </MdToolbarButton>
+                        <MdToolbarButton title="无序列表" onClick={() => insertMdLine('- ')}>
+                          ul
+                        </MdToolbarButton>
+                        <MdToolbarButton title="有序列表" onClick={() => insertMdLine('1. ')}>
+                          ol
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="代码块（光标落在围栏内部）— Ctrl+Shift+`"
+                          onClick={() => insertMdBlock('```\n\n```', 4)}
+                        >
+                          {'{}'}
+                        </MdToolbarButton>
+                        <MdToolbarButton title="分割线" onClick={() => insertMdBlock('---')}>
+                          hr
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="表格（3列模板）"
+                          onClick={() =>
+                            insertMdBlock(
+                              '| 列1 | 列2 | 列3 |\n|-----|-----|-----|\n| 内容 | 内容 | 内容 |',
+                              2
+                            )
+                          }
+                        >
+                          tbl
+                        </MdToolbarButton>
+                        <span className="bg-wb-rule-soft mx-0.5 h-3.5 w-px shrink-0 dark:bg-gray-700" />
+                        <MdToolbarButton
+                          title="[!NOTE] 告示块"
+                          onClick={() => insertMdBlock('> [!NOTE]\n> ', 12)}
+                        >
+                          NOTE
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="[!TIP] 告示块"
+                          onClick={() => insertMdBlock('> [!TIP]\n> ', 11)}
+                        >
+                          TIP
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="[!IMPORTANT] 告示块"
+                          onClick={() => insertMdBlock('> [!IMPORTANT]\n> ', 17)}
+                        >
+                          IMP
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="[!WARNING] 告示块"
+                          onClick={() => insertMdBlock('> [!WARNING]\n> ', 15)}
+                        >
+                          WARN
+                        </MdToolbarButton>
+                        <MdToolbarButton
+                          title="[!CAUTION] 告示块"
+                          onClick={() => insertMdBlock('> [!CAUTION]\n> ', 15)}
+                        >
+                          CAUT
+                        </MdToolbarButton>
+                      </div>
+                      <textarea
+                        ref={mdTextareaRef}
+                        value={formState.draftBodyMd}
+                        onChange={(e) => {
+                          setFormState((prev) => ({ ...prev, draftBodyMd: e.target.value }))
+                          setIsTextDirty(true)
+                        }}
+                        onKeyDown={(e) => {
+                          const el = e.currentTarget
+                          // Tab / Shift+Tab — indent/unindent (2 spaces)
+                          if (e.key === 'Tab') {
+                            e.preventDefault()
+                            const start = el.selectionStart
+                            const end = el.selectionEnd
+                            const val = el.value
+                            if (start === end) {
+                              // No selection: insert 2 spaces at cursor
+                              const next = val.slice(0, start) + '  ' + val.slice(end)
+                              setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+                              setIsTextDirty(true)
+                              requestAnimationFrame(() => {
+                                el.focus()
+                                el.setSelectionRange(start + 2, start + 2)
+                              })
+                            } else {
+                              // Selection spans lines: indent or unindent each line
+                              const lineStart = val.lastIndexOf('\n', start - 1) + 1
+                              const chunk = val.slice(lineStart, end)
+                              const lines = chunk.split('\n')
+                              const processed = e.shiftKey
+                                ? lines.map((l) => (l.startsWith('  ') ? l.slice(2) : l))
+                                : lines.map((l) => '  ' + l)
+                              const replaced = processed.join('\n')
+                              const next = val.slice(0, lineStart) + replaced + val.slice(end)
+                              const delta = replaced.length - chunk.length
+                              setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+                              setIsTextDirty(true)
+                              requestAnimationFrame(() => {
+                                el.focus()
+                                el.setSelectionRange(start + (e.shiftKey ? 0 : 2), end + delta)
+                              })
+                            }
+                            return
+                          }
+                          // Enter — continue list on next line
+                          if (e.key === 'Enter') {
+                            const pos = el.selectionStart
+                            const end = el.selectionEnd
+                            const val = el.value
+                            // Only intercept when no selection and cursor is at EOL
+                            if (pos === end) {
+                              const lineStart = val.lastIndexOf('\n', pos - 1) + 1
+                              const lineEnd = val.indexOf('\n', pos)
+                              const atEol = pos === (lineEnd === -1 ? val.length : lineEnd)
+                              if (atEol) {
+                                const currentLine = val.slice(lineStart, pos)
+                                const ulMatch = currentLine.match(/^(\s*)([-*+]) /)
+                                const olMatch = !ulMatch && currentLine.match(/^(\s*)(\d+)\. /)
+                                if (ulMatch) {
+                                  e.preventDefault()
+                                  const content = currentLine.slice(ulMatch[0].length)
+                                  if (!content.trim()) {
+                                    // Empty item: exit list
+                                    const next = val.slice(0, lineStart) + '\n' + val.slice(pos)
+                                    setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+                                    setIsTextDirty(true)
+                                    requestAnimationFrame(() => {
+                                      el.focus()
+                                      el.setSelectionRange(lineStart + 1, lineStart + 1)
+                                    })
+                                  } else {
+                                    const prefix = `${ulMatch[1]}${ulMatch[2]} `
+                                    const next = val.slice(0, pos) + '\n' + prefix + val.slice(pos)
+                                    setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+                                    setIsTextDirty(true)
+                                    requestAnimationFrame(() => {
+                                      el.focus()
+                                      el.setSelectionRange(
+                                        pos + 1 + prefix.length,
+                                        pos + 1 + prefix.length
+                                      )
+                                    })
+                                  }
+                                  return
+                                }
+                                if (olMatch) {
+                                  e.preventDefault()
+                                  const content = currentLine.slice(olMatch[0].length)
+                                  if (!content.trim()) {
+                                    // Empty item: exit list
+                                    const next = val.slice(0, lineStart) + '\n' + val.slice(pos)
+                                    setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+                                    setIsTextDirty(true)
+                                    requestAnimationFrame(() => {
+                                      el.focus()
+                                      el.setSelectionRange(lineStart + 1, lineStart + 1)
+                                    })
+                                  } else {
+                                    const nextNum = parseInt(olMatch[2], 10) + 1
+                                    const prefix = `${olMatch[1]}${nextNum}. `
+                                    const next = val.slice(0, pos) + '\n' + prefix + val.slice(pos)
+                                    setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+                                    setIsTextDirty(true)
+                                    requestAnimationFrame(() => {
+                                      el.focus()
+                                      el.setSelectionRange(
+                                        pos + 1 + prefix.length,
+                                        pos + 1 + prefix.length
+                                      )
+                                    })
+                                  }
+                                  return
+                                }
+                              }
+                            }
+                          }
+                          if (!(e.ctrlKey || e.metaKey)) return
+                          const key = e.key.toLowerCase()
+                          if (key === 'b') {
+                            e.preventDefault()
+                            insertMd('**', '**', '粗体')
+                          } else if (key === 'i') {
+                            e.preventDefault()
+                            insertMd('*', '*', '斜体')
+                          } else if (key === 'k') {
+                            e.preventDefault()
+                            insertMd('[', '](url)', '链接文字')
+                          } else if (e.key === '`') {
+                            e.preventDefault()
+                            if (e.shiftKey) {
+                              insertMdBlock('```\n\n```', 4)
+                            } else {
+                              insertMd('`', '`', 'code')
+                            }
+                          } else if (key === 's' && e.shiftKey) {
+                            e.preventDefault()
+                            insertMd('~~', '~~', '删除线')
+                          } else if (e.key === '2' && e.shiftKey) {
+                            e.preventDefault()
+                            toggleMdLinePrefix('## ')
+                          } else if (e.key === '3' && e.shiftKey) {
+                            e.preventDefault()
+                            toggleMdLinePrefix('### ')
+                          }
+                        }}
+                        placeholder={
+                          '# 正文\n\n支持 Markdown 与 GitHub 告示块（> [!NOTE] / > [!TIP] / > [!IMPORTANT] / > [!WARNING] / > [!CAUTION]）。\n快捷键：Ctrl+B 粗体 | Ctrl+I 斜体 | Ctrl+Shift+S 删除线 | Ctrl+K 链接 | Ctrl+` 行内代码 | Ctrl+Shift+` 代码块 | Ctrl+Shift+2 H2 | Ctrl+Shift+3 H3'
+                        }
+                        className="content-enter text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y bg-transparent px-4 py-3 font-mono text-sm transition duration-200 ease-out outline-none focus:ring-4 dark:text-gray-100 dark:placeholder:text-gray-500"
+                      />
+                    </div>
                   )}
                 </div>
               </div>
@@ -1150,7 +1783,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         </div>
         {snackbar.show ? (
           <div
-            className={`fixed right-4 bottom-4 z-[85] rounded-xl border px-4 py-3 text-sm shadow-lg ${
+            className={`toast-enter fixed right-4 bottom-4 z-[85] max-w-xs rounded-xl border px-4 py-3 text-sm shadow-lg ${
               snackbar.tone === 'ok'
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200'
                 : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200'

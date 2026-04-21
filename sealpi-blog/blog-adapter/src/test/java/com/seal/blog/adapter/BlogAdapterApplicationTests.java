@@ -509,8 +509,22 @@ class BlogAdapterApplicationTests {
     }
 
     private static String bearerToken(String githubUserId) throws Exception {
+        // Include exp 1 hour from now so the backend expiry check passes.
+        long expSeconds = System.currentTimeMillis() / 1000L + 3600;
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
-        String payloadJson = "{\"githubUserId\":\"" + githubUserId + "\"}";
+        String payloadJson = "{\"githubUserId\":\"" + githubUserId + "\",\"exp\":" + expSeconds + "}";
+        String header = base64UrlEncode(headerJson.getBytes(StandardCharsets.UTF_8));
+        String payload = base64UrlEncode(payloadJson.getBytes(StandardCharsets.UTF_8));
+        String signingInput = header + "." + payload;
+        String signature = base64UrlEncode(hmacSha256(signingInput.getBytes(StandardCharsets.UTF_8), "test-secret".getBytes(StandardCharsets.UTF_8)));
+        return "Bearer " + signingInput + "." + signature;
+    }
+
+    /** Builds a JWT whose exp is already in the past (1 second ago). */
+    private static String expiredBearerToken(String githubUserId) throws Exception {
+        long expSeconds = System.currentTimeMillis() / 1000L - 1;
+        String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
+        String payloadJson = "{\"githubUserId\":\"" + githubUserId + "\",\"exp\":" + expSeconds + "}";
         String header = base64UrlEncode(headerJson.getBytes(StandardCharsets.UTF_8));
         String payload = base64UrlEncode(payloadJson.getBytes(StandardCharsets.UTF_8));
         String signingInput = header + "." + payload;
@@ -643,5 +657,13 @@ class BlogAdapterApplicationTests {
     void adminStats_withoutAuth_returns401() throws Exception {
         mvc.perform(get("/api/v1/admin/stats"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void legacyJwt_withExpiredToken_returns401() throws Exception {
+        mvc.perform(
+                get("/api/v1/admin/stats")
+                        .header("Authorization", expiredBearerToken("123"))
+        ).andExpect(status().isUnauthorized());
     }
 }

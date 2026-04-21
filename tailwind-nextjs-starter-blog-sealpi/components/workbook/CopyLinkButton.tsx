@@ -22,10 +22,12 @@ export default function CopyLinkButton() {
     <button
       type="button"
       onClick={() => void handleCopy()}
-      className={`focus-visible:ring-wb-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none ${
-        state === 'error'
-          ? 'border-rose-300 text-rose-500'
-          : 'border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent'
+      className={`focus-visible:ring-wb-accent inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-medium transition-colors duration-150 focus-visible:ring-2 focus-visible:outline-none active:scale-95 ${
+        state === 'copied'
+          ? 'border-emerald-300 text-emerald-600 dark:border-emerald-500/50 dark:text-emerald-400'
+          : state === 'error'
+            ? 'border-rose-300 text-rose-500'
+            : 'border-wb-rule text-wb-meta hover:border-wb-accent hover:text-wb-accent'
       }`}
       aria-label="复制文章链接"
     >

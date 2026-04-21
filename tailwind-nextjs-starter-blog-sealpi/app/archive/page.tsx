@@ -50,7 +50,7 @@ export default async function ArchivePage() {
         <h1 className="font-fraunces text-wb-ink mb-2 text-3xl font-medium tracking-tight italic sm:text-4xl md:text-6xl">
           归档
         </h1>
-        <p className="text-wb-meta mb-10 text-sm">
+        <p className="text-wb-meta mb-10 text-sm tabular-nums">
           共 {posts.length} 篇文章 · {years.length} 个年份
         </p>
 
@@ -61,12 +61,12 @@ export default async function ArchivePage() {
             {years.map((year) => {
               const yearPosts = byYear.get(year)!
               return (
-                <section key={year} data-reveal>
+                <section key={year} data-reveal suppressHydrationWarning>
                   <div className="mb-5 flex items-center gap-4">
                     <h2 className="font-fraunces text-wb-ink shrink-0 text-2xl font-semibold italic">
                       {year}
                     </h2>
-                    <span className="font-inter text-wb-meta shrink-0 text-xs">
+                    <span className="font-inter text-wb-meta shrink-0 text-xs tabular-nums">
                       {yearPosts.length} 篇
                     </span>
                     <div className="border-wb-rule-soft flex-1 border-t" />
@@ -80,7 +80,7 @@ export default async function ArchivePage() {
                         <li key={post.slug}>
                           <Link
                             href={`/${post.path}`}
-                            className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                            className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]"
                           >
                             <time
                               dateTime={post.date}

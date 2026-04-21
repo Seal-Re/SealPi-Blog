@@ -108,6 +108,16 @@ module.exports = () => {
         },
       ]
     },
+    // Turbopack dev-mode SVG rule (mirror of webpack @svgr rule below).
+    // Prod builds continue using webpack until Turbopack/Contentlayer compatibility is verified.
+    turbopack: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
     webpack: (config, options) => {
       config.module.rules.push({
         test: /\.svg$/,

@@ -59,6 +59,7 @@ export default async function Page() {
 
         <div
           data-reveal
+          suppressHydrationWarning
           className="border-wb-rule-soft bg-wb-canvas grid gap-6 rounded-2xl border p-6 sm:grid-cols-2 sm:p-8"
         >
           <div className="space-y-2">
@@ -117,16 +118,16 @@ export default async function Page() {
           </div>
         </div>
 
-        <div data-reveal className="space-y-4">
+        <div data-reveal suppressHydrationWarning className="space-y-4">
           <h2 className="font-fraunces text-wb-ink text-xl font-semibold italic">平台特性</h2>
           <ul className="text-wb-meta space-y-2 text-sm leading-7">
             <li>· Excalidraw JSON 作为文章内容格式，支持手绘图表渲染</li>
             <li>
-              · Markdown 正文，支持代码高亮、表格、脚注与手写批注（
+              · Markdown 正文，支持代码高亮、表格、脚注与 GitHub 告示块（
               <code className="border-wb-rule-soft bg-wb-canvas font-geist-mono text-wb-accent rounded border px-1.5 py-0.5 text-[0.85em]">
-                :::note
-              </code>{' '}
-              指令）
+                &gt; [!NOTE]
+              </code>
+              ）
             </li>
             <li>· Spring Boot 3.2 + Next.js 15 全栈，Draft/Publish 工作流</li>
             <li>· MinIO 图片托管，Excalidraw 内联图片自动上传外置</li>
@@ -135,7 +136,7 @@ export default async function Page() {
         </div>
 
         {recentPosts.length > 0 && (
-          <div data-reveal className="space-y-4">
+          <div data-reveal suppressHydrationWarning className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-fraunces text-wb-ink text-xl font-semibold italic">最新文章</h2>
               <Link
@@ -156,7 +157,7 @@ export default async function Page() {
                 <li key={post.slug}>
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                    className="group hover:bg-wb-canvas focus-visible:ring-wb-accent flex items-baseline gap-3 rounded-lg px-2 py-2 transition-colors focus-visible:ring-2 focus-visible:outline-none active:scale-[0.99]"
                   >
                     <time
                       dateTime={post.date}

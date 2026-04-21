@@ -70,7 +70,7 @@ const ThemeSwitch = () => {
         <div className="hover:text-wb-accent text-wb-ink flex items-center justify-center">
           <MenuButton
             aria-label="切换主题"
-            className="focus-visible:ring-wb-accent rounded focus-visible:ring-2 focus-visible:outline-none"
+            className="focus-visible:ring-wb-accent rounded transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-90"
           >
             {mounted ? resolvedTheme === 'dark' ? <Moon /> : <Sun /> : <Blank />}
           </MenuButton>
@@ -84,7 +84,7 @@ const ThemeSwitch = () => {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <MenuItems className="ring-opacity-5 divide-wb-rule-soft bg-wb-canvas ring-wb-rule absolute right-0 z-50 mt-2 w-36 origin-top-right divide-y rounded-xl shadow-[0_8px_24px_-8px_rgba(31,26,21,0.18)] ring-1 focus:outline-hidden dark:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]">
+          <MenuItems className="divide-wb-rule-soft ring-wb-rule/10 bg-wb-canvas absolute right-0 z-50 mt-2 w-36 origin-top-right divide-y rounded-xl shadow-[0_8px_24px_-8px_rgba(31,26,21,0.18)] ring-1 focus:outline-hidden dark:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)]">
             <RadioGroup value={theme} onChange={setTheme}>
               <div className="p-1">
                 <Radio value="light">

@@ -36,7 +36,7 @@ const MobileNav = () => {
         aria-label={navShow ? '关闭导航菜单' : '打开导航菜单'}
         aria-expanded={navShow}
         onClick={onToggleNav}
-        className="focus-visible:ring-wb-accent rounded focus-visible:ring-2 focus-visible:outline-none sm:hidden"
+        className="focus-visible:ring-wb-accent rounded transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-90 sm:hidden"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +140,7 @@ const MobileNav = () => {
               </nav>
 
               <button
-                className="hover:text-wb-accent text-wb-ink focus-visible:ring-wb-accent fixed top-7 right-4 z-80 h-10 w-10 rounded p-2 focus-visible:ring-2 focus-visible:outline-none"
+                className="hover:text-wb-accent text-wb-ink focus-visible:ring-wb-accent fixed top-7 right-4 z-80 h-10 w-10 rounded p-2 transition-all duration-200 focus-visible:ring-2 focus-visible:outline-none active:scale-90"
                 aria-label="关闭导航菜单"
                 onClick={onToggleNav}
               >
