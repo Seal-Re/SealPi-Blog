@@ -41,6 +41,9 @@ services:
 
   blog-start:
     image: sealpi-blog-blog-start:latest
+    build:
+      context: sealpi-blog
+      dockerfile: Dockerfile
     container_name: sealpi-blog-start
     depends_on:
       - mysql
