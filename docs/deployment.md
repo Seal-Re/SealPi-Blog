@@ -12,7 +12,7 @@
 ```
 浏览器 ─► blog.sealpi.cn:443 (已有 nginx + TLS)
                     │
-                    ├─► /            → 127.0.0.1:13311 (Next.js)
+                    ├─► /            → 127.0.0.1:13999 (Next.js)
                     ├─► /api/        → 127.0.0.1:13310 (Spring Boot)
                     └─► /minio/      → 127.0.0.1:13308 (MinIO 公开读桶)
 
@@ -79,7 +79,7 @@ server {
 
     # Next.js 前端
     location / {
-        proxy_pass http://127.0.0.1:13311;
+        proxy_pass http://127.0.0.1:13999;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

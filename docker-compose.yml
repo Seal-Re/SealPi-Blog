@@ -85,8 +85,8 @@ services:
       # Server-side (SSR/BFF) calls go through the internal Docker network.
       BLOG_API_BASE_URL: http://blog-start:8080
       # NextAuth — AUTH_URL must match the GitHub OAuth callback URL registered in your app.
-      # For local deployment: http://localhost:13311
-      AUTH_URL: ${AUTH_URL:-http://localhost:13311}
+      # For local deployment: http://localhost:13999
+      AUTH_URL: ${AUTH_URL:-http://localhost:13999}
       AUTH_SECRET: ${AUTH_SECRET}
       GITHUB_ID: ${GITHUB_ID}
       GITHUB_SECRET: ${GITHUB_SECRET}
@@ -96,7 +96,7 @@ services:
       BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
       MINIO_PUBLIC_HOSTNAME: ${MINIO_PUBLIC_HOSTNAME:-localhost}
     ports:
-      - "13311:3000"
+      - "13999:3000"
 
 volumes:
   mysql_data:

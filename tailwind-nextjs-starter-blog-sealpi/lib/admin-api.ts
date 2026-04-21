@@ -57,9 +57,9 @@ function resolveRequestUrl(path: string) {
     (() => {
       console.warn(
         '[admin-api] Neither AUTH_URL nor NEXTAUTH_URL is set. ' +
-          'Falling back to http://127.0.0.1:13311 — BFF self-calls will fail in production.'
+          'Falling back to http://127.0.0.1:13999 — BFF self-calls will fail in production.'
       )
-      return 'http://127.0.0.1:13311'
+      return 'http://127.0.0.1:13999'
     })()
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`
 }

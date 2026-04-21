@@ -49,7 +49,7 @@ Push-Location $root
 
 try {
   Write-Step "Stop local app processes by known ports"
-  $appPorts = @(13310, 13311, 13307, 13308, 13309)
+  $appPorts = @(13310, 13999, 13307, 13308, 13309)
   foreach ($port in $appPorts) {
     Stop-ProcessByPort $port
   }
@@ -75,7 +75,7 @@ try {
 
   Write-Step "Verify known ports are released"
   $stillBusy = @()
-  foreach ($port in @(13310, 13311)) {
+  foreach ($port in @(13310, 13999)) {
     if (Test-PortInUse $port) {
       $stillBusy += $port
     }

@@ -112,14 +112,14 @@ $frontendEnvLocal = Join-Path $frontendDir ".env.local"
 $backendEnvExample = Join-Path $root ".env.backend.example"
 $backendEnvLocal = Join-Path $root ".env.backend.local"
 
-$servicePorts = @(13310, 13311)
+$servicePorts = @(13310, 13999)
 
 Write-Step "Check required commands"
 Assert-Command "docker" "Install and start Docker Desktop first."
 Assert-Command "npm" "Install Node.js (20+) first."
 Assert-Command "java" "Install JDK 21 first."
 
-Write-Step "Check service port availability (13310/13311)"
+Write-Step "Check service port availability (13310/13999)"
 Assert-PortAvailable $servicePorts
 
 Write-Step "Prepare backend env file"
@@ -235,11 +235,11 @@ Set-Location "$backendDir"
 "@
 Start-Process powershell -ArgumentList @("-NoExit", "-Command", $backendCommand) | Out-Null
 
-Write-Step "Start frontend on 13311"
+Write-Step "Start frontend on 13999"
 $frontendCommand = @"
 Set-Location "$frontendDir"
-`$env:AUTH_URL='http://localhost:13311'
-`$env:NEXTAUTH_URL='http://localhost:13311'
+`$env:AUTH_URL='http://localhost:13999'
+`$env:NEXTAUTH_URL='http://localhost:13999'
 `$env:BLOG_API_BASE_URL='http://127.0.0.1:13310'
 `$env:AUTH_SECRET='$authSecret'
 `$env:GITHUB_ID='$githubId'
@@ -249,12 +249,12 @@ Set-Location "$frontendDir"
 `$env:ADMIN_JWT_GITHUBUSERIDCLAIM='$adminJwtClaim'
 `$env:BLOG_INTERNAL_SYNC_SECRET='$internalSyncSecret'
 `$env:MINIO_PUBLIC_HOSTNAME='127.0.0.1'
-npx next dev -p 13311
+npx next dev -p 13999
 "@
 Start-Process powershell -ArgumentList @("-NoExit", "-Command", $frontendCommand) | Out-Null
 
 Write-Step "All done"
-Write-Host "Frontend:      http://127.0.0.1:13311" -ForegroundColor Green
+Write-Host "Frontend:      http://127.0.0.1:13999" -ForegroundColor Green
 Write-Host "Backend:       http://127.0.0.1:13310" -ForegroundColor Green
 Write-Host "MySQL:         127.0.0.1:13307" -ForegroundColor Green
 Write-Host "MinIO API:     http://127.0.0.1:13308" -ForegroundColor Green

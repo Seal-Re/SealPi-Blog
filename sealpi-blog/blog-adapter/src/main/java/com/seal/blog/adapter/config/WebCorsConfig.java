@@ -17,8 +17,8 @@ public class WebCorsConfig implements WebMvcConfigurer {
     private static final List<String> ALLOWED_ORIGINS = List.of(
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "http://localhost:13311",
-            "http://127.0.0.1:13311"
+            "http://localhost:13999",
+            "http://127.0.0.1:13999"
     );
 
     @Override

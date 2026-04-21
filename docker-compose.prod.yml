@@ -5,7 +5,7 @@
 #
 # Exposed ports:
 #   13310 → backend   (nginx proxies blog.sealpi.cn/api/ → here)
-#   13311 → frontend  (nginx proxies blog.sealpi.cn/    → here)
+#   13999 → frontend  (nginx proxies blog.sealpi.cn/    → here)
 #   13308 → minio     (nginx proxies blog.sealpi.cn/minio/ → here, public bucket)
 #   13309 → minio console (do NOT expose via nginx publicly)
 #   13307 → mysql     (host only, not proxied)
@@ -110,7 +110,7 @@ services:
       BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
       MINIO_PUBLIC_HOSTNAME: ${MINIO_PUBLIC_HOSTNAME:-blog.sealpi.cn}
     ports:
-      - "127.0.0.1:13311:3000"
+      - "127.0.0.1:13999:3000"
 
 volumes:
   mysql_data:

@@ -76,7 +76,7 @@
     },
   }
   ```
-- [ ] 修改 `package.json` dev 脚本为 `next dev --turbopack -p 13311`，保留 `next build` 用 webpack（生产构建当前稳定）
+- [ ] 修改 `package.json` dev 脚本为 `next dev --turbopack -p 13999`，保留 `next build` 用 webpack（生产构建当前稳定）
 - [ ] 手工验证冒烟路径：首页、文章详情（含 Excalidraw）、admin 编辑器、登录 OAuth 往返
 - [ ] 冒烟通过后更新 `start-local-test.ps1:252` 使用 `--turbopack`
 - [ ] 失败回滚: 移除 `--turbopack`，恢复 webpack dev

@@ -46,7 +46,7 @@ The backend listens on port **8080** by default (overridden to **13310** in loca
 cd tailwind-nextjs-starter-blog-sealpi
 
 npm install          # or: yarn
-npx next dev -p 13311   # dev server
+npx next dev -p 13999   # dev server
 npx next build       # production build
 npm run lint         # lint (pages/app/components/lib/layouts/scripts + prettier)
 npm test             # run Vitest unit tests (once)
@@ -66,7 +66,7 @@ Package manager is **yarn 3.6.1** (declared in `packageManager`), but npm works 
 
 Requires: Docker Desktop, Node.js 20+, JDK 21. Secrets are stored in `.env.backend.local` (created from `.env.backend.example` on first run).
 
-**Local ports**: Frontend 13311, Backend 13310, MySQL 13307, MinIO API 13308, MinIO Console 13309.
+**Local ports**: Frontend 13999, Backend 13310, MySQL 13307, MinIO API 13308, MinIO Console 13309.
 
 ### Docker Compose
 
