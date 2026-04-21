@@ -1,0 +1,117 @@
+# Production compose — pulls pre-built images from ghcr.io instead of building.
+# Used by the GitHub Actions deploy workflow (.github/workflows/deploy.yml) on the
+# server at /opt/sealpi-blog. Reads secrets from /opt/sealpi-blog/.env.backend.local
+# (Mode A: env file lives on server, never touched by CI).
+#
+# Exposed ports:
+#   13310 → backend   (nginx proxies blog.sealpi.cn/api/ → here)
+#   13311 → frontend  (nginx proxies blog.sealpi.cn/    → here)
+#   13308 → minio     (nginx proxies blog.sealpi.cn/minio/ → here, public bucket)
+#   13309 → minio console (do NOT expose via nginx publicly)
+#   13307 → mysql     (host only, not proxied)
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sealpi-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-sealpi_blog}
+    ports:
+      - "127.0.0.1:13307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  minio:
+    image: minio/minio:latest
+    container_name: sealpi-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:13308:9000"
+      - "127.0.0.1:13309:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+    command: >
+      "mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+      mc mb -p local/blog-assets || true &&
+      mc anonymous set public local/blog-assets"
+
+  blog-start:
+    image: ghcr.io/seal-re/sealpi-blog-backend:latest
+    container_name: sealpi-blog-start
+    restart: unless-stopped
+    pull_policy: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-sealpi_blog}?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      ADMIN_GITHUB_USERIDS: ${ADMIN_GITHUB_USERIDS}
+      ADMIN_JWT_GITHUBUSERIDCLAIM: ${ADMIN_JWT_GITHUBUSERIDCLAIM:-githubUserId}
+      ADMIN_AUTH_ALLOW_LEGACY_JWT: ${ADMIN_AUTH_ALLOW_LEGACY_JWT:-true}
+      ADMIN_GITHUB_USERAPI: https://api.github.com/user
+      ADMIN_UPLOAD_MINIO_ENDPOINT: http://minio:9000
+      ADMIN_UPLOAD_MINIO_ACCESSKEY: ${MINIO_ROOT_USER}
+      ADMIN_UPLOAD_MINIO_SECRETKEY: ${MINIO_ROOT_PASSWORD}
+      ADMIN_UPLOAD_MINIO_BUCKET: blog-assets
+      ADMIN_UPLOAD_PUBLICBASEURL: ${MINIO_PUBLIC_BASE_URL:-https://blog.sealpi.cn/minio}
+      BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
+    ports:
+      - "127.0.0.1:13310:8080"
+
+  frontend:
+    image: ghcr.io/seal-re/sealpi-blog-frontend:latest
+    container_name: sealpi-frontend
+    restart: unless-stopped
+    pull_policy: always
+    depends_on:
+      - blog-start
+    environment:
+      BLOG_API_BASE_URL: http://blog-start:8080
+      AUTH_URL: ${AUTH_URL:-https://blog.sealpi.cn}
+      AUTH_SECRET: ${AUTH_SECRET}
+      GITHUB_ID: ${GITHUB_ID}
+      GITHUB_SECRET: ${GITHUB_SECRET}
+      ADMIN_GITHUB_USERIDS: ${ADMIN_GITHUB_USERIDS}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      ADMIN_JWT_GITHUBUSERIDCLAIM: ${ADMIN_JWT_GITHUBUSERIDCLAIM:-githubUserId}
+      BLOG_INTERNAL_SYNC_SECRET: ${BLOG_INTERNAL_SYNC_SECRET}
+      MINIO_PUBLIC_HOSTNAME: ${MINIO_PUBLIC_HOSTNAME:-blog.sealpi.cn}
+    ports:
+      - "127.0.0.1:13311:3000"
+
+volumes:
+  mysql_data:
+  minio_data:

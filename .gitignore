@@ -1,3 +1,6 @@
 .env.backend.local
 .superpowers/
 .claude/
+
+# Stray Next.js build traces at repo root (from running `next build` outside the frontend subdir)
+/.next/
