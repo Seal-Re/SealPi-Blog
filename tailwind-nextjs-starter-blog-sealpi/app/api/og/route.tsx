@@ -6,7 +6,7 @@ import type { AdminArticle, ApiResult } from '@/lib/blog-api-types'
 
 export const runtime = 'edge'
 
-export const size = { width: 1200, height: 630 }
+const OG_SIZE = { width: 1200, height: 630 }
 
 async function fetchArticleForOg(
   slug: string
@@ -172,6 +172,6 @@ export async function GET(req: NextRequest) {
         }}
       />
     </div>,
-    { width: 1200, height: 630 }
+    OG_SIZE
   )
 }
