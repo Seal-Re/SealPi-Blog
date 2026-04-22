@@ -67,7 +67,11 @@ const AUTO_SAVE_TO_SERVER_MS = 4000
 const DEBUG_PREFIX = '[AdminEditor]'
 const PREVIEW_IMAGE_WIDTH = 1200
 const PREVIEW_IMAGE_HEIGHT = 630
-const PREVIEW_EXPORT_PADDING_PX = 64
+// Raw Excalidraw export is the minimum rectangle covering content (no padding).
+// fitBlobToFixedSize() then contain-letterboxes it into 1200x630, so whitespace
+// appears only on the axis that would otherwise overflow. Larger export padding
+// would stack redundant whitespace on top of the letterbox gaps.
+const PREVIEW_EXPORT_PADDING_PX = 0
 const PREVIEW_FALLBACK_BG = '#fbf5ec'
 
 type EditorState = {
