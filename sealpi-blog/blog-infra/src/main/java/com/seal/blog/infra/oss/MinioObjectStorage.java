@@ -34,7 +34,18 @@ public class MinioObjectStorage {
         if (publicBaseUrl == null || publicBaseUrl.isBlank()) {
             throw new IllegalArgumentException("admin.upload.publicBaseUrl must not be blank");
         }
-        this.publicBaseUrl = trimTrailingSlash(publicBaseUrl);
+        this.publicBaseUrl = stripTrailingBucket(trimTrailingSlash(publicBaseUrl), bucket);
+    }
+
+    // Guard: if operators misconfigure publicBaseUrl with the bucket name
+    // already appended (e.g. https://host/minio/blog-assets), publicUrl()
+    // would produce a doubled path. Strip the trailing bucket segment here.
+    private static String stripTrailingBucket(String baseUrl, String bucket) {
+        String suffix = "/" + bucket;
+        if (baseUrl.endsWith(suffix)) {
+            return baseUrl.substring(0, baseUrl.length() - suffix.length());
+        }
+        return baseUrl;
     }
 
     public String upload(InputStream in, long size, String contentType, String originalFilename) {

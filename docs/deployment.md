@@ -47,7 +47,7 @@ scp -i C:\Users\seal\Downloads\pentest.pem `
 AUTH_URL=https://blog.sealpi.cn
 NEXT_PUBLIC_BLOG_API_BASE_URL=https://blog.sealpi.cn
 MINIO_PUBLIC_HOSTNAME=blog.sealpi.cn
-MINIO_PUBLIC_BASE_URL=https://blog.sealpi.cn/minio/blog-assets
+MINIO_PUBLIC_BASE_URL=https://blog.sealpi.cn/minio
 ADMIN_AUTH_ALLOW_LEGACY_JWT=true
 ```
 
@@ -89,8 +89,8 @@ server {
         proxy_set_header Connection "upgrade";
     }
 
-    # Spring Boot 后端 API
-    location /api/ {
+    # Spring Boot 后端 API (narrow to /api/v1/ — /api/auth/* and /api/admin/* are Next.js BFF)
+    location /api/v1/ {
         proxy_pass http://127.0.0.1:13310;
         proxy_http_version 1.1;
         proxy_set_header Host $host;

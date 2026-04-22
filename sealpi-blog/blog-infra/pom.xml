@@ -63,6 +63,14 @@
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.9</version>
         </dependency>
+        <!-- MP 3.5.9+ split JSqlParser out of the core. PaginationInnerInterceptor
+             lives here now — without it selectPage() skips the COUNT query and
+             page.getTotal() returns 0. -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.9</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.velocity</groupId>
