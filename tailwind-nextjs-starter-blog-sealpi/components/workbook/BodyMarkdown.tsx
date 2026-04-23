@@ -7,9 +7,33 @@ import rehypeSlug from 'rehype-slug'
 import rehypeHighlight from 'rehype-highlight'
 import { visit } from 'unist-util-visit'
 import type { Plugin } from 'unified'
-import type { Root } from 'mdast'
+import type { Root, Paragraph, Text } from 'mdast'
 import type { ContainerDirective } from 'mdast-util-directive'
 import MarginNote from './MarginNote'
+
+/**
+ * Paragraph-level drop cap marker. Writing `^^ ` at the very start of a paragraph
+ * strips the marker and tags the <p> with `.wb-dropcap-p`, which the CSS rule
+ * targets with `::first-letter`. Only fires when the paragraph's first text
+ * child starts with the marker, so mid-paragraph `^^` stays literal.
+ */
+const DROPCAP_PARAGRAPH_MARKER = '^^ '
+
+const remarkParagraphDropcap: Plugin<[], Root> = () => (tree) => {
+  visit(tree, 'paragraph', (node: Paragraph) => {
+    const first = node.children[0]
+    if (!first || first.type !== 'text') return
+    const textNode = first as Text
+    if (!textNode.value.startsWith(DROPCAP_PARAGRAPH_MARKER)) return
+    textNode.value = textNode.value.slice(DROPCAP_PARAGRAPH_MARKER.length)
+    const data = (node.data ?? (node.data = {})) as {
+      hProperties?: Record<string, unknown>
+    }
+    const props = (data.hProperties ?? (data.hProperties = {})) as Record<string, unknown>
+    const existing = typeof props.className === 'string' ? props.className : ''
+    props.className = existing ? `${existing} wb-dropcap-p` : 'wb-dropcap-p'
+  })
+}
 
 /**
  * remark-directive emits containerDirective/leafDirective/textDirective nodes.
@@ -116,6 +140,7 @@ export default function BodyMarkdown({ markdown, dropcap = false }: BodyMarkdown
           remarkGithubBlockquoteAlert,
           remarkDirective,
           remarkNoteDirective,
+          remarkParagraphDropcap,
         ]}
         rehypePlugins={[rehypeSlug, rehypeHighlight]}
         components={
