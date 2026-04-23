@@ -164,7 +164,11 @@ input:-webkit-autofill:focus {
     color 600000s 0s;
 }
 
-.wb-body > p:first-of-type::first-letter {
+/* Opt-in drop cap: add .wb-dropcap to any container (e.g. wrap BodyMarkdown
+   with <div class="wb-dropcap"> or pass dropcap prop) to enlarge the first
+   letter of its first paragraph. Standalone class so it can be reused
+   outside .wb-body. */
+.wb-dropcap > p:first-of-type::first-letter {
   font-family: var(--font-fraunces);
   font-size: 48px;
   font-weight: 500;
@@ -176,7 +180,7 @@ input:-webkit-autofill:focus {
 }
 /* Reduce drop cap on narrow screens so text wraps cleanly */
 @media (max-width: 479px) {
-  .wb-body > p:first-of-type::first-letter {
+  .wb-dropcap > p:first-of-type::first-letter {
     font-size: 36px;
   }
 }
@@ -813,7 +817,7 @@ div:has(> #kbar-listbox) [class~="text-primary-600"] {
   }
 
   /* Drop cap: disable for print */
-  .wb-body > p:first-of-type::first-letter {
+  .wb-dropcap > p:first-of-type::first-letter {
     font-size: inherit;
     float: none;
     line-height: inherit;

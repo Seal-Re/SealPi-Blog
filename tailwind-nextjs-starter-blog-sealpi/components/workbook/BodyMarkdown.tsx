@@ -100,11 +100,16 @@ function HeadingAnchor({
 
 type BodyMarkdownProps = {
   markdown: string
+  /** Enlarges the first letter of the first paragraph. Off by default. */
+  dropcap?: boolean
 }
 
-export default function BodyMarkdown({ markdown }: BodyMarkdownProps) {
+export default function BodyMarkdown({ markdown, dropcap = false }: BodyMarkdownProps) {
+  const rootClass =
+    'wb-body font-fraunces text-wb-ink-soft text-[18px] leading-[1.75]' +
+    (dropcap ? ' wb-dropcap' : '')
   return (
-    <div className="wb-body font-fraunces text-wb-ink-soft text-[18px] leading-[1.75]">
+    <div className={rootClass}>
       <ReactMarkdown
         remarkPlugins={[
           remarkGfm,

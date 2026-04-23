@@ -3,7 +3,7 @@
 import '@excalidraw/excalidraw/index.css'
 
 import dynamic from 'next/dynamic'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTheme } from 'next-themes'
 import type { AppState, BinaryFiles, ExcalidrawImperativeAPI } from '@excalidraw/excalidraw/types'
 import type { ExcalidrawElement } from '@excalidraw/excalidraw/element/types'
@@ -42,11 +42,84 @@ function parseScene(contentJson?: string | null): ExcalidrawScene | null {
   }
 }
 
+/**
+ * Admin upload stores MinIO HTTPS URLs directly in BinaryFileData.dataURL.
+ * Excalidraw's renderer expects a base64 `data:<mime>;base64,...` URL and
+ * skips http(s) entries, so image elements render blank. Rehydrate each
+ * remote URL into a real data URL before handing the scene to Excalidraw.
+ * Cached across renders — same URL is fetched once per session.
+ */
+const rehydrateCache = new Map<string, string>()
+
+async function fetchAsDataUrl(url: string): Promise<string> {
+  const cached = rehydrateCache.get(url)
+  if (cached) return cached
+  const res = await fetch(url, { credentials: 'omit' })
+  if (!res.ok) throw new Error(`fetch ${url} failed: ${res.status}`)
+  const blob = await res.blob()
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error ?? new Error('FileReader failed'))
+    reader.readAsDataURL(blob)
+  })
+  rehydrateCache.set(url, dataUrl)
+  return dataUrl
+}
+
+function isRemoteUrl(value: string | undefined): boolean {
+  return Boolean(value && /^https?:\/\//i.test(value))
+}
+
+async function rehydrateFiles(files: BinaryFiles | undefined): Promise<BinaryFiles | undefined> {
+  if (!files) return files
+  const entries = Object.entries(files)
+  const rehydrated: BinaryFiles = {}
+  await Promise.all(
+    entries.map(async ([id, file]) => {
+      if (!file) return
+      if (typeof file.dataURL === 'string' && isRemoteUrl(file.dataURL)) {
+        try {
+          const dataUrl = await fetchAsDataUrl(file.dataURL)
+          rehydrated[id] = { ...file, dataURL: dataUrl as typeof file.dataURL }
+        } catch (error) {
+          console.warn('[ExcalidrawViewer] rehydrate failed', file.dataURL, error)
+          rehydrated[id] = file
+        }
+      } else {
+        rehydrated[id] = file
+      }
+    })
+  )
+  return rehydrated
+}
+
 export default function ExcalidrawViewer({ contentJson, title, compact }: ExcalidrawViewerProps) {
   const scene = useMemo(() => parseScene(contentJson), [contentJson])
   const hasRenderableElements = Boolean(scene?.elements?.some((element) => !element.isDeleted))
   const { resolvedTheme } = useTheme()
   const excalidrawTheme = resolvedTheme === 'dark' ? 'dark' : 'light'
+  const [hydratedFiles, setHydratedFiles] = useState<BinaryFiles | undefined>(scene?.files)
+  const excalidrawApiRef = useRef<ExcalidrawImperativeAPI | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    setHydratedFiles(scene?.files)
+    rehydrateFiles(scene?.files).then((files) => {
+      if (cancelled) return
+      setHydratedFiles(files)
+      // initialData is consumed once at mount, so push the hydrated blobs
+      // into the live scene via the imperative API.
+      if (excalidrawApiRef.current && files) {
+        const list = Object.values(files).filter((f): f is NonNullable<typeof f> => Boolean(f))
+        if (list.length > 0) excalidrawApiRef.current.addFiles(list)
+        requestAnimationFrame(() => excalidrawApiRef.current?.refresh())
+      }
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [scene])
 
   if (!scene || !hasRenderableElements) {
     if (compact) return null
@@ -69,7 +142,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
       viewBackgroundColor: excalidrawTheme === 'dark' ? '#21180f' : '#fbf5ec',
       ...scene.appState,
     },
-    files: scene.files,
+    files: hydratedFiles ?? scene.files,
   }
 
   return (
@@ -111,6 +184,7 @@ export default function ExcalidrawViewer({ contentJson, title, compact }: Excali
             },
           }}
           excalidrawAPI={(api: ExcalidrawImperativeAPI) => {
+            excalidrawApiRef.current = api
             requestAnimationFrame(() => api.refresh())
           }}
         />

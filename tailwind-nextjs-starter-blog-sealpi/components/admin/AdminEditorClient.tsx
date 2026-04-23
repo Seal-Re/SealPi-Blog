@@ -560,6 +560,45 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
       })
     }, [])
 
+    const insertMarkdownImage = useCallback((url: string, alt: string) => {
+      const el = mdTextareaRef.current
+      if (!el) return
+      const start = el.selectionStart
+      const end = el.selectionEnd
+      const snippet = `![${alt}](${url})`
+      const next = el.value.slice(0, start) + snippet + el.value.slice(end)
+      setFormState((prev) => ({ ...prev, draftBodyMd: next }))
+      setIsTextDirty(true)
+      requestAnimationFrame(() => {
+        el.focus()
+        const caret = start + snippet.length
+        el.setSelectionRange(caret, caret)
+      })
+    }, [])
+
+    const uploadAndInsertMarkdownImage = useCallback(
+      async (file: File) => {
+        const rawName = file.name || 'image.png'
+        const altBase = rawName.replace(/\.[^.]+$/, '') || 'image'
+        setStatusMessage(`正在上传 ${rawName}...`)
+        try {
+          const result = await uploadAdminAsset(file, `md-${Date.now()}-${rawName}`)
+          const url = result?.data?.trim()
+          if (!url) {
+            pushSnackbar('图片上传失败：未获取到地址。', 'error')
+            return
+          }
+          insertMarkdownImage(url, altBase)
+          pushSnackbar('图片已插入正文。', 'ok')
+        } catch {
+          pushSnackbar('图片上传失败，请稍后重试。', 'error')
+        } finally {
+          setStatusMessage('')
+        }
+      },
+      [insertMarkdownImage, pushSnackbar]
+    )
+
     const handleSceneChange = useCallback(
       (elements: readonly ExcalidrawElement[], appState: AppState, files: BinaryFiles) => {
         const excalidrawModule = excalidrawModuleRef.current
@@ -1773,8 +1812,44 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
                             toggleMdLinePrefix('### ')
                           }
                         }}
+                        onPaste={(e) => {
+                          const items = e.clipboardData?.items
+                          if (!items || items.length === 0) return
+                          const images: File[] = []
+                          for (let i = 0; i < items.length; i += 1) {
+                            const item = items[i]
+                            if (item.kind === 'file' && item.type.startsWith('image/')) {
+                              const f = item.getAsFile()
+                              if (f) images.push(f)
+                            }
+                          }
+                          if (images.length === 0) return
+                          e.preventDefault()
+                          images.forEach((f) => {
+                            void uploadAndInsertMarkdownImage(f)
+                          })
+                        }}
+                        onDragOver={(e) => {
+                          if (
+                            Array.from(e.dataTransfer?.items || []).some((it) => it.kind === 'file')
+                          ) {
+                            e.preventDefault()
+                          }
+                        }}
+                        onDrop={(e) => {
+                          const files = e.dataTransfer?.files
+                          if (!files || files.length === 0) return
+                          const images = Array.from(files).filter((f) =>
+                            f.type.startsWith('image/')
+                          )
+                          if (images.length === 0) return
+                          e.preventDefault()
+                          images.forEach((f) => {
+                            void uploadAndInsertMarkdownImage(f)
+                          })
+                        }}
                         placeholder={
-                          '# 正文\n\n支持 Markdown 与 GitHub 告示块（> [!NOTE] / > [!TIP] / > [!IMPORTANT] / > [!WARNING] / > [!CAUTION]）。\n快捷键：Ctrl+B 粗体 | Ctrl+I 斜体 | Ctrl+Shift+S 删除线 | Ctrl+K 链接 | Ctrl+` 行内代码 | Ctrl+Shift+` 代码块 | Ctrl+Shift+2 H2 | Ctrl+Shift+3 H3'
+                          '# 正文\n\n支持 Markdown 与 GitHub 告示块（> [!NOTE] / > [!TIP] / > [!IMPORTANT] / > [!WARNING] / > [!CAUTION]）。\n粘贴或拖拽图片直接上传，上传成功后自动插入 ![alt](url)。\n快捷键：Ctrl+B 粗体 | Ctrl+I 斜体 | Ctrl+Shift+S 删除线 | Ctrl+K 链接 | Ctrl+` 行内代码 | Ctrl+Shift+` 代码块 | Ctrl+Shift+2 H2 | Ctrl+Shift+3 H3'
                         }
                         className="content-enter text-wb-ink placeholder:text-wb-meta hover:border-wb-rule focus:border-wb-accent focus:ring-wb-accent/10 dark:focus:border-wb-accent/70 min-h-[200px] w-full resize-y bg-transparent px-4 py-3 font-mono text-sm transition duration-200 ease-out outline-none focus:ring-4 dark:text-gray-100 dark:placeholder:text-gray-500"
                       />
