@@ -9,7 +9,6 @@ import CopyCodeInit from './CopyCodeInit'
 import CopyLinkButton from './CopyLinkButton'
 import WbShareButton from './WbShareButton'
 import WbToc from './WbToc'
-import WbImageLightbox from './WbImageLightbox'
 import ViewTracker from './ViewTracker'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import Comments from '@/components/Comments'
@@ -80,7 +79,6 @@ export default function WorkbookArticleLayout({
       <WorkbookReadingProgress />
       <ScrollTopAndComment />
       <CopyCodeInit />
-      <WbImageLightbox />
       {articleId != null ? <ViewTracker articleId={articleId} /> : null}
 
       <Link
