@@ -12,11 +12,17 @@ export default function WbImageLightbox() {
 
   useEffect(() => {
     const imgs = document.querySelectorAll<HTMLImageElement>('.wb-body img')
-    const handlers = new Map<HTMLImageElement, () => void>()
+    const handlers = new Map<HTMLImageElement, (e: MouseEvent) => void>()
 
     imgs.forEach((img) => {
       img.style.cursor = 'zoom-in'
-      const handler = () => setLightbox({ src: img.src, alt: img.alt })
+      const handler = (e: MouseEvent) => {
+        // Prevent an ancestor anchor (e.g. `[![]()](url)` in markdown) from
+        // navigating and scrolling the page while the lightbox opens.
+        e.preventDefault()
+        e.stopPropagation()
+        setLightbox({ src: img.src, alt: img.alt })
+      }
       handlers.set(img, handler)
       img.addEventListener('click', handler)
     })

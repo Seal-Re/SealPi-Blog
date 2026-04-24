@@ -611,11 +611,14 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         if (!baselineReadyRef.current) {
           baselineReadyRef.current = true
           contentFingerprintRef.current = nextFingerprint
+          // serializeAsJSON 'database' mode drops the files map (see Excalidraw
+          // json.ts: `type === 'local' ? filterOutDeletedFiles(...) : void 0`);
+          // use 'local' so the uploaded MinIO references survive in the payload.
           pendingDraftJsonRef.current = excalidrawModule.serializeAsJSON(
             elements,
             appState,
             files,
-            'database'
+            'local'
           )
           latestSceneRef.current = { elements, appState, files }
           setSyncState('SUCCESS')
@@ -634,12 +637,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
         }
 
         contentFingerprintRef.current = nextFingerprint
-        const nextDraftJson = excalidrawModule.serializeAsJSON(
-          elements,
-          appState,
-          files,
-          'database'
-        )
+        const nextDraftJson = excalidrawModule.serializeAsJSON(elements, appState, files, 'local')
         pendingDraftJsonRef.current = nextDraftJson
         latestSceneRef.current = { elements, appState, files }
         setIsSceneDirty(true)
@@ -778,7 +776,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
               liveElements,
               liveAppState,
               liveFiles,
-              'database'
+              'local'
             )
             console.info(DEBUG_PREFIX, 'payload scene refreshed from api', {
               elements: liveElements.length,
@@ -806,7 +804,7 @@ const AdminEditorClient = forwardRef<AdminEditorClientRef, AdminEditorClientProp
           scene.elements,
           scene.appState,
           uploadedScene.files,
-          'database'
+          'local'
         )
 
         if (nextDraftJson.includes('data:image') && nextDraftJson.length > MAX_INLINE_IMAGE_BYTES) {

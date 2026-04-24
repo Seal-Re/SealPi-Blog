@@ -212,21 +212,30 @@ input:-webkit-autofill:focus {
   opacity: 1;
 }
 
+/* Reveal animation uses translateY + opacity rather than blur/opacity to avoid
+   two hazards: (1) a stuck `filter: blur(4px)` start state when JS doesn't set
+   data-revealed masks body images so authors think they're broken, and
+   (2) `filter: blur(0)` end state still counts as an applied filter per CSS
+   spec and creates a containing block, which traps descendant
+   `position: fixed` elements (e.g. WbImageLightbox) inside the wb-frame
+   instead of the viewport. */
 [data-reveal] {
-  opacity: 0.35;
-  filter: blur(4px);
+  opacity: 0.6;
+  transform: translateY(6px);
   transition:
     opacity var(--duration-reveal) cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter var(--duration-reveal) cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform var(--duration-reveal) cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 [data-reveal][data-revealed='true'] {
   opacity: 1;
-  filter: blur(0);
+  /* transform: none (not translateY(0)) so the settled element stops acting
+     as a containing block for any nested fixed/absolute descendants. */
+  transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] {
     opacity: 1;
-    filter: none;
+    transform: none;
     transition: none;
   }
   .wb-page-enter,
@@ -238,15 +247,20 @@ input:-webkit-autofill:focus {
   }
 }
 
-/* Workbook page-enter animation (spec §4.3, no framer-motion needed) */
+/* Workbook page-enter animation (spec §4.3, no framer-motion needed).
+   `.wb-page-enter` is on <article class="wb-frame"> which is an ancestor
+   of WbImageLightbox. Keep this animation opacity-only: both `filter`
+   and `transform` (any non-`none` value) make the element a containing
+   block for fixed/absolute descendants, which traps the lightbox's
+   `fixed inset-0 z-[100]` overlay inside the article rectangle (looks
+   like the modal snapped to the top of the page and doesn't cover the
+   viewport). */
 @keyframes wb-page-in {
   from {
     opacity: 0.35;
-    filter: blur(4px);
   }
   to {
     opacity: 1;
-    filter: blur(0);
   }
 }
 .wb-page-enter {
