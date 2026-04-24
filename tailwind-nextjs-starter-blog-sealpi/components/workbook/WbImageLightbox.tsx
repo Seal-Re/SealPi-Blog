@@ -39,7 +39,9 @@ export default function WbImageLightbox() {
     if (!lightbox) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    closeButtonRef.current?.focus()
+    // preventScroll: true stops the browser's focus()-induced scroll jump
+    // that otherwise shoves the document to the top when the modal opens.
+    closeButtonRef.current?.focus({ preventScroll: true })
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setLightbox(null)
     }
