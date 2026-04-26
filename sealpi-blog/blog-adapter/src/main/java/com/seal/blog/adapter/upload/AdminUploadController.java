@@ -2,7 +2,7 @@ package com.seal.blog.adapter.upload;
 
 import com.seal.blog.client.common.SingleResponse;
 import com.seal.blog.infra.oss.MinioObjectStorage;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,15 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/admin")
+@RequiredArgsConstructor
 public class AdminUploadController {
 
     @Nullable
     private final MinioObjectStorage objectStorage;
-
-    @Autowired
-    public AdminUploadController(@Nullable MinioObjectStorage objectStorage) {
-        this.objectStorage = objectStorage;
-    }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public SingleResponse<String> upload(@RequestParam("file") MultipartFile file) {

@@ -1,6 +1,41 @@
+# ── Secrets / local config ──
 .env.backend.local
-.superpowers/
-.claude/
+.env.local
+*.env
+!.env.backend.example
 
-# Stray Next.js build traces at repo root (from running `next build` outside the frontend subdir)
+# ── Java / Maven ──
+**/target/
+!sealpi-blog/.mvn/wrapper/maven-wrapper.jar
+*.iml
+*.jar
+*.war
+*.class
+hs_err_pid*.log
+
+# ── Next.js / Node ──
 /.next/
+tailwind-nextjs-starter-blog-sealpi/.next/
+tailwind-nextjs-starter-blog-sealpi/node_modules/
+tailwind-nextjs-starter-blog-sealpi/dist/
+tailwind-nextjs-starter-blog-sealpi/out/
+tailwind-nextjs-starter-blog-sealpi/.env.local
+
+# ── Python ──
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ── IDE / OS ──
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ── Claude Code / superpowers local state ──
+.claude/
+.superpowers/
+
+# ── Misc build artifacts ──
+**/tmpcheck/
