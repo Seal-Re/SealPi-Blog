@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,19 +34,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/admin")
+@RequiredArgsConstructor
 public class ArticleAdminController {
 
     private final ArticleServiceI articleService;
 
     @Nullable
     private final MinioObjectStorage objectStorage;
-
-    @Autowired
-    public ArticleAdminController(ArticleServiceI articleService,
-                                  @Nullable MinioObjectStorage objectStorage) {
-        this.articleService = articleService;
-        this.objectStorage = objectStorage;
-    }
 
     /**
      * Returns aggregated article counts (total, published, draft, archived) in one request.
@@ -118,23 +112,6 @@ public class ArticleAdminController {
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
     ) {
-        String finalCoverUrl = coverImageUrl;
-        if (previewImage != null && !previewImage.isEmpty()) {
-            if (objectStorage == null) {
-                throw new IllegalStateException("文件上传未配置：请设置 ADMIN_UPLOAD_MINIO_ENDPOINT 环境变量");
-            }
-            try {
-                finalCoverUrl = objectStorage.upload(
-                        previewImage.getInputStream(),
-                        previewImage.getSize(),
-                        previewImage.getContentType(),
-                        previewImage.getOriginalFilename()
-                );
-            } catch (IOException e) {
-                throw new IllegalStateException("previewImage read failed", e);
-            }
-        }
-
         ArticleDraftSaveCmd cmd = new ArticleDraftSaveCmd();
         cmd.setTitle(title);
         cmd.setSummary(summary);
@@ -144,9 +121,8 @@ public class ArticleAdminController {
         cmd.setCoverCaption(coverCaption);
         cmd.setTags(parseTagsParam(tagsParam));
 
-        return articleService.adminCreate(cmd, action, finalCoverUrl);
+        return articleService.adminCreate(cmd, action, resolvePreviewImageUrl(previewImage, coverImageUrl));
     }
-
 
     /**
      * v1 admin write (deprecated JSON form): update article draft / publish.
@@ -181,23 +157,6 @@ public class ArticleAdminController {
             @RequestParam(name = "action", defaultValue = "draft") String action,
             @RequestParam(name = "coverImageUrl", required = false) String coverImageUrl
     ) {
-        String finalCoverUrl = coverImageUrl;
-        if (previewImage != null && !previewImage.isEmpty()) {
-            if (objectStorage == null) {
-                throw new IllegalStateException("文件上传未配置：请设置 ADMIN_UPLOAD_MINIO_ENDPOINT 环境变量");
-            }
-            try {
-                finalCoverUrl = objectStorage.upload(
-                        previewImage.getInputStream(),
-                        previewImage.getSize(),
-                        previewImage.getContentType(),
-                        previewImage.getOriginalFilename()
-                );
-            } catch (IOException e) {
-                throw new IllegalStateException("previewImage read failed", e);
-            }
-        }
-
         ArticleDraftUpdateCmd cmd = new ArticleDraftUpdateCmd();
         cmd.setArticleId(id);
         cmd.setTitle(title);
@@ -207,7 +166,30 @@ public class ArticleAdminController {
         cmd.setDraftBodyMd(draftBodyMd);
         cmd.setCoverCaption(coverCaption);
         cmd.setTags(parseTagsParam(tagsParam));
-        return articleService.adminUpdate(cmd, action, finalCoverUrl);
+        return articleService.adminUpdate(cmd, action, resolvePreviewImageUrl(previewImage, coverImageUrl));
+    }
+
+    /**
+     * Uploads previewImage to OSS if provided, otherwise returns the existing coverImageUrl.
+     * Throws IllegalStateException if objectStorage is not configured when a file is provided.
+     */
+    private String resolvePreviewImageUrl(MultipartFile previewImage, String coverImageUrl) {
+        if (previewImage == null || previewImage.isEmpty()) {
+            return coverImageUrl;
+        }
+        if (objectStorage == null) {
+            throw new IllegalStateException("文件上传未配置：请设置 ADMIN_UPLOAD_MINIO_ENDPOINT 环境变量");
+        }
+        try {
+            return objectStorage.upload(
+                    previewImage.getInputStream(),
+                    previewImage.getSize(),
+                    previewImage.getContentType(),
+                    previewImage.getOriginalFilename()
+            );
+        } catch (IOException e) {
+            throw new IllegalStateException("previewImage read failed", e);
+        }
     }
 
     /** Parses a comma-separated tags string into a list. Returns null when no tags provided. */
