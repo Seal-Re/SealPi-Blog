@@ -1,0 +1,8 @@
+{
+  "name": "sealpi-lhci",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "@lhci/cli": "^0.13.0"
+  }
+}

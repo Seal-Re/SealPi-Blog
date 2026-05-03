@@ -105,7 +105,25 @@ pwsh run.ps1     # ~1-2 min: speedtest (or PUT/GET fallback) + teardown
 
 ## §8 — Lighthouse CI (frontend quality)
 
-(Filled by Task 10.)
+2 URLs audited: home (`/`) and blog list (`/blog`). `feed.xml` is XML and cannot be evaluated by Lighthouse, so it is excluded.
+
+**Prereq**: Chrome must be available. If LHCI reports "Chrome installation not found", run once:
+
+```powershell
+npx puppeteer browsers install chrome
+$env:CHROME_PATH = "$env:USERPROFILE\.cache\puppeteer\chrome\win64-147.0.7727.57\chrome-win64\chrome.exe"
+```
+
+```powershell
+cd frontend-quality
+npm install      # first time only
+$env:CHROME_PATH = "$env:USERPROFILE\.cache\puppeteer\chrome\win64-147.0.7727.57\chrome-win64\chrome.exe"
+pwsh run.ps1
+```
+
+Outputs: `frontend-quality/results/manifest.json` + per-URL `*.report.html`.
+
+Assertions: perf ≥ 0.7, a11y ≥ 0.9, best-practices ≥ 0.85, SEO ≥ 0.9 (warn-only — failures don't break the run, but appear in the assertion summary).
 
 ## §9 — Playwright (E2E)
 
