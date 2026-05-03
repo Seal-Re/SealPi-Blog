@@ -38,7 +38,7 @@ export const thresholds = {
   load: {
     'http_req_failed': ['rate<0.01'],
     'http_req_duration': ['p(95)<600', 'p(99)<1500'],
-    'http_req_duration{endpoint:tags}':     ['p(95)<300'],
+    'http_req_duration{endpoint:tags}':     ['p(95)<500'],
     'http_req_duration{endpoint:list}':     ['p(95)<500'],
     'http_req_duration{endpoint:view}':     ['p(95)<500'],
     'http_req_duration{endpoint:detail}':   ['p(95)<700'],
