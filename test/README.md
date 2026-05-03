@@ -144,7 +144,19 @@ Outputs: `e2e/results/html/index.html`, `e2e/results/results.json`.
 
 ## §10 — jstat (JVM GC sampling)  *(SKIPPED in self-test)*
 
-(Filled by Task 12.)
+> **Skipped because**: requires SSH access to `sealpi.cn` and the production backend container's JVM. The agent ran this in parallel with §1 stress profile; results in `RESULT.md §10`.
+
+> **Note on jstat availability**: the production container uses a slim Temurin JRE 21 image — `jstat` (a JDK tool) is not present. The script detects this automatically and falls back to polling `/proc/<pid>/status` for `VmRSS`, `VmHWM`, `VmSwap`, and `Threads`. To enable full GC-pause metrics (`S0 S1 E O M CCS YGC YGCT FGC FGCT GCT`), rebuild the backend image on a JDK base (e.g. `eclipse-temurin:21-jdk`) rather than a JRE base.
+
+Operator-only reproduction:
+
+```powershell
+$env:SEALPI_SSH_HOST = 'sealpi.cn'
+$env:SEALPI_SSH_USER = 'root'
+$env:SEALPI_SSH_PASS = '<your password>'
+$env:SEALPI_SSH_HOSTKEY = '<from: ssh-keyscan -t ed25519 sealpi.cn>'
+pwsh jvm-monitor/run.ps1 -Samples 60 -IntervalSec 1
+```
 
 ## §11 — vm-monitor (system metrics)  *(SKIPPED in self-test)*
 
