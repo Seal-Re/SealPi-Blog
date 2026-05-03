@@ -7,7 +7,12 @@ param(
     [switch]$OnlySoak
 )
 
-$ErrorActionPreference = 'Stop'
+# NOTE: We deliberately do NOT set $ErrorActionPreference='Stop' globally.
+# In Windows PowerShell 5.1, k6's stderr lines (info logs from the HTML
+# reporter etc.) get wrapped as ErrorRecord/NativeCommandError, and 'Stop'
+# would abort the loop mid-way through scenarios. We rely on $LASTEXITCODE
+# explicitly where it matters.
+
 $root = Resolve-Path "$PSScriptRoot/.."
 
 # Profile selection precedence: -Profiles > -OnlySoak > (default + -IncludeSoak)
@@ -27,7 +32,7 @@ $pool = Join-Path $root 'data/pool.json'
 if (-not (Test-Path $pool)) {
     Write-Host '[run-all] pool missing, running bootstrap...'
     & "$PSScriptRoot/bootstrap.ps1" -BaseUrl $BaseUrl
-    if ($LASTEXITCODE -ne 0) { throw 'bootstrap failed' }
+    if ($LASTEXITCODE -ne 0) { Write-Error 'bootstrap failed'; exit 1 }
 }
 
 Push-Location $root
