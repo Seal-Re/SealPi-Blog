@@ -136,7 +136,7 @@ export default function () {
 
   // Page through /api/v1/articles until POOL_SIZE collected or exhausted.
   while (articles.length < POOL_SIZE) {
-    const res = http.get(`${BASE_URL}/api/v1/articles?page=${page}&size=${pageSize}`, HTTP_DEFAULTS);
+    const res = http.get(`${BASE_URL}/api/v1/articles?pageIndex=${page}&pageSize=${pageSize}`, HTTP_DEFAULTS);
     check(res, { 'list 200': (r) => r.status === 200 });
     if (res.status !== 200) break;
 
@@ -319,11 +319,11 @@ Create `test/k6/lib/weighted-pick.js`:
 import http from 'k6/http';
 import { group, check } from 'k6';
 import { BASE_URL, HTTP_DEFAULTS } from './config.js';
-import { pickArticle, pickTag } from './pool.js';
+import { pickArticle } from './pool.js';
 
 function hitList() {
   group('list', () => {
-    const res = http.get(`${BASE_URL}/api/v1/articles?page=1&size=10`, HTTP_DEFAULTS);
+    const res = http.get(`${BASE_URL}/api/v1/articles?pageIndex=1&pageSize=10`, HTTP_DEFAULTS);
     check(res, { 'list 200': (r) => r.status === 200 });
   });
 }

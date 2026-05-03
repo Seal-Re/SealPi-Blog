@@ -39,7 +39,7 @@ function tagToName(t) {
 
 // VU function: just verify the API is reachable.
 export default function () {
-  const res = http.get(`${BASE_URL}/api/v1/articles?page=1&size=20`, HTTP_DEFAULTS);
+  const res = http.get(`${BASE_URL}/api/v1/articles?pageIndex=1&pageSize=20`, HTTP_DEFAULTS);
   check(res, { 'list 200': (r) => r.status === 200 });
 }
 
@@ -52,7 +52,7 @@ export function handleSummary() {
   let page = 1;
 
   while (articles.length < POOL_SIZE) {
-    const res = http.get(`${BASE_URL}/api/v1/articles?page=${page}&size=${pageSize}`, HTTP_DEFAULTS);
+    const res = http.get(`${BASE_URL}/api/v1/articles?pageIndex=${page}&pageSize=${pageSize}`, HTTP_DEFAULTS);
     if (res.status !== 200) break;
 
     const items = extractItems(res.json());
