@@ -55,11 +55,19 @@ Console line per scenario: `req/s p50=… p99=… errors=… non2xx=…`.
 
 ## §3 — JUnit (backend unit tests)
 
-(Filled by Task 6.)
+```powershell
+pwsh unit/backend/run.ps1
+```
+
+Outputs: `unit/backend/results/<module>/TEST-*.xml`.
 
 ## §4 — Vitest (frontend unit tests)
 
-(Filled by Task 6.)
+```powershell
+pwsh unit/frontend/run.ps1
+```
+
+Outputs: `unit/frontend/results/vitest-<timestamp>.json`.
 
 ## §5 — JMH (Java micro-bench)
 
