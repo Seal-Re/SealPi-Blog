@@ -200,3 +200,61 @@ d) 缓存清理 — `ArticleServiceImpl.create/update/publish/offline/archive/de
 4. **重测确认**: `pwsh test/k6/scripts/run-all.ps1 -MaxVu 500` + `pwsh test/k6/scripts/gen-report.ps1`, 与本文档头部表对比
 
 每步独立提交, 失败可单独 revert。
+
+---
+
+## 修复结果 (2026-05-03 实测落地)
+
+实施 commits:
+- `3bff940` perf(article): SELECT 列裁剪
+- `843e4af` perf(db): V5 (draft, date DESC) + (date DESC) 索引
+- `071e927` perf(cache): Caffeine 缓存 articleList + articleTags, 60s TTL
+- `f935708` (顺带) sec: Next 15.5.15 + container 加固
+
+每个 stress 跑 `MaxVu=500` 步进 +20 VU/min, 阈值 `p99<1500ms` 触发 abort。
+
+**stress 端到端对比 (k6 实测, 同 MaxVu=500)**:
+
+| 端点 p95 | baseline | +#1 SELECT | +#2 索引 | +#3 缓存 |
+|---|---:|---:|---:|---:|
+| **list** | **1315ms** | 1218ms | 690ms | **527ms** ↓60% |
+| detail | 1016ms | 1180ms | 1216ms | **1247ms** ↑23% ⚠ |
+| adjacent | 860ms | 986ms | 633ms | **540ms** ↓37% |
+| tags | 535ms | 608ms | 505ms | **468ms** ↓13% |
+| view | 564ms | 703ms | 552ms | **487ms** ↓14% |
+| **BREAK_AT_VU** | 100 | **160** | 140 | 140 |
+| **吞吐 (r/s)** | 113.6 | (~70) | (~70) | **144.7** ↑27% |
+| detail max | 2025ms | 1852ms | 5518ms | **5518ms** ⚠ |
+
+**分项验证**:
+
+- **#1 SELECT 列裁剪 ✅** — list 响应字节从 ~MB 级降到 1960B (4 文章), 拐点 100→160 VU (+60%)
+- **#2 V5 索引 ✅** — list p95 从 1218ms 降到 690ms。BREAK_AT 看似回退 (160→140), 但因 list 变快后总并发提高, p99 长尾被放大, 瓶颈开始向 detail 转移
+- **#3 Caffeine 缓存 ✅✅** — list 再降到 527ms, 全局吞吐 +27%。**list / tags / adjacent / view 全部得益**, detail 是唯一未受益项 (无缓存 + SELECT 未裁剪)
+- 全程 0% 失败率, 系统不崩, 仅长尾恶化
+
+**新瓶颈 — detail 端点**:
+
+- 现在最慢: detail p95=**1247ms**, max **5518ms**
+- 原因: `findBySlug` / `findById` (`ArticleGatewayImpl.java:69-84, 58-66`) 仍 SELECT *, 每次拉 4 个 LONGTEXT 列。Detail VO 需要 `bodyMd` 渲染正文, 没法像 list 那样裁剪
+- list 释放出的 CPU + DB 容量被 detail 长尾消化
+
+**下一阶段 (本轮不实施, 留待评估)**:
+
+1. **detail 加缓存** — 单文章 detail 命中率高 (热门文章被反复读), key=articleId 或 slug, TTL 60-300s, evict 同 list 路径。预期 detail p95 从 1247→<300ms
+2. **bodyMd 拆表** — 把 `body_md` / `content_json` 等 LONGTEXT 移到 `t_article_content` 子表, 主表只剩元数据。Detail 接口分两次查 (按需), 减小 detail 的 buffer 压力
+3. **MySQL 配置** — 当前数据 4 篇, 索引收益小; 数据增长后 InnoDB buffer pool 调优会更明显
+4. **#4 view 批写** — 当前 5% 流量, p95 487ms, 不优先; 数据量上来后再做 LongAdder 累计 + 定时 flush
+
+**当前真实容量** (2026-05-03 末):
+- 稳定区: ≤ 100 VU, 全端点 p95 < 700ms
+- 拐点: 140 VU (detail 长尾触发 p99>1500ms 全局阈值)
+- 吞吐峰值: ~145 r/s, 0% 错误
+- 不会硬崩 (实测无错误率上升, 仅延迟分布拖长)
+
+**复测命令**:
+```powershell
+pwsh test/k6/scripts/run-all.ps1 -MaxVu 500
+pwsh test/k6/scripts/gen-report.ps1
+# 报告位置: test/k6/results/PERF-<时间戳>.md
+```
