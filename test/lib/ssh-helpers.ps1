@@ -1,8 +1,16 @@
 # SSH helpers for sealpi.cn server access.
 # Reads creds from env: SEALPI_SSH_HOST, SEALPI_SSH_USER, SEALPI_SSH_PASS.
-# Optional: SEALPI_SSH_HOSTKEY — plink -hostkey fingerprint (e.g. "ssh-ed25519 255 SHA256:...").
-#   Required when the host key is not yet cached in PuTTY's registry (fresh plink install).
-#   Obtain via: ssh-keyscan -t ed25519 <host>  (then note the fingerprint plink reports).
+# Optional: SEALPI_SSH_HOSTKEY (e.g. 'ssh-ed25519 255 SHA256:<hash>') — set
+# when plink.exe cannot access the host-key cache (standalone install).
+# Discover via: ssh-keyscan -t ed25519 sealpi.cn  then convert to plink format.
+#
+# SECURITY TRADE-OFF: passwords are passed via `plink -pw <pass>` and
+# `pscp -pw <pass>` — i.e. argv. Any local user with read access to the
+# process command line (admin / SeDebugPrivilege / EDR with cmdline capture)
+# can observe the secret. Acceptable for an isolated agent host running short
+# RESULT.md collection runs; NOT acceptable for shared/production hosts.
+# Production hardening: use `plink -pwfile <path>` (PuTTY 0.77+) with a
+# user-only-readable temp file, or switch to ssh key auth (`plink -i key.ppk`).
 # NEVER logs or persists the password.
 
 $script:SealpiHost    = $env:SEALPI_SSH_HOST
@@ -32,13 +40,17 @@ function Invoke-SealpiSsh {
         $plinkArgs = @('-ssh', '-batch', '-pw', $script:SealpiPass)
         if ($script:SealpiHostKey) { $plinkArgs += @('-hostkey', $script:SealpiHostKey) }
         $plinkArgs += @("$($script:SealpiUser)@$($script:SealpiHost)", $Command)
-        & plink.exe @plinkArgs
+        $out = & plink.exe @plinkArgs
+        if ($LASTEXITCODE -ne 0) { throw "SSH failed (exit $LASTEXITCODE) for: $Command" }
+        $out
     } else {
         # OpenSSH: requires sshpass (Linux/WSL) — on bare Windows, fall back to plink.
         if (-not (Get-Command sshpass -ErrorAction SilentlyContinue)) {
             throw "OpenSSH ssh available but sshpass not found. Install plink (PuTTY) for password auth."
         }
-        & sshpass -e ssh -o StrictHostKeyChecking=accept-new "$($script:SealpiUser)@$($script:SealpiHost)" $Command
+        $out = & sshpass -e ssh -o StrictHostKeyChecking=accept-new "$($script:SealpiUser)@$($script:SealpiHost)" $Command
+        if ($LASTEXITCODE -ne 0) { throw "SSH failed (exit $LASTEXITCODE) for: $Command" }
+        $out
     }
 }
 
@@ -54,8 +66,10 @@ function Invoke-SealpiScpDown {
         if ($script:SealpiHostKey) { $pscpArgs += @('-hostkey', $script:SealpiHostKey) }
         $pscpArgs += @("$($script:SealpiUser)@$($script:SealpiHost):$Remote", $Local)
         & pscp.exe @pscpArgs
+        if ($LASTEXITCODE -ne 0) { throw "SCP down failed (exit $LASTEXITCODE) for remote=$Remote local=$Local" }
     } else {
         & sshpass -e scp "$($script:SealpiUser)@$($script:SealpiHost):$Remote" $Local
+        if ($LASTEXITCODE -ne 0) { throw "SCP down failed (exit $LASTEXITCODE) for remote=$Remote local=$Local" }
     }
 }
 
@@ -71,9 +85,9 @@ function Invoke-SealpiScpUp {
         if ($script:SealpiHostKey) { $pscpArgs += @('-hostkey', $script:SealpiHostKey) }
         $pscpArgs += @($Local, "$($script:SealpiUser)@$($script:SealpiHost):$Remote")
         & pscp.exe @pscpArgs
+        if ($LASTEXITCODE -ne 0) { throw "SCP up failed (exit $LASTEXITCODE) for local=$Local remote=$Remote" }
     } else {
         & sshpass -e scp $Local "$($script:SealpiUser)@$($script:SealpiHost):$Remote"
+        if ($LASTEXITCODE -ne 0) { throw "SCP up failed (exit $LASTEXITCODE) for local=$Local remote=$Remote" }
     }
 }
-
-Export-ModuleMember -Function Invoke-SealpiSsh, Invoke-SealpiScpDown, Invoke-SealpiScpUp

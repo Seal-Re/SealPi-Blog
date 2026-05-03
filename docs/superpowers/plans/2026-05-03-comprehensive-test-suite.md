@@ -1432,7 +1432,7 @@ git commit -m "test: add §9 Playwright E2E (list/excalidraw/rss/404)"
 param(
     [int]$IntervalSec = 1,
     [int]$Samples = 60,
-    [string]$Container = 'sealpi-blog'
+    [string]$Container = 'sealpi-blog-start'
 )
 
 $ErrorActionPreference = 'Stop'
