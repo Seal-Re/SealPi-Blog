@@ -8,7 +8,7 @@ $out = Join-Path $resultsDir "vitest-$ts.json"
 
 Push-Location $frontend
 try {
-    if (-not (Test-Path node_modules)) { npm install --silent }
+    if (-not (Test-Path node_modules)) { npm ci --silent }
     & npx vitest run --reporter=json --outputFile=$out
     $exit = $LASTEXITCODE
 } finally { Pop-Location }

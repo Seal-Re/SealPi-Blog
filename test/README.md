@@ -105,7 +105,7 @@ Outputs: `unit/frontend/results/vitest-<timestamp>.json`.
 |---|------|--------|
 | 1 | k6 | `http-load/k6/results/{smoke,load,stress,spike,soak}-*.{json,html}` |
 | 2 | autocannon | `http-load/autocannon/results/*-*.json` |
-| 3 | JUnit | `unit/backend/results/surefire-reports/*.xml` |
+| 3 | JUnit | `unit/backend/results/<module>/TEST-*.xml` |
 | 4 | Vitest | `unit/frontend/results/vitest-*.json` |
 | 5 | JMH | `micro-bench/results/jmh-*.json` |
 | 6 | sysbench | `infra-bench/sysbench/results/sysbench-*.txt` |
