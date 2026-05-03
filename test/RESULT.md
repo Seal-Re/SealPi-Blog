@@ -12,47 +12,80 @@ Server host: <FILLED BY env-snapshot.ps1>
 
 ## §1 — k6 (HTTP-layer load)
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §2 — autocannon
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §3 — JUnit
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §4 — Vitest
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §5 — JMH
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §6 — sysbench
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §7 — mc speedtest
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §8 — Lighthouse CI
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §9 — Playwright
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §10 — jstat
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ## §11 — vm-monitor
 
-(Filled during execution phase.)
+- artifact:
+- duration:
+- verdict:
+- notes:
 
 ---
 

@@ -9,7 +9,6 @@
 
 # JMH artifacts
 **/jmh-result*.json
-**/blog-bench/target/
 
 # OS
 .DS_Store

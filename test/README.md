@@ -2,9 +2,9 @@
 
 User reproduction document. **All commands assume `cwd = test/`**.
 
-````powershell
+```powershell
 cd test
-````
+```
 
 > **Production safety:** Sections §1, §2, §8, §9 hit `https://blog.sealpi.cn` directly. Run during off-peak hours; you must be ready to abort. Sections marked **SKIPPED in self-test** require resources you cannot start locally (server-side JVM/system access, ephemeral Docker stacks the agent already exercised); their results live in `RESULT.md`.
 
