@@ -27,6 +27,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +70,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response create(ArticleCreateCmd articleCreateCmd) {
         Response validation = validateUrlUniqueForCreate(articleCreateCmd.getUrl());
         if (validation != null) {
@@ -80,6 +84,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public SingleResponse<Integer> adminCreate(ArticleDraftSaveCmd cmd, String action, String coverImageUrl) {
         boolean publishing = "publish".equalsIgnoreCase(action);
         if (publishing && (cmd.getTitle() == null || cmd.getTitle().trim().isEmpty())) {
@@ -112,6 +117,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response adminUpdate(ArticleDraftUpdateCmd cmd, String action, String coverImageUrl) {
         Article article = articleGateway.findById(cmd.getArticleId());
         if (article == null) {
@@ -148,6 +154,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response adminOffline(Integer id) {
         Article article = articleGateway.findById(id);
         if (article == null) {
@@ -163,6 +170,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response adminArchive(Integer id) {
         Article article = articleGateway.findById(id);
         if (article == null) {
@@ -175,6 +183,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response adminPublish(Integer id) {
         Article article = articleGateway.findById(id);
         if (article == null) {
@@ -198,6 +207,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response update(ArticleUpdateCmd articleUpdateCmd){
         Article article = articleGateway.findById(articleUpdateCmd.getArticleId());
         if(article == null){
@@ -217,6 +227,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = {"articleList", "articleTags"}, allEntries = true)
     public Response delete(Integer articleId) {
         articleGateway.remove(articleId);
 
@@ -255,6 +266,14 @@ public class ArticleServiceImpl implements ArticleServiceI {
     }
 
     @Override
+    @Cacheable(
+            cacheNames = "articleList",
+            key = "#qry.pageIndex + ':' + #qry.pageSize + ':' + (#qry.tagId == null ? '' : #qry.tagId) + ':' + (#qry.tag == null ? '' : #qry.tag) + ':' + (#qry.sort == null ? '' : #qry.sort)",
+            // Only cache the public published-list path. Admin queries (with
+            // keyword/q/draft/status filters other than 'published') skip cache
+            // to avoid stale + low-hit-rate noise.
+            condition = "'published'.equalsIgnoreCase(#qry.status) && #qry.keyword == null && #qry.q == null"
+    )
     public PageResponse<ArticleVO> getPage(ArticlePageQry qry) {
         PageResponse<Article> articlePage = articleGateway.PageQuery(qry);
 
@@ -262,6 +281,7 @@ public class ArticleServiceImpl implements ArticleServiceI {
     }
 
     @Override
+    @Cacheable(cacheNames = "articleTags")
     public List<TagVO> getTags() {
         return articleGateway.getAllPublishedTags().stream()
                 .map(articleAssembler::toTagVO)
