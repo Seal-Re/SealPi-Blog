@@ -71,7 +71,13 @@ Outputs: `unit/frontend/results/vitest-<timestamp>.json`.
 
 ## §5 — JMH (Java micro-bench)
 
-(Filled by Task 7.)
+```powershell
+pwsh micro-bench/run.ps1
+```
+
+Targets: `AdminJwtVerifier#verifyAuthorizationHeader` (HS256 path) and `ArticleAssembler#toPublicVO` (public-VO strip + read-minutes).
+
+Outputs: `micro-bench/results/jmh-<timestamp>.json` (JMH JSON format).
 
 ## §6 — sysbench (MySQL OLTP)  *(SKIPPED in self-test)*
 
