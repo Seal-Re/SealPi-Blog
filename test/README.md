@@ -160,7 +160,19 @@ pwsh jvm-monitor/run.ps1 -Samples 60 -IntervalSec 1
 
 ## §11 — vm-monitor (system metrics)  *(SKIPPED in self-test)*
 
-(Filled by Task 13.)
+> **Skipped because**: requires SSH to `sealpi.cn` to sample vmstat/iostat/free during load. The agent ran this alongside §1 load profile; results in `RESULT.md §11`.
+
+Operator-only reproduction:
+
+```powershell
+$env:SEALPI_SSH_HOST = 'sealpi.cn'
+$env:SEALPI_SSH_USER = 'root'
+$env:SEALPI_SSH_PASS = '<your password>'
+$env:SEALPI_SSH_HOSTKEY = '<from: ssh-keyscan -t ed25519 sealpi.cn>'
+pwsh system-monitor/run.ps1 -Samples 60 -Interval 1
+```
+
+Server prereq: `sysstat` package installed (provides `iostat`).
 
 ---
 
