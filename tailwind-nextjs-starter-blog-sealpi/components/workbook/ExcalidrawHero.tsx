@@ -2,22 +2,13 @@
 
 import { useState } from 'react'
 import ExcalidrawViewer from '@/components/ExcalidrawViewer'
+import { hasRenderableElements } from './excalidraw-utils'
 
 type ExcalidrawHeroProps = {
   contentJson?: string
   coverImageUrl?: string
   coverCaption?: string
   title: string
-}
-
-export function hasRenderableElements(contentJson?: string): boolean {
-  if (!contentJson?.trim()) return false
-  try {
-    const scene = JSON.parse(contentJson) as { elements?: Array<{ isDeleted?: boolean }> }
-    return Boolean(scene.elements?.some((el) => !el.isDeleted))
-  } catch {
-    return false
-  }
 }
 
 export default function ExcalidrawHero({

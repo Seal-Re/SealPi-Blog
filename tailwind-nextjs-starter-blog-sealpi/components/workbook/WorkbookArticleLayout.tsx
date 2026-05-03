@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import ExcalidrawHero, { hasRenderableElements } from './ExcalidrawHero'
+import ExcalidrawHero from './ExcalidrawHero'
+import { hasRenderableElements } from './excalidraw-utils'
 import WbMeta from './WbMeta'
 import WbDivider from './WbDivider'
 import BodyMarkdown from './BodyMarkdown'
