@@ -848,9 +848,6 @@ if (-not (Test-Path $pool)) {
     if ($LASTEXITCODE -ne 0) { throw 'bootstrap failed' }
 }
 
-$env:BASE_URL = $BaseUrl
-$env:MAX_VU = "$MaxVu"
-
 Push-Location $root
 try {
     foreach ($p in $selected) {
@@ -860,8 +857,8 @@ try {
             continue
         }
         Write-Host "===== $p ====="
-        $env:SCENARIO = $p
-        & k6 run $script
+        # Pass env via -e to keep launcher hermetic (no shell-scope leak).
+        & k6 run -e "BASE_URL=$BaseUrl" -e "MAX_VU=$MaxVu" -e "SCENARIO=$p" $script
         $exit = $LASTEXITCODE
         Write-Host "[$p] exit=$exit"
         # k6 returns non-zero on threshold breach (expected for stress break-point); continue.
