@@ -72,7 +72,7 @@ export function handleSummary() {
   const tags = extractTagArray(tagRes.json()).map(tagToName).filter(Boolean);
 
   if (articles.length === 0) {
-    return { stdout: 'Bootstrap aborted: zero published articles found\n' };
+    throw new Error('Bootstrap failed: zero published articles found');
   }
 
   const out = {

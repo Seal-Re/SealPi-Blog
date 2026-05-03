@@ -26,4 +26,8 @@ finally {
     Pop-Location
 }
 
+if (-not (Test-Path $pool)) {
+    throw "Bootstrap completed but $pool was not written. Backend may have returned zero articles."
+}
+
 Write-Host "Pool written to $pool"
