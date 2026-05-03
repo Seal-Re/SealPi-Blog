@@ -43,8 +43,9 @@ export default function () {
   check(res, { 'list 200': (r) => r.status === 200 });
 }
 
-// handleSummary has network access in k6 and runs after all VUs finish.
-// We build the pool here so data doesn't need to cross the VU/summary context boundary.
+// k6 >=1.7.x: handleSummary has network access and runs after all VUs finish,
+// while VU `default()` and `handleSummary` are isolated JS contexts (globalThis
+// does not bridge them). We build the pool here so data doesn't need to cross.
 export function handleSummary() {
   const articles = [];
   const pageSize = 20;
