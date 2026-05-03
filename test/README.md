@@ -127,7 +127,20 @@ Assertions: perf ≥ 0.7, a11y ≥ 0.9, best-practices ≥ 0.85, SEO ≥ 0.9 (wa
 
 ## §9 — Playwright (E2E)
 
-(Filled by Task 11.)
+```powershell
+cd e2e
+npm install                        # first time
+npx playwright install chromium    # first time
+pwsh run.ps1
+```
+
+Specs: list→detail nav, Excalidraw render, RSS 2.0 schema, 404 page.
+
+Outputs: `e2e/results/html/index.html`, `e2e/results/results.json`.
+
+> **Note on Excalidraw spec**: public detail pages serve Excalidraw content as static `<img>` previews (not live canvas/SVG), so the spec checks for `canvas | svg | img` in the article body. The `networkidle` wait state is avoided because analytics keeps connections open; `load` is used instead.
+>
+> **Note on 404 spec**: Next.js returns HTTP 200 even for non-existent slugs (the app-level 404 page renders with status 200 in some Next.js deployments). The spec uses the permissive variant: passes if HTTP status is 404 **or** the page contains "404"/"not found" text.
 
 ## §10 — jstat (JVM GC sampling)  *(SKIPPED in self-test)*
 

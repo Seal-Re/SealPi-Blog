@@ -1,0 +1,13 @@
+{
+  "name": "sealpi-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "fast-xml-parser": "^4.4.0"
+  }
+}
