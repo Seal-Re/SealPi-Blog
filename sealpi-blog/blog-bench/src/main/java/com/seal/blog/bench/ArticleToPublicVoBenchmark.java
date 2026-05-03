@@ -5,7 +5,6 @@ import com.seal.blog.client.article.dto.vo.ArticleVO;
 import com.seal.blog.domain.article.model.Article;
 import org.mapstruct.factory.Mappers;
 import org.openjdk.jmh.annotations.*;
-import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +23,7 @@ public class ArticleToPublicVoBenchmark {
     public void setup() {
         assembler = Mappers.getMapper(ArticleAssembler.class);
         article = new Article("Bench Title", "Bench summary", "/blog/bench");
-        // Realistic mixed CJK + Latin body of ~3 KB to exercise computeReadMinutes.
+        // Realistic mixed CJK + Latin body of ~10 KB to exercise computeReadMinutes.
         StringBuilder body = new StringBuilder();
         for (int i = 0; i < 100; i++) {
             body.append("这是一段中文测试内容，用来模拟博客正文。 ");
@@ -41,8 +40,4 @@ public class ArticleToPublicVoBenchmark {
         return assembler.toPublicVO(article);
     }
 
-    @Benchmark
-    public void toPublicVoStripBlackhole(Blackhole bh) {
-        bh.consume(assembler.toPublicVO(article));
-    }
 }

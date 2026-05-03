@@ -79,6 +79,8 @@ Targets: `AdminJwtVerifier#verifyAuthorizationHeader` (HS256 path) and `ArticleA
 
 Outputs: `micro-bench/results/jmh-<timestamp>.json` (JMH JSON format).
 
+> Note: 1 fork × 5 iterations is intended for indicative numbers; CI may be ±25%. For comparative measurements bump to `-f 3 -wi 5 -i 10`.
+
 ## §6 — sysbench (MySQL OLTP)  *(SKIPPED in self-test)*
 
 (Filled by Task 8.)
