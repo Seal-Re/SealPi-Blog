@@ -4,6 +4,9 @@
 *.env
 !.env.backend.example
 
+# ── Worktrees (isolated workspaces) ──
+.worktrees/
+
 # ── Java / Maven ──
 **/target/
 !sealpi-blog/.mvn/wrapper/maven-wrapper.jar
