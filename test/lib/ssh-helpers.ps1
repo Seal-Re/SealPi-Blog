@@ -30,6 +30,16 @@ function Get-SshClient {
     throw "Neither plink.exe nor ssh found in PATH."
 }
 
+function Get-ScpClient {
+    # Preferred: pscp.exe (PuTTY native SCP, supports -pw/-hostkey/-batch)
+    if (Get-Command pscp.exe -ErrorAction SilentlyContinue) { return 'pscp' }
+    # Fallback: plink.exe as stdin/stdout transport (text files only)
+    if (Get-Command plink.exe -ErrorAction SilentlyContinue) { return 'plink-stdin' }
+    # Last resort: OpenSSH scp + sshpass (Linux/WSL)
+    if ((Get-Command scp -ErrorAction SilentlyContinue) -and (Get-Command sshpass -ErrorAction SilentlyContinue)) { return 'scp' }
+    throw "Neither pscp.exe, plink.exe (for stdin transport), nor scp+sshpass found in PATH."
+}
+
 function Invoke-SealpiSsh {
     param([Parameter(Mandatory)][string]$Command)
     Assert-SealpiCreds
@@ -60,13 +70,21 @@ function Invoke-SealpiScpDown {
         [Parameter(Mandatory)][string]$Local
     )
     Assert-SealpiCreds
-    $client = Get-SshClient
-    if ($client -eq 'plink') {
+    $client = Get-ScpClient
+    if ($client -eq 'pscp') {
         $pscpArgs = @('-batch', '-pw', $script:SealpiPass)
         if ($script:SealpiHostKey) { $pscpArgs += @('-hostkey', $script:SealpiHostKey) }
         $pscpArgs += @("$($script:SealpiUser)@$($script:SealpiHost):$Remote", $Local)
         & pscp.exe @pscpArgs
         if ($LASTEXITCODE -ne 0) { throw "SCP down failed (exit $LASTEXITCODE) for remote=$Remote local=$Local" }
+    } elseif ($client -eq 'plink-stdin') {
+        # plink-stdin: stream remote file content via SSH stdout (text files only)
+        $plinkArgs = @('-ssh', '-batch', '-pw', $script:SealpiPass)
+        if ($script:SealpiHostKey) { $plinkArgs += @('-hostkey', $script:SealpiHostKey) }
+        $plinkArgs += @("$($script:SealpiUser)@$($script:SealpiHost)", "cat '$Remote'")
+        $content = & plink.exe @plinkArgs
+        if ($LASTEXITCODE -ne 0) { throw "plink-stdin download failed (exit $LASTEXITCODE) for remote=$Remote local=$Local" }
+        $content | Set-Content -LiteralPath $Local -Encoding utf8
     } else {
         & sshpass -e scp "$($script:SealpiUser)@$($script:SealpiHost):$Remote" $Local
         if ($LASTEXITCODE -ne 0) { throw "SCP down failed (exit $LASTEXITCODE) for remote=$Remote local=$Local" }
@@ -79,13 +97,43 @@ function Invoke-SealpiScpUp {
         [Parameter(Mandatory)][string]$Remote
     )
     Assert-SealpiCreds
-    $client = Get-SshClient
-    if ($client -eq 'plink') {
+    $client = Get-ScpClient
+    if ($client -eq 'pscp') {
         $pscpArgs = @('-batch', '-pw', $script:SealpiPass)
         if ($script:SealpiHostKey) { $pscpArgs += @('-hostkey', $script:SealpiHostKey) }
         $pscpArgs += @($Local, "$($script:SealpiUser)@$($script:SealpiHost):$Remote")
         & pscp.exe @pscpArgs
         if ($LASTEXITCODE -ne 0) { throw "SCP up failed (exit $LASTEXITCODE) for local=$Local remote=$Remote" }
+    } elseif ($client -eq 'plink-stdin') {
+        # plink-stdin: stream local file content via SSH stdin (text files only).
+        # Write LF-only bytes to a temp file, then feed it to plink via .NET
+        # Process so we can redirect stdin without PowerShell pipeline CRLF mangling.
+        $rawContent = (Get-Content -Raw -LiteralPath $Local) -replace "`r`n", "`n"
+        $lfBytes = [System.Text.Encoding]::UTF8.GetBytes($rawContent)
+        $tmpFile = [System.IO.Path]::GetTempFileName()
+        try {
+            [System.IO.File]::WriteAllBytes($tmpFile, $lfBytes)
+            $plinkExe = (Get-Command plink.exe).Source
+            # Build argument list; quote hostkey value to avoid splitting on spaces.
+            $argList = @('-ssh', '-batch', '-pw', $script:SealpiPass)
+            if ($script:SealpiHostKey) { $argList += @('-hostkey', $script:SealpiHostKey) }
+            $argList += @("$($script:SealpiUser)@$($script:SealpiHost)", "cat > '$Remote'")
+            # Escape each argument for ProcessStartInfo.Arguments string
+            $escapedArgs = $argList | ForEach-Object {
+                if ($_ -match '[\s"\\]') { '"' + ($_ -replace '"', '\"') + '"' } else { $_ }
+            }
+            $psi = [System.Diagnostics.ProcessStartInfo]::new($plinkExe, ($escapedArgs -join ' '))
+            $psi.RedirectStandardInput = $true
+            $psi.UseShellExecute = $false
+            $proc2 = [System.Diagnostics.Process]::Start($psi)
+            $stdinStream = [System.IO.FileStream]::new($tmpFile, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read)
+            try { $stdinStream.CopyTo($proc2.StandardInput.BaseStream) } finally { $stdinStream.Close() }
+            $proc2.StandardInput.Close()
+            $proc2.WaitForExit()
+            if ($proc2.ExitCode -ne 0) { throw "plink-stdin upload failed (exit $($proc2.ExitCode)) for local=$Local remote=$Remote" }
+        } finally {
+            Remove-Item -LiteralPath $tmpFile -ErrorAction SilentlyContinue
+        }
     } else {
         & sshpass -e scp $Local "$($script:SealpiUser)@$($script:SealpiHost):$Remote"
         if ($LASTEXITCODE -ne 0) { throw "SCP up failed (exit $LASTEXITCODE) for local=$Local remote=$Remote" }
