@@ -83,7 +83,14 @@ Outputs: `micro-bench/results/jmh-<timestamp>.json` (JMH JSON format).
 
 ## §6 — sysbench (MySQL OLTP)  *(SKIPPED in self-test)*
 
-(Filled by Task 8.)
+> **Skipped because**: spins up an ephemeral local MySQL container (port 23306) for an isolated DB capability baseline — does not target the production DB. The agent's run is captured in `RESULT.md §6`.
+
+If you want to run it yourself:
+
+```powershell
+cd infra-bench/sysbench
+pwsh run.ps1     # ~3 min: prepare + 60s OLTP + cleanup + teardown
+```
 
 ## §7 — mc speedtest (MinIO throughput)  *(SKIPPED in self-test)*
 
