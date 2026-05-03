@@ -14,7 +14,10 @@ RUN mvn -q -DskipTests dependency:go-offline
 COPY . .
 RUN mvn -q -DskipTests package
 
-FROM eclipse-temurin:21-jre
+# JDK (not JRE) so jstat / jcmd / jmap are available for production observability.
+# Cost: image ~+300MB. Justification: GC sampling without redeploy is operationally
+# valuable; the alternative (debug image swap during incidents) is risky.
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 ENV TZ=Asia/Shanghai
