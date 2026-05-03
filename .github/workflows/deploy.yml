@@ -85,7 +85,9 @@ jobs:
       - name: Trivy CVE scan (backend)
         # Fail the build on CRITICAL or HIGH OS-package CVEs. Image was just
         # pushed; we scan the registry tag we'll deploy from.
-        uses: aquasecurity/trivy-action@0.24.0
+        # TODO: pin to a SHA when done iterating. `master` is acceptable for now
+        # but introduces supply-chain trust on aquasecurity org.
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:sha-${{ steps.sha.outputs.short }}
           severity: 'CRITICAL,HIGH'
@@ -147,7 +149,9 @@ jobs:
           cache-to: type=gha,scope=frontend,mode=max
 
       - name: Trivy CVE scan (frontend)
-        uses: aquasecurity/trivy-action@0.24.0
+        # TODO: pin to a SHA when done iterating. `master` is acceptable for now
+        # but introduces supply-chain trust on aquasecurity org.
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:sha-${{ steps.sha.outputs.short }}
           severity: 'CRITICAL,HIGH'
