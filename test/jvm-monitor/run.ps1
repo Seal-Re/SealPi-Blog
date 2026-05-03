@@ -26,9 +26,10 @@ $jstatAvailable = ($jstatPath.Trim() -ne 'missing') -and ($jstatPath.Trim() -ne 
 if ($jstatAvailable) {
     Write-Host "jstat found at $($jstatPath.Trim()) — using jstat -gcutil"
     # Sample with jstat -gcutil from inside the container.
+    # NOTE: cannot use $samples — PS is case-insensitive and that collides with $Samples ([int] param).
     $cmd = "docker exec $Container jstat -gcutil $javaPid ${IntervalSec}000 $Samples"
-    $samples = Invoke-SealpiSsh -Command $cmd
-    $samples | Out-File -FilePath $out -Encoding utf8
+    $jstatLines = Invoke-SealpiSsh -Command $cmd
+    $jstatLines | Out-File -FilePath $out -Encoding utf8
 } else {
     Write-Warning "jstat not found in container '$Container' (slim JRE image — JDK tools stripped)."
     Write-Warning "Falling back to /proc/$javaPid/status snapshots ($Samples samples, ${IntervalSec}s interval)."
