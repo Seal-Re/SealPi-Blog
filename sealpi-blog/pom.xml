@@ -93,4 +93,13 @@
         </pluginManagement>
     </build>
 
+    <profiles>
+        <profile>
+            <id>bench</id>
+            <modules>
+                <module>blog-bench</module>
+            </modules>
+        </profile>
+    </profiles>
+
 </project>

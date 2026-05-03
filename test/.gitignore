@@ -1,0 +1,15 @@
+# Runtime artifacts — never commit
+**/results/
+**/data/pool.json
+**/node_modules/
+**/.lighthouseci/
+**/test-results/
+**/playwright-report/
+**/target/
+
+# JMH artifacts
+**/jmh-result*.json
+
+# OS
+.DS_Store
+Thumbs.db
