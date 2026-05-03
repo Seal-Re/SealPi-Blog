@@ -42,14 +42,15 @@ export function handleSummary(data) {
 
   let breakAt = null;
   if (aborted) {
-    // Last completed stage = floor(actualSec / 60), VU at that stage = (idx+1)*20
-    const idx = Math.max(0, Math.floor(actualSec / 60) - 1);
-    breakAt = (idx + 1) * 20;
+    // Stage we were in when aborted = floor(actualSec / 60); read the target directly
+    // from the stages array (ground truth) instead of recomputing the VU level.
+    const stageIdx = Math.min(stages.length - 1, Math.floor(actualSec / 60));
+    breakAt = stages[stageIdx].target;
   }
 
   const note = aborted
     ? `\n=== STRESS BREAK_AT_VU=${breakAt} (aborted at ${actualSec.toFixed(1)}s of ${expectedDurationSec}s expected) ===\n`
-    : `\n=== STRESS COMPLETED MAX_VU=${MAX_VU} stable. Re-run with MAX_VU=$((MAX_VU * 2)) to find break point. ===\n`;
+    : `\n=== STRESS COMPLETED MAX_VU=${MAX_VU} stable. Re-run with MAX_VU=${MAX_VU * 2} to find break point. ===\n`;
 
   out.stdout = (out.stdout || '') + note;
   return out;
