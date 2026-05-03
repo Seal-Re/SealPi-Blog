@@ -85,5 +85,8 @@
       "prettier --write"
     ]
   },
-  "packageManager": "yarn@3.6.1"
+  "packageManager": "yarn@3.6.1",
+  "overrides": {
+    "protobufjs": "^7.5.5"
+  }
 }
