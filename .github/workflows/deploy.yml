@@ -3,6 +3,12 @@ name: deploy
 on:
   push:
     branches: [main]
+    # Skip deploy for documentation-only commits (no built artifact change).
+    # If a commit touches both code and docs the deploy still runs.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
   workflow_dispatch:
 
 # Prevent overlapping deploys to the same environment.
@@ -55,9 +61,14 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.BACKEND_IMAGE }}
+          # Only immutable per-commit tags. NEVER tag :latest — see
+          # docker-compose.prod.yml comments and 2026-05-02 incident memo.
           tags: |
-            type=raw,value=latest
             type=sha,format=short
+
+      - name: Compute short SHA
+        id: sha
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push backend image
         uses: docker/build-push-action@v5
@@ -70,6 +81,21 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=backend
           cache-to: type=gha,scope=backend,mode=max
+
+      - name: Trivy CVE scan (backend)
+        # Fail the build on CRITICAL or HIGH OS-package CVEs. Image was just
+        # pushed; we scan the registry tag we'll deploy from.
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.BACKEND_IMAGE }}:sha-${{ steps.sha.outputs.short }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          format: 'table'
+        env:
+          # Avoid trivy DB rate limits on Docker Hub
+          TRIVY_DB_REPOSITORY: 'public.ecr.aws/aquasecurity/trivy-db'
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -96,9 +122,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}
+          # Only immutable per-commit tags — see backend job + 2026-05-02 incident.
           tags: |
-            type=raw,value=latest
             type=sha,format=short
+
+      - name: Compute short SHA
+        id: sha
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push frontend image
         uses: docker/build-push-action@v5
@@ -115,6 +145,18 @@ jobs:
             MINIO_PUBLIC_HOSTNAME=blog.sealpi.cn
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,scope=frontend,mode=max
+
+      - name: Trivy CVE scan (frontend)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.FRONTEND_IMAGE }}:sha-${{ steps.sha.outputs.short }}
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          format: 'table'
+        env:
+          TRIVY_DB_REPOSITORY: 'public.ecr.aws/aquasecurity/trivy-db'
 
   deploy:
     needs: [build-backend, build-frontend]
