@@ -43,7 +43,15 @@ Reports: `http-load/k6/results/<profile>-<timestamp>.{json,html}`.
 
 ## §2 — autocannon (sustained throughput)
 
-(Filled by Task 5.)
+```powershell
+cd http-load/autocannon
+npm install         # first time only
+pwsh scripts/run-all.ps1 -Connections 50 -Duration 30
+```
+
+Outputs: `http-load/autocannon/results/{articles,feed,tags}-<timestamp>.json`.
+
+Console line per scenario: `req/s p50=… p99=… errors=… non2xx=…`.
 
 ## §3 — JUnit (backend unit tests)
 

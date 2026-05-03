@@ -1,0 +1,14 @@
+{
+  "name": "sealpi-autocannon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench:articles": "node scenarios/articles.js",
+    "bench:feed": "node scenarios/feed.js",
+    "bench:tags": "node scenarios/tags.js"
+  },
+  "dependencies": {
+    "autocannon": "^7.15.0"
+  }
+}
