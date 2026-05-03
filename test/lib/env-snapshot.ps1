@@ -16,7 +16,7 @@ $agent = @{
 $server = @{
     Uname  = (Invoke-SealpiSsh -Command 'uname -a')
     Docker = (Invoke-SealpiSsh -Command 'docker --version')
-    Java   = (Invoke-SealpiSsh -Command 'docker exec sealpi-blog java -version 2>&1 | head -n1')
+    Java   = (Invoke-SealpiSsh -Command 'docker exec sealpi-blog-start java -version 2>&1 | head -n1')
     Uptime = (Invoke-SealpiSsh -Command 'uptime')
 }
 
