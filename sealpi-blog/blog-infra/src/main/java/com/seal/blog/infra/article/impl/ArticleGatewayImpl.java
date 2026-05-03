@@ -146,6 +146,23 @@ public class ArticleGatewayImpl implements ArticleGateway {
         }
 
         LambdaQueryWrapper<ArticlePO> queryWrapper = new LambdaQueryWrapper<>();
+        // Perf: exclude LONGTEXT columns from list SELECT — list consumers do not
+        // need contentJson / draftJson / bodyMd / draftBodyMd, and pulling them
+        // for every paginated row dominates wire + buffer cost. Detail endpoints
+        // (findById / findBySlug) still SELECT * so their VOs stay complete.
+        queryWrapper.select(
+                ArticlePO::getArticleId,
+                ArticlePO::getTitle,
+                ArticlePO::getDate,
+                ArticlePO::getLastmod,
+                ArticlePO::getSummary,
+                ArticlePO::getUrl,
+                ArticlePO::getCoverImageUrl,
+                ArticlePO::getCoverCaption,
+                ArticlePO::getViewCount,
+                ArticlePO::getDraft,
+                ArticlePO::getCount
+        );
         String keyword = articlePageQry.resolveKeyword();
         Integer draft = articlePageQry.resolveDraft();
         if(keyword != null && !keyword.isBlank()){
