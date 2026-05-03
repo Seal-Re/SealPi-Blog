@@ -62,10 +62,12 @@ services:
       mc anonymous set public local/blog-assets"
 
   blog-start:
-    image: ghcr.io/seal-re/sealpi-blog-backend:latest
+    # Tag pinned to ${BACKEND_TAG} (e.g. sha-abc1234) injected by deploy.yml.
+    # Hard fail if unset — `latest` is mutable and was used in the prior GHCR
+    # hijack to push a backdoored image. Always pin to immutable per-commit tags.
+    image: ghcr.io/seal-re/sealpi-blog-backend:${BACKEND_TAG:?BACKEND_TAG required (e.g. sha-abc1234)}
     container_name: sealpi-blog-start
     restart: unless-stopped
-    pull_policy: always
     depends_on:
       mysql:
         condition: service_healthy
@@ -92,10 +94,10 @@ services:
       - "127.0.0.1:13310:8080"
 
   frontend:
-    image: ghcr.io/seal-re/sealpi-blog-frontend:latest
+    # See blog-start image comment for rationale.
+    image: ghcr.io/seal-re/sealpi-blog-frontend:${FRONTEND_TAG:?FRONTEND_TAG required (e.g. sha-abc1234)}
     container_name: sealpi-frontend
     restart: unless-stopped
-    pull_policy: always
     depends_on:
       - blog-start
     environment:

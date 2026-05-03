@@ -133,18 +133,37 @@ jobs:
           target: "/opt/sealpi-blog"
           overwrite: true
 
+      - name: Compute pinned image tag
+        id: tag
+        # docker/metadata-action's `type=sha,format=short` produces sha-<7chars>.
+        # We replicate it here so the deploy step refers to the exact same tag.
+        run: |
+          short="${GITHUB_SHA:0:7}"
+          echo "image_tag=sha-${short}" >> "$GITHUB_OUTPUT"
+
       - name: SSH deploy (pull + up)
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          # Pin image tags to this commit's short SHA. docker-compose.prod.yml
+          # references ${BACKEND_TAG} / ${FRONTEND_TAG} with `:?` modifier so
+          # a missing var fails fast instead of silently using `:latest`.
+          # Defense-in-depth against GHCR tag-squatting attacks (prior incident
+          # used :latest to push backdoored image).
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           port: 22
-          # Pull fresh images from ghcr.io, restart containers, prune dangling.
+          envs: IMAGE_TAG
+          # Pull pinned images from ghcr.io, restart containers, prune dangling.
           # .env.backend.local lives on server (Mode A), CI never writes secrets.
           script: |
             set -euo pipefail
             cd /opt/sealpi-blog
+            export BACKEND_TAG="$IMAGE_TAG"
+            export FRONTEND_TAG="$IMAGE_TAG"
+            echo "Deploying tag: $IMAGE_TAG"
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose -f docker-compose.prod.yml --env-file .env.backend.local pull
             docker compose -f docker-compose.prod.yml --env-file .env.backend.local up -d --remove-orphans
