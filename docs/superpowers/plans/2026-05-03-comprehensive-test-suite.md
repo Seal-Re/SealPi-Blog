@@ -1444,13 +1444,14 @@ $ts = (Get-Date -Format 'yyyy-MM-ddTHH-mm-ss')
 $out = Join-Path $resultsDir "jstat-$ts.txt"
 
 # Locate the JVM pid inside the backend container.
-$pid = Invoke-SealpiSsh -Command "docker exec $Container sh -c 'pgrep -f java | head -n1'"
-if (-not $pid) { throw "Could not locate Java pid inside container '$Container'." }
-$pid = $pid.Trim()
-Write-Host "Java pid in container: $pid"
+# NOTE: $pid is a read-only PowerShell automatic variable — use $javaPid.
+$javaPid = Invoke-SealpiSsh -Command "docker exec $Container sh -c 'pgrep -f java | head -n1'"
+if (-not $javaPid) { throw "Could not locate Java pid inside container '$Container'." }
+$javaPid = $javaPid.Trim()
+Write-Host "Java pid in container: $javaPid"
 
 # Sample with jstat -gcutil from inside the container.
-$cmd = "docker exec $Container jstat -gcutil $pid ${IntervalSec}000 $Samples"
+$cmd = "docker exec $Container jstat -gcutil $javaPid ${IntervalSec}000 $Samples"
 $samples = Invoke-SealpiSsh -Command $cmd
 $samples | Out-File -FilePath $out -Encoding utf8
 Write-Host "Wrote $out"
