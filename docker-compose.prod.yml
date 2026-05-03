@@ -68,6 +68,15 @@ services:
     image: ghcr.io/seal-re/sealpi-blog-backend:${BACKEND_TAG:?BACKEND_TAG required (e.g. sha-abc1234)}
     container_name: sealpi-blog-start
     restart: unless-stopped
+    # Same hardening as frontend (defense-in-depth post 2026-05-02 incident).
+    # Spring Boot binds 8080 (non-privileged) so CAP_NET_BIND_SERVICE not needed.
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=128m,mode=1777,noexec,nosuid,nodev
+      - /var/tmp:size=32m,mode=1777,noexec,nosuid,nodev
     depends_on:
       mysql:
         condition: service_healthy
@@ -98,6 +107,18 @@ services:
     image: ghcr.io/seal-re/sealpi-blog-frontend:${FRONTEND_TAG:?FRONTEND_TAG required (e.g. sha-abc1234)}
     container_name: sealpi-frontend
     restart: unless-stopped
+    # Hardening (post 2026-05-02 incident: Next.js RCE → in-container miner +
+    # reverse shell). Defense-in-depth even after Next.js was patched:
+    #   - cap_drop ALL: Next.js needs no Linux capabilities (no raw socket, mount, etc.)
+    #   - no-new-privileges: blocks setuid escalation if attacker lands a binary
+    #   - tmpfs noexec on /tmp + /var/tmp: ELF miner cannot execute from there
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64m,mode=1777,noexec,nosuid,nodev
+      - /var/tmp:size=16m,mode=1777,noexec,nosuid,nodev
     depends_on:
       - blog-start
     environment:

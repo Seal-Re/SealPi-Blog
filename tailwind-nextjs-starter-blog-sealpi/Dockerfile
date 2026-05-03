@@ -8,8 +8,11 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install dependencies first (separate layer, cache-friendly)
+# `npm install --legacy-peer-deps` instead of `npm ci --frozen-lockfile` because
+# the committed lockfile may carry platform-specific entries (e.g. @parcel/watcher-win32-*)
+# that fail strict ci on Linux. peer-deps relax handles next + next-auth + react 19 mix.
 COPY package.json package-lock.json ./
-RUN npm ci --frozen-lockfile
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy source
 COPY . .
