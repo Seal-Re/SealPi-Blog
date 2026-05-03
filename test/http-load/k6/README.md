@@ -14,17 +14,17 @@ See design: `docs/superpowers/specs/2026-05-03-k6-load-testing-design.md`.
 
 ```powershell
 # 1. Build the data pool (one time, or after content changes)
-pwsh test/k6/scripts/bootstrap.ps1
+pwsh test/http-load/k6/scripts/bootstrap.ps1
 
 # 2. Run the four short profiles back to back
-pwsh test/k6/scripts/run-all.ps1
+pwsh test/http-load/k6/scripts/run-all.ps1
 
 # 3. Run a single profile
-pwsh test/k6/scripts/run-all.ps1 -Profiles smoke
-pwsh test/k6/scripts/run-all.ps1 -Profiles load,stress
+pwsh test/http-load/k6/scripts/run-all.ps1 -Profiles smoke
+pwsh test/http-load/k6/scripts/run-all.ps1 -Profiles load,stress
 ```
 
-Reports land in `test/k6/results/<scenario>-<timestamp>.{json,html}`.
+Reports land in `test/http-load/k6/results/<scenario>-<timestamp>.{json,html}`.
 
 ## Environment Variables
 
@@ -52,7 +52,7 @@ Override via launcher params (`-BaseUrl`, `-MaxVu`) — both launchers pass thes
 `stress.js` aborts as soon as `http_req_failed > 1%` **or** `p99 > 1000ms` for 30s. The summary prints `BREAK_AT_VU=<N>` (the VU level of the stage in which the breach occurred). If the run completes the full ramp without aborting, the summary suggests doubling `MAX_VU`:
 
 ```powershell
-pwsh test/k6/scripts/run-all.ps1 -Profiles stress -MaxVu 500
+pwsh test/http-load/k6/scripts/run-all.ps1 -Profiles stress -MaxVu 500
 ```
 
 ## Soak: pre-flight checklist (REQUIRED)
@@ -72,17 +72,17 @@ k6 only measures client-side latency. To diagnose JVM memory leaks or host satur
    This launches `jstat`, `top`, and `vmstat` in the background and waits.
 5. From a separate terminal on your workstation:
    ```powershell
-   pwsh test/k6/scripts/run-all.ps1 -OnlySoak
+   pwsh test/http-load/k6/scripts/run-all.ps1 -OnlySoak
    ```
 6. After both finish, pull the VM logs:
    ```powershell
-   scp -r vm:logs test/k6/results/soak-monitor-<timestamp>/
+   scp -r vm:logs test/http-load/k6/results/soak-monitor-<timestamp>/
    ```
 
 ## Layout
 
 ```
-test/k6/
+test/http-load/k6/
 ├── lib/             # config, pool loader, thresholds, weighted dispatcher, summary
 ├── scenarios/       # one file per profile + bootstrap
 ├── scripts/         # PowerShell launchers + Linux VM monitor

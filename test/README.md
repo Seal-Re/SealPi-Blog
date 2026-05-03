@@ -24,7 +24,22 @@ The blog backend at `https://blog.sealpi.cn` must be reachable: `curl -I https:/
 
 ## §1 — k6 (HTTP-layer load)
 
-(Filled by Task 2.)
+Five profiles in `http-load/k6/scenarios/`. Pool data + reports already produced by an earlier agent run — re-running overwrites them.
+
+```powershell
+cd http-load/k6
+
+# Bootstrap pool (only first time, or after backend article list changes)
+pwsh scripts/bootstrap.ps1
+
+# Run all four short profiles
+pwsh scripts/run-all.ps1
+
+# Single profile
+pwsh scripts/run-all.ps1 -Profiles smoke
+```
+
+Reports: `http-load/k6/results/<profile>-<timestamp>.{json,html}`.
 
 ## §2 — autocannon (sustained throughput)
 

@@ -55,4 +55,4 @@ finally {
     Pop-Location
 }
 
-Write-Host 'All requested profiles finished. Reports in test/k6/results/.'
+Write-Host 'All requested profiles finished. Reports in test/http-load/k6/results/.'
