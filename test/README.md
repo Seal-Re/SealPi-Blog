@@ -94,7 +94,14 @@ pwsh run.ps1     # ~3 min: prepare + 60s OLTP + cleanup + teardown
 
 ## §7 — mc speedtest (MinIO throughput)  *(SKIPPED in self-test)*
 
-(Filled by Task 9.)
+> **Skipped because**: spins up a single-node local MinIO (ports 29000/29001) for an isolated object-store capability baseline. The agent's run is captured in `RESULT.md §7`.
+
+If you want to run it yourself:
+
+```powershell
+cd infra-bench/mc-speedtest
+pwsh run.ps1     # ~1-2 min: speedtest (or PUT/GET fallback) + teardown
+```
 
 ## §8 — Lighthouse CI (frontend quality)
 
